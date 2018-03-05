@@ -3,17 +3,24 @@
 //
 #include <cstdio>
 #include <cstring>
+#include <csignal>
 #include <sys/types.h>
-#include <pthread.h>
+#include <thread>
 #include <unistd.h>
 #include "common_socket.h"
 #include "server.h"
 #include "message_management.h"
 #include <iostream>
 
+void int_handler(int x)
+{
+    exit(0);
+}
+
 void startServer(int port){
     int sock = do_socket();
     int csock;
+    signal(SIGINT || SIGKILL, int_handler);
 
     if (sock < 0) {
         perror("socket");
@@ -30,20 +37,15 @@ void startServer(int port){
     while( true )
     {
         csock = do_accept(sock);
-
-        if( pthread_create( &thread_id , NULL ,  connection_handler , (void*) &csock) < 0)
-        {
-            perror("could not create thread");
-            close(csock);
-        }
-
+        std::thread t( connection_handler, csock);
+        t.detach();
     }
 }
 
 
-void * connection_handler(void *csock)
+void * connection_handler(int csock)
 {
-    int sock = *(int*)csock;
+    int sock = csock;
     int read_size;
     char client_message[1024] = "";
 

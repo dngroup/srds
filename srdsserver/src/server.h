@@ -7,7 +7,7 @@
 
 void startServer(int port);
 
-void* connection_handler(void* csock);
+void* connection_handler(int csock);
 
 void ocall_sendanswer(int csock, char * msg);
 #endif //SRDSSERVER_SERVER_H
