@@ -49,13 +49,10 @@ void * connection_handler(int csock)
     int read_size;
     char client_message[1024] = "";
 
-
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 )
     {
 
-        //Send the message back to client
-        //do_send(sock , client_message);
         ecall_handlemessage(sock, client_message);
 
         //clear the message buffer
@@ -64,13 +61,13 @@ void * connection_handler(int csock)
 
     if(read_size == 0)
     {
-        printf("Client disconnected");
+        printf("Client disconnected\n");
         fflush(stdout);
         close(sock);
     }
     else if(read_size == -1)
     {
-        perror("recv failed");
+        perror("recv failed\n");
         close(sock);
     }
 

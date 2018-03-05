@@ -6,6 +6,11 @@
 #include <cstring>
 #include "http_header.h"
 
+int getPosEndOfHeader(char * msg) {
+    std::string allmsg(msg);
+    return allmsg.find("\r\n\r\n");
+}
+
 std::map<std::string, std::string> parse_headers(char * msg) {
     int endPos = 0;
     int pos = 0;
@@ -49,4 +54,15 @@ std::string copystring(std::string string) {
     std::strcpy(y, string.c_str());
     std::string string2(y);
     return string2;
+}
+
+char* createNewHeader(std::string header, std::string address) {
+    int posHost = header.find("Host: ") + 6;
+    int posEnd = header.find("\r\n", posHost);
+
+    header.replace(posHost, posEnd-posHost, address);
+
+    char *y = new char[header.length() + 1]; // or
+    std::strcpy(y, header.c_str());
+    return y;
 }

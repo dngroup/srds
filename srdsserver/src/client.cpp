@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <cstring>
+#include <unistd.h>
 #include "common_socket.h"
 
 int ocall_startClient(char * address, int port) {
@@ -36,4 +38,13 @@ int ocall_startClient(char * address, int port) {
     }
 
     return sock;
+}
+
+char * ocall_sendToClient(int sock, char * request) {
+    char * buffer = (char*)malloc(sizeof(char) * 1024);
+    buffer = (char*)memset(buffer, 0, 1024);
+    do_send(sock, request);
+    do_recv(sock, buffer);
+    close(sock);
+    return buffer;
 }
