@@ -6,10 +6,21 @@
 #include <cstring>
 #include "http_header.h"
 
+
+int isHttp(char* msg) {
+    std::string beginning(msg, 0, 4);
+    if (beginning == "GET " || beginning == "POST" || beginning == "PUT " || beginning == "DELETE" || beginning == "HTTP") {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 int getPosEndOfHeader(char * msg) {
     std::string allmsg(msg);
     return allmsg.find("\r\n\r\n");
 }
+
 
 std::map<std::string, std::string> parse_headers(char * msg) {
     int endPos = 0;

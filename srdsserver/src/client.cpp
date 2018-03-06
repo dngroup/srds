@@ -45,6 +45,12 @@ char * ocall_sendToClient(int sock, char * request) {
     buffer = (char*)memset(buffer, 0, 1024);
     do_send(sock, request);
     do_recv(sock, buffer);
-    close(sock);
+    return buffer;
+}
+
+char * ocall_receiveFromClient(int sock) {
+    char * buffer = (char*)malloc(sizeof(char) * 1024);
+    buffer = (char*)memset(buffer, 0, 1024);
+    do_recv(sock, buffer);
     return buffer;
 }
