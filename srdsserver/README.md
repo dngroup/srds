@@ -9,6 +9,21 @@ HTTP server in C++ using sockets
 
 ### Build
 
+First time:
+
 ```
-cmake --build $(pwd)/cmake-build-debug --target srdsserver -- -j 4
+./init.sh
+```
+Then: 
+
+```
+cd build
+make
+```
+
+### Run
+
+```
+./build/srdsserver <port>
+
 ```
