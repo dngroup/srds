@@ -72,7 +72,7 @@ int do_send(int sock, char * buffer) {
 
 int do_recv(int sock, char * buffer) {
     ssize_t n = 0;
-    if((n = recv(sock, buffer, 2048, 0)) < 0)
+    if((n = recv(sock, buffer, 1023, 0)) < 0)
     {
         std::cout << "Error while receiving" << std::endl;
     }

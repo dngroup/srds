@@ -11,6 +11,8 @@
 #include "server.h"
 #include "message_management.h"
 #include <iostream>
+#include <list>
+#include <sys/socket.h>
 
 void int_handler(int x)
 {
@@ -20,7 +22,14 @@ void int_handler(int x)
 void startServer(int port){
     int sock = do_socket();
     int csock;
+    std::list<int> client_sockets;
+    int enable = 1;
+
     signal(SIGINT || SIGKILL, int_handler);
+
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+        perror("setsockopt(SO_REUSEADDR) failed");
+    }
 
     if (sock < 0) {
         perror("socket");
@@ -37,6 +46,7 @@ void startServer(int port){
     while( true )
     {
         csock = do_accept(sock);
+        client_sockets.push_back(csock);
         std::thread t( connection_handler, csock);
         t.detach();
     }

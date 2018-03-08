@@ -9,7 +9,7 @@
 
 int isHttp(char* msg) {
     std::string beginning(msg, 0, 4);
-    if (beginning == "GET " || beginning == "POST" || beginning == "PUT " || beginning == "DELETE" || beginning == "HTTP") {
+    if (beginning == "GET " || beginning == "POST" || beginning == "PUT " || beginning == "DELE" || beginning == "HTTP") {
         return 0;
     } else {
         return 1;

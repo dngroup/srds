@@ -9,4 +9,6 @@ int ocall_startClient(char * address, int port);
 
 char * ocall_sendToClient(int sock, char * request);
 
+char * ocall_receiveFromClient(int sock);
+
 #endif //SRDSSERVER_CLIENT_H
