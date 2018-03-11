@@ -72,6 +72,7 @@ char* createNewHeader(std::string header, std::string address) {
     int posEnd = header.find("\r\n", posHost);
 
     header.replace(posHost, posEnd-posHost, address);
+    header.insert(posEnd + 3, "Connection: Close\r\n");
 
     char *y = new char[header.length() + 1]; // or
     std::strcpy(y, header.c_str());

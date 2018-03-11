@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <cstring>
 
 int do_socket() {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -62,7 +63,7 @@ int do_connect(int sock, struct sockaddr_in * sin) {
 
 int do_send(int sock, char * buffer) {
     size_t n = 0;
-    if((n = send(sock, buffer, 2048, 0)) < 0)
+    if((n = send(sock, buffer, 1023, 0)) < 0)
     {
        std::cout << "Can not send to server" << std::endl;
     }
@@ -80,3 +81,4 @@ int do_recv(int sock, char * buffer) {
     buffer[n] = '\0';
     return n;
 }
+

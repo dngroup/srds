@@ -40,6 +40,7 @@ int ocall_startClient(char * address, int port) {
     return sock;
 }
 
+
 char * ocall_sendToClient(int sock, char * request) {
     char * buffer = (char*)malloc(sizeof(char) * 1024);
     buffer = (char*)memset(buffer, 0, 1024);

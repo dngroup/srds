@@ -8,5 +8,6 @@
 void ecall_handlemessage(int csock, char * msg);
 void handleTracker(int csock, char * msg);
 void handleProxy(int csock, char * msg);
-int testEndOfMessageForTransferEncoding(char * msg);
+char* substr(char* arr, int begin, int len);
+int testEndTransferEncoding(char* msg);
 #endif //SRDSSERVER_MESSAGE_MANAGEMENT_H

@@ -19,8 +19,8 @@ void ecall_handlemessage(int csock, char * msg){
 }
 
 void handleProxy(int csock, char * msg) {
-    char target[1024] = "simondasilva.fr";
-    int targetPort = 80;
+    char target[1024] = "localhost";
+    int targetPort = 8080;
 
     char * answer;
     int client_sock = 0;
@@ -42,14 +42,14 @@ void handleProxy(int csock, char * msg) {
         } else if (headersAnswer.count("Transfer-Encoding")>0) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
             //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
-            /*testIsEnd = testEndOfMessageForTransferEncoding(finalanswer);
-            while ( testIsEnd == 1) {
+
+            while (testEndTransferEncoding(finalanswer) != 0) {
                 ocall_sendanswer(csock, finalanswer);
-                delete[] finalanswer;
+                free(finalanswer);
                 finalanswer = ocall_receiveFromClient(client_sock);
-                testIsEnd = testEndOfMessageForTransferEncoding(finalanswer);
             }
-            ocall_sendanswer(csock, finalanswer);*/
+            ocall_sendanswer(csock, finalanswer);
+
         } else {
             ocall_sendanswer(csock, finalanswer);
         }
@@ -65,15 +65,27 @@ void handleTracker(int csock, char * msg) {
     ocall_sendanswer(csock, answer);
 }
 
+char* substr(char* arr, int begin, int len)
+{
+    char* res = new char[len];
+    for (int i = 0; i < len; i++)
+        res[i] = *(arr + begin + i);
+    res[len] = 0;
+    return res;
+}
 
-int testEndOfMessageForTransferEncoding(char * msg) {
-    if (strlen(msg)<6) {
+int testEndTransferEncoding(char* msg) {
+    if (strlen(msg)<5) {
         return 1;
     }
-    std::string end(msg, strlen(msg)-6,5);
-    if (end == "0\r\n\r\n") {
+
+    char* test = substr(msg,strlen(msg)-5, 5);
+
+    if (strcmp(test, "0\r\n\r\n")==0) {
         return 0;
     } else {
         return 1;
     }
+
+
 }

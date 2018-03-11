@@ -67,6 +67,10 @@ void * connection_handler(int csock)
 
         //clear the message buffer
         memset(client_message, 0, 1024);
+        printf("Bye\n");
+        fflush(stdout);
+        close(sock);
+        break;
     }
 
     if(read_size == 0)
