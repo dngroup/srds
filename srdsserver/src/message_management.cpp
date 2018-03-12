@@ -19,8 +19,8 @@ void ecall_handlemessage(int csock, char * msg){
 }
 
 void handleProxy(int csock, char * msg) {
-    char target[1024] = "localhost";
-    int targetPort = 8080;
+    char target[1024] = "msstream.net";
+    int targetPort = 8023;
 
     char * answer;
     int client_sock = 0;
