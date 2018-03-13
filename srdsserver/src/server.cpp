@@ -63,7 +63,7 @@ void * connection_handler(int csock)
     while( (read_size = do_recv(sock , client_message)) > 0 )
     {
 
-        ecall_handlemessage(sock, client_message);
+        ecall_handlemessage(sock, client_message, read_size);
 
         //clear the message buffer
         memset(client_message, 0, 1024);
@@ -88,6 +88,6 @@ void * connection_handler(int csock)
     return 0;
 }
 
-void ocall_sendanswer(int csock, char * msg) {
-    do_send(csock , msg);
+void ocall_sendanswer(int csock, char * msg, int size) {
+    do_send(csock , msg, size);
 }

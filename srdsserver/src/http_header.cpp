@@ -67,14 +67,15 @@ std::string copystring(std::string string) {
     return string2;
 }
 
-char* createNewHeader(std::string header, std::string address) {
+char* createNewHeader(char* msg, std::string address, int size) {
+    std::string header(msg, 0, size);
     int posHost = header.find("Host: ") + 6;
     int posEnd = header.find("\r\n", posHost);
 
     header.replace(posHost, posEnd-posHost, address);
     header.insert(posEnd + 3, "Connection: Close\r\n");
 
-    char *y = new char[header.length() + 1]; // or
+    char *y = new char[header.length() + 1];
     std::strcpy(y, header.c_str());
     return y;
 }

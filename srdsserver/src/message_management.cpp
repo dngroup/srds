@@ -8,17 +8,17 @@
 #include "server.h"
 #include "client.h"
 
-void ecall_handlemessage(int csock, char * msg){
+void ecall_handlemessage(int csock, char * msg, int size){
 
     int http = isHttp(msg);
 
     if (http == 0) {
-        handleProxy(csock, msg);
+        handleProxy(csock, msg, size);
     }
 
 }
 
-void handleProxy(int csock, char * msg) {
+void handleProxy(int csock, char * msg, int msgsize) {
     char target[1024] = "msstream.net";
     int targetPort = 8023;
 
@@ -33,8 +33,8 @@ void handleProxy(int csock, char * msg) {
 
 
     client_sock = ocall_startClient(target, targetPort);
-    answer = createNewHeader(msg,target);
-    answerFromClient = ocall_sendToClient(client_sock, answer);
+    answer = createNewHeader(msg, target, msgsize);
+    answerFromClient = ocall_sendToClient(client_sock, answer, (int)strlen(answer));
     sizeAnswerFromClient = extractSize(answerFromClient);
     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
     free(answerFromClient);
@@ -49,7 +49,7 @@ void handleProxy(int csock, char * msg) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
             //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 
-            while (testEndTransferEncoding(finalanswer) != 0) {
+            while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
                 answerFromClient = ocall_receiveFromClient(client_sock);

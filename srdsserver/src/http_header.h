@@ -19,6 +19,6 @@ std::string postAnswerHeader();
 
 std::string copystring(std::string string);
 
-char* createNewHeader(std::string header, std::string address);
+char* createNewHeader(char * msg, std::string address, int msgsize);
 
 #endif //SRDSSERVER_HTTP_HEADER_H
