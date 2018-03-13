@@ -7,7 +7,7 @@
 
 int ocall_startClient(char * address, int port);
 
-char * ocall_sendToClient(int sock, char * request);
+char * ocall_sendToClient(int sock, char * request, int size);
 
 char * ocall_receiveFromClient(int sock);
 

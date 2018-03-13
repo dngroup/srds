@@ -61,9 +61,9 @@ int do_connect(int sock, struct sockaddr_in * sin) {
     return connect(sock, (struct sockaddr*)sin, sizeof(struct sockaddr));
 }
 
-int do_send(int sock, char * buffer) {
+int do_send(int sock, char * buffer, int size) {
     size_t n = 0;
-    if((n = send(sock, buffer, 1023, 0)) < 0)
+    if((n = send(sock, buffer, size, 0)) < 0)
     {
        std::cout << "Can not send to server" << std::endl;
     }
@@ -73,12 +73,11 @@ int do_send(int sock, char * buffer) {
 
 int do_recv(int sock, char * buffer) {
     ssize_t n = 0;
-    if((n = recv(sock, buffer, 1023, 0)) < 0)
+    if((n = recv(sock, buffer, 1024, MSG_WAITALL)) < 0)
     {
         std::cout << "Error while receiving" << std::endl;
     }
 
-    buffer[n] = '\0';
     return n;
 }
 

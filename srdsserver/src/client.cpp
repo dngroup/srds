@@ -41,17 +41,39 @@ int ocall_startClient(char * address, int port) {
 }
 
 
-char * ocall_sendToClient(int sock, char * request) {
+char * ocall_sendToClient(int sock, char * request, int size) {
+    int sizeAnswer = 0;
+    int sizeIntinChar = 4;
+    char * finalbuffer = (char*)malloc(sizeof(char) * (1024 + sizeIntinChar));
+    finalbuffer = (char*)memset(finalbuffer, '\0', (1024 + sizeIntinChar));
     char * buffer = (char*)malloc(sizeof(char) * 1024);
-    buffer = (char*)memset(buffer, 0, 1024);
-    do_send(sock, request);
-    do_recv(sock, buffer);
-    return buffer;
+    buffer = (char*)memset(buffer, '\0', 1024);
+    do_send(sock, request, size);
+    sizeAnswer = do_recv(sock, buffer);
+    finalbuffer[0] = (sizeAnswer >> 24) & 0xFF;
+    finalbuffer[1] = (sizeAnswer >> 16) & 0xFF;
+    finalbuffer[2] = (sizeAnswer >> 8) & 0xFF;
+    finalbuffer[3] = sizeAnswer & 0xFF;
+    for (int i = 0; i < sizeAnswer; i++) {
+        finalbuffer[i + sizeIntinChar] = buffer[i];
+    }
+    return finalbuffer;
 }
 
 char * ocall_receiveFromClient(int sock) {
+    int size = 0;
+    int sizeIntinChar = 4;
+    char * finalbuffer = (char*)malloc(sizeof(char) * (1024 + sizeIntinChar));
+    finalbuffer = (char*)memset(finalbuffer, '\0', (1024 + sizeIntinChar));
     char * buffer = (char*)malloc(sizeof(char) * 1024);
     buffer = (char*)memset(buffer, 0, 1024);
-    do_recv(sock, buffer);
-    return buffer;
+    size = do_recv(sock, buffer);
+    finalbuffer[0] = (size >> 24) & 0xFF;
+    finalbuffer[1] = (size >> 16) & 0xFF;
+    finalbuffer[2] = (size >> 8) & 0xFF;
+    finalbuffer[3] = size & 0xFF;
+    for (int i = 0; i < size; i++) {
+        finalbuffer[i + sizeIntinChar] = buffer[i];
+    }
+    return finalbuffer;
 }

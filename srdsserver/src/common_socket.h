@@ -17,7 +17,7 @@ int do_connect(int sock, struct sockaddr_in * sin);
 
 int do_recv(int sock, char * buffer);
 
-int do_send(int sock, char * buffer);
+int do_send(int sock, char * buffer, int size);
 
 
 

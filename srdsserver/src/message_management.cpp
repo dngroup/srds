@@ -25,44 +25,53 @@ void handleProxy(int csock, char * msg) {
     char * answer;
     int client_sock = 0;
     char * finalanswer;
+    char * answerFromClient;
     int httpanswer;
     int testIsEnd = 0;
+    int sizeAnswerFromClient = 0;
     std::map<std::string,std::string> headersAnswer;
 
 
     client_sock = ocall_startClient(target, targetPort);
     answer = createNewHeader(msg,target);
-    finalanswer = ocall_sendToClient(client_sock, answer);
+    answerFromClient = ocall_sendToClient(client_sock, answer);
+    sizeAnswerFromClient = extractSize(answerFromClient);
+    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+    free(answerFromClient);
+
     httpanswer = isHttp(finalanswer);
     if(httpanswer == 0) {
         headersAnswer = parse_headers(finalanswer);
         if (headersAnswer.count("Content-Length")>0) {
             //TODO Content-Length, then read data until the end and close socket
-            ocall_sendanswer(csock, finalanswer);
+            ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
         } else if (headersAnswer.count("Transfer-Encoding")>0) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
             //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 
             while (testEndTransferEncoding(finalanswer) != 0) {
-                ocall_sendanswer(csock, finalanswer);
+                ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
-                finalanswer = ocall_receiveFromClient(client_sock);
+                answerFromClient = ocall_receiveFromClient(client_sock);
+                sizeAnswerFromClient = extractSize(answerFromClient);
+                finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                free(answerFromClient);
             }
-            ocall_sendanswer(csock, finalanswer);
+            ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 
         } else {
-            ocall_sendanswer(csock, finalanswer);
+            ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
         }
     } else {
-        ocall_sendanswer(csock, finalanswer);
+        ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
     }
 }
 
 void handleTracker(int csock, char * msg) {
-    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 17\r\nContent-Type: application/json\r\nConnection: Closed\r\n\r\n[\"peer1\",\"peer2\"]";
+    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 17\r\nContent-Type: application/json\r\nConnection: Closed\r\n\r\n[\"peer1\",\"peer2\"]\0";
     //char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
 
-    ocall_sendanswer(csock, answer);
+    ocall_sendanswer(csock, answer, strlen(answer));
 }
 
 char* substr(char* arr, int begin, int len)
@@ -74,18 +83,35 @@ char* substr(char* arr, int begin, int len)
     return res;
 }
 
-int testEndTransferEncoding(char* msg) {
-    if (strlen(msg)<5) {
+int testEndTransferEncoding(char* msg, int size) {
+    int sizeOfEndBufferMarker = 5;
+    if (size < sizeOfEndBufferMarker) {
         return 1;
     }
 
-    char* test = substr(msg,strlen(msg)-5, 5);
+    char* test = substr(msg,size-sizeOfEndBufferMarker, sizeOfEndBufferMarker);
 
     if (strcmp(test, "0\r\n\r\n")==0) {
         return 0;
     } else {
         return 1;
     }
+}
 
+int extractSize(char * msg) {
+    int size = (msg[0] << 24) + (msg [1] << 16) + (msg[2] << 8) + msg[3];
+    return size;
+}
+
+char * extractBuffer(char * msg, int size) {
+    int sizeIntinChar = 4;
+    char * buffer = (char *)malloc(sizeof(char) * size);
+    buffer = (char*)memset(buffer, '\0', size);
+
+    for(int i = 0; i< size; i++) {
+        buffer[i] = msg [i + sizeIntinChar];
+    }
+
+    return buffer;
 
 }
