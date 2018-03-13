@@ -99,7 +99,7 @@ int testEndTransferEncoding(char* msg, int size) {
 }
 
 int extractSize(char * msg) {
-    int size = (msg[0] << 24) + (msg [1] << 16) + (msg[2] << 8) + msg[3];
+    int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
     return size;
 }
 
