@@ -29,6 +29,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int httpanswer;
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
+    int totalSizeAnswer = 0;
     std::map<std::string,std::string> headersAnswer;
 
 
@@ -44,6 +45,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
         headersAnswer = parse_headers(finalanswer);
         if (headersAnswer.count("Content-Length")>0) {
             //TODO Content-Length, then read data until the end and close socket
+            totalSizeAnswer += sizeAnswerFromClient - std::stoi(headersAnswer.at("HeaderSize"));
+
+            while (testContentLength(std::stoi(headersAnswer.at("Content-Length")), totalSizeAnswer) != 0) {
+                ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+                free(finalanswer);
+                answerFromClient = ocall_receiveFromClient(client_sock);
+                sizeAnswerFromClient = extractSize(answerFromClient);
+                finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                free(answerFromClient);
+                totalSizeAnswer += sizeAnswerFromClient;
+            }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
         } else if (headersAnswer.count("Transfer-Encoding")>0) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
@@ -92,6 +104,14 @@ int testEndTransferEncoding(char* msg, int size) {
     char* test = substr(msg,size-sizeOfEndBufferMarker, sizeOfEndBufferMarker);
 
     if (strcmp(test, "0\r\n\r\n")==0) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+int testContentLength(int contentLength, int totalSize) {
+    if (totalSize >= contentLength) {
         return 0;
     } else {
         return 1;

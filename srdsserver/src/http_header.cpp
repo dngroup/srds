@@ -5,6 +5,7 @@
 #include <map>
 #include <cstring>
 #include "http_header.h"
+#include <stdlib.h>
 
 
 int isHttp(char* msg) {
@@ -33,6 +34,9 @@ std::map<std::string, std::string> parse_headers(char * msg) {
     std::map<std::string, std::string> headers;
 
     endPos = allmsg.find("\r\n\r\n");
+    std::string sSize1("HeaderSize");
+    std::string sSize2 = std::to_string(endPos + 4);
+    headers[copystring(sSize1)] = copystring(sSize2);
 
     pos = allmsg.find("\r\n");
     firstSpace = allmsg.find(" ");

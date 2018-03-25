@@ -7,9 +7,10 @@
 
 void ecall_handlemessage(int csock, char * msg, int size);
 void handleProxy(int csock, char * msg, int msgsize);
-void handleProxy(int csock, char * msg);
+void handleTracker(int csock, char * msg);
 char* substr(char * arr, int begin, int len);
 int testEndTransferEncoding(char * msg, int size);
+int testContentLength(int contentLength, int totalSize);
 int extractSize(char * msg);
 char * extractBuffer(char * msg, int size);
 
