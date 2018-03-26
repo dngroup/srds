@@ -1,5 +1,4 @@
-// CryptoTestingApp.cpp : Defines the entry point for the console application.
-//
+// SGXSRDSServer.cpp : Defines the entry point for the console application.
 
 #include <string.h>
 #include <time.h>
