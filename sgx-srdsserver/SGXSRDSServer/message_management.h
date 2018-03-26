@@ -12,6 +12,6 @@ char* substr(char * arr, int begin, int len);
 int testEndTransferEncoding(char * msg, int size);
 int testContentLength(int contentLength, int totalSize);
 int extractSize(char * msg);
-char * extractBuffer(char * msg, int size);
+char* extractBuffer(char * msg, int size);
 
 #endif //SRDSSERVER_MESSAGE_MANAGEMENT_H
