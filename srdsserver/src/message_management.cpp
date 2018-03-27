@@ -57,11 +57,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 totalSizeAnswer += sizeAnswerFromClient;
             }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+            free(finalanswer);
         } else if (headersAnswer.count("Transfer-Encoding")>0) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
             //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 
-            while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
+            while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
                 answerFromClient = ocall_receiveFromClient(client_sock);
@@ -70,12 +71,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 free(answerFromClient);
             }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+            free(finalanswer);
 
         } else {
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+            free(finalanswer);
         }
     } else {
         ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+        free(finalanswer);
     }
 }
 
