@@ -15,8 +15,6 @@ int do_socket() {
     return sock;
 }
 
-
-
 void do_bind(int sock, int port) {
     struct sockaddr_in sin = { 0 };
 

@@ -5,10 +5,10 @@
 #ifndef SRDSSERVER_CLIENT_H
 #define SRDSSERVER_CLIENT_H
 
-int ocall_startClient(char * address, int port);
+void ocall_startClient(int * csock, char * address, int port);
 
-char * ocall_sendToClient(int sock, char * request, int size);
+void ocall_sendToClient(int sock, char * request, int size, char * finalbuffer);
 
-char * ocall_receiveFromClient(int sock);
+void ocall_receiveFromClient(int sock, char * finalbuffer);
 
 #endif //SRDSSERVER_CLIENT_H

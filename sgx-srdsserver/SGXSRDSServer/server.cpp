@@ -9,10 +9,13 @@
 #include <unistd.h>
 #include "common_socket.h"
 #include "server.h"
-#include "message_management.h"
 #include <iostream>
 #include <list>
 #include <sys/socket.h>
+
+#include "SGXSRDSEnclave_u.h"
+
+extern sgx_enclave_id_t global_eid;
 
 void int_handler(int x)
 {
@@ -20,6 +23,7 @@ void int_handler(int x)
 }
 
 void startServer(int port){
+    
     int sock = do_socket();
     int csock;
     std::list<int> client_sockets;
@@ -63,7 +67,7 @@ void * connection_handler(int csock)
     while( (read_size = do_recv(sock , client_message)) > 0 )
     {
 
-        ecall_handlemessage(sock, client_message, read_size);
+        ecall_handlemessage(global_eid, sock, client_message, read_size);
 
         //clear the message buffer
         memset(client_message, 0, 1024);

@@ -23,6 +23,17 @@
 
 #define ENCLAVE_FILE "SGXSRDSEnclave.signed.so"
 
+sgx_enclave_id_t global_eid = 0;
+
+void ocall_int_to_string(int a, char* chr) {
+	std::string str = std::to_string(a);
+	chr = strdup(str.c_str());
+}
+
+int ocall_string_to_int(char* a, int size) {
+	return atoi(a);
+}
+
 void emit_debug(const char *buf)
 
 {
@@ -34,12 +45,11 @@ int main(int argc, char ** argv) {
 	printf("Starting app...\n");
 
 	/* Setup enclave */
-	sgx_enclave_id_t eid;
 	sgx_status_t ret;
 	sgx_launch_token_t token = { 0 };
 	int token_updated = 0;
 
-	ret = sgx_create_enclave(ENCLAVE_FILE, SGX_DEBUG_FLAG, &token, &token_updated, &eid, NULL);
+	ret = sgx_create_enclave(ENCLAVE_FILE, SGX_DEBUG_FLAG, &token, &token_updated, &global_eid, NULL);
 	if (ret != SGX_SUCCESS)
 	{
 		printf("sgx_create_enclave failed: %#x\n", ret);

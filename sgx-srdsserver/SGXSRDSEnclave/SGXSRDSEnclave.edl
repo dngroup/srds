@@ -1,11 +1,21 @@
 enclave {
+
+	from "sgx_tstdc.edl" import sgx_thread_wait_untrusted_event_ocall, sgx_thread_set_untrusted_event_ocall; 
+	
     trusted {
         public void decryptMessage([in,size=len] char *encMessageIn, size_t len, [out,size=lenOut] char *decMessageOut, size_t lenOut);
         public void encryptMessage([in,size=len] char *decMessageIn, size_t len, [out,size=lenOut] char *encMessageOut, size_t lenOut);
+        public void ecall_handlemessage(int csock, [in,size=size] char *msg, int size);
     };
 
     untrusted {
         [cdecl] void emit_debug([string,in] const char *str);
+        void ocall_startClient([in,size=1] int * csock, [in,size=1024] char *address, int port);
+        void ocall_sendToClient(int sock, [in,size=size] char *request, int size, [out,size=1028] char * finalbuffer);
+        void ocall_receiveFromClient(int sock, [out,size=1028] char * finalbuffer);
+        void ocall_sendanswer(int csock, [in,size=size] char *msg, int size);
+        void ocall_int_to_string(int a, [out, size=1024] char* chr);
+        int ocall_string_to_int([in,size=size] char* a, int size);
     };
 };
 

@@ -40,7 +40,7 @@ else
 	Urts_Library_Name := sgx_urts
 endif
 
-App_Cpp_Files := SGXSRDSServer/SGXSRDSServer.cpp SGXSRDSServer/trackerdb.cpp SGXSRDSServer/server.cpp SGXSRDSServer/common_socket.cpp SGXSRDSServer/http_header.cpp SGXSRDSServer/message_management.cpp SGXSRDSServer/client.cpp
+App_Cpp_Files := SGXSRDSServer/SGXSRDSServer.cpp SGXSRDSServer/trackerdb.cpp SGXSRDSServer/server.cpp SGXSRDSServer/common_socket.cpp SGXSRDSServer/client.cpp
 App_Include_Paths := -IInclude -IApp -I$(SGX_SDK)/include
 
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)

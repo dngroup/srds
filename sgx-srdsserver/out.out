@@ -1,0 +1,99 @@
+warning: private ECALL `testEndTransferEncoding' is not used by any OCALL
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
+CXX  <=  SGXSRDSServer/trackerdb.cpp
+CXX  <=  SGXSRDSServer/server.cpp
+CXX  <=  SGXSRDSServer/common_socket.cpp
+CXX  <=  SGXSRDSServer/client.cpp
+LINK =>  SGXSRDSServerApp
+warning: private ECALL `testEndTransferEncoding' is not used by any OCALL
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+In file included from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_cprolog.h:18:0,
+                 from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_prolog.h:7,
+                 from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/string:23,
+                 from SGXSRDSEnclave/SGXSRDSEnclave.cpp:6:
+SGXSRDSEnclave/SGXSRDSEnclave.cpp: In function ‘stlpmtx_std::map<stlpmtx_std::basic_string<char, stlpmtx_std::char_traits<char>, stlpmtx_std::allocator<char> >, stlpmtx_std::basic_string<char, stlpmtx_std::char_traits<char>, stlpmtx_std::allocator<char> > > parse_headers(char*)’:
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/config/features.h:467:37: error: ‘to_string’ is not a member of ‘stlpmtx_std’
+ #            define _STLP_STD_NAME  stlpmtx_std
+                                     ^
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/config/features.h:572:22: note: in expansion of macro ‘_STLP_STD_NAME’
+ #define STLPORT      _STLP_STD_NAME
+                      ^
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_epilog.h:37:17: note: in expansion of macro ‘STLPORT’
+ #    define std STLPORT
+                 ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:107:26: note: in expansion of macro ‘std’
+     std::string sSize2 = std::to_string(endPos + 4);
+                          ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp: In function ‘void handleProxy(int, char*, int)’:
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:151:55: error: cannot convert ‘char*’ to ‘int*’ for argument ‘1’ to ‘sgx_status_t ocall_startClient(int*, char*, int)’
+     client_sock = ocall_startClient(target, targetPort);
+                                                       ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:153:83: error: invalid conversion from ‘int’ to ‘char**’ [-fpermissive]
+     answerFromClient = ocall_sendToClient(client_sock, answer, (int)strlen(answer));
+                                                                                   ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:153:83: error: invalid conversion from ‘char*’ to ‘int’ [-fpermissive]
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:153:83: error: invalid conversion from ‘int’ to ‘char*’ [-fpermissive]
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:153:83: error: too few arguments to function ‘sgx_status_t ocall_sendToClient(char**, int, char*, int)’
+In file included from SGXSRDSEnclave/SGXSRDSEnclave.cpp:1:0:
+SGXSRDSEnclave/SGXSRDSEnclave_t.h:26:24: note: declared here
+ sgx_status_t SGX_CDECL ocall_sendToClient(char** retval, int sock, char* request, int size);
+                        ^
+In file included from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_cprolog.h:18:0,
+                 from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_prolog.h:7,
+                 from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/string:23,
+                 from SGXSRDSEnclave/SGXSRDSEnclave.cpp:6:
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/config/features.h:467:37: error: ‘stoi’ is not a member of ‘stlpmtx_std’
+ #            define _STLP_STD_NAME  stlpmtx_std
+                                     ^
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/config/features.h:572:22: note: in expansion of macro ‘_STLP_STD_NAME’
+ #define STLPORT      _STLP_STD_NAME
+                      ^
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_epilog.h:37:17: note: in expansion of macro ‘STLPORT’
+ #    define std STLPORT
+                 ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:163:55: note: in expansion of macro ‘std’
+             totalSizeAnswer += sizeAnswerFromClient - std::stoi(headersAnswer.at("HeaderSize"));
+                                                       ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:163:79: error: ‘class stlpmtx_std::map<stlpmtx_std::basic_string<char, stlpmtx_std::char_traits<char>, stlpmtx_std::allocator<char> >, stlpmtx_std::basic_string<char, stlpmtx_std::char_traits<char>, stlpmtx_std::allocator<char> > >’ has no member named ‘at’
+             totalSizeAnswer += sizeAnswerFromClient - std::stoi(headersAnswer.at("HeaderSize"));
+                                                                               ^
+In file included from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_cprolog.h:18:0,
+                 from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_prolog.h:7,
+                 from /home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/string:23,
+                 from SGXSRDSEnclave/SGXSRDSEnclave.cpp:6:
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/config/features.h:467:37: error: ‘stoi’ is not a member of ‘stlpmtx_std’
+ #            define _STLP_STD_NAME  stlpmtx_std
+                                     ^
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/config/features.h:572:22: note: in expansion of macro ‘_STLP_STD_NAME’
+ #define STLPORT      _STLP_STD_NAME
+                      ^
+/home/simon/linux-sgx-master/linux/installer/bin/sgxsdk/include/stlport/stl/_epilog.h:37:17: note: in expansion of macro ‘STLPORT’
+ #    define std STLPORT
+                 ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:165:38: note: in expansion of macro ‘std’
+             while (testContentLength(std::stoi(headersAnswer.at("Content-Length")), totalSizeAnswer) != 0) {
+                                      ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:165:62: error: ‘class stlpmtx_std::map<stlpmtx_std::basic_string<char, stlpmtx_std::char_traits<char>, stlpmtx_std::allocator<char> >, stlpmtx_std::basic_string<char, stlpmtx_std::char_traits<char>, stlpmtx_std::allocator<char> > >’ has no member named ‘at’
+             while (testContentLength(std::stoi(headersAnswer.at("Content-Length")), totalSizeAnswer) != 0) {
+                                                              ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:168:71: error: invalid conversion from ‘int’ to ‘char**’ [-fpermissive]
+                 answerFromClient = ocall_receiveFromClient(client_sock);
+                                                                       ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:168:71: error: too few arguments to function ‘sgx_status_t ocall_receiveFromClient(char**, int)’
+In file included from SGXSRDSEnclave/SGXSRDSEnclave.cpp:1:0:
+SGXSRDSEnclave/SGXSRDSEnclave_t.h:27:24: note: declared here
+ sgx_status_t SGX_CDECL ocall_receiveFromClient(char** retval, int sock);
+                        ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:183:71: error: invalid conversion from ‘int’ to ‘char**’ [-fpermissive]
+                 answerFromClient = ocall_receiveFromClient(client_sock);
+                                                                       ^
+SGXSRDSEnclave/SGXSRDSEnclave.cpp:183:71: error: too few arguments to function ‘sgx_status_t ocall_receiveFromClient(char**, int)’
+In file included from SGXSRDSEnclave/SGXSRDSEnclave.cpp:1:0:
+SGXSRDSEnclave/SGXSRDSEnclave_t.h:27:24: note: declared here
+ sgx_status_t SGX_CDECL ocall_receiveFromClient(char** retval, int sock);
+                        ^
+Makefile:162: recipe for target 'SGXSRDSEnclave/SGXSRDSEnclave.o' failed
+make: *** [SGXSRDSEnclave/SGXSRDSEnclave.o] Error 1
