@@ -11,8 +11,8 @@
 static sgx_aes_gcm_128bit_key_t key = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
 
 int extractSize(char * msg) {
-    int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
-    return size;
+	int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
+	return size;
 }
 
 char * extractBuffer(char * msg, int size) {
@@ -93,6 +93,7 @@ char* createNewHeader(char* msg, std::string address, int size) {
 }
 
 std::map<std::string, std::string> parse_headers(char * msg) {
+	emit_debug(msg);
     int endPos = 0;
     int pos = 0;
     int oldPos = 0;
@@ -108,6 +109,7 @@ std::map<std::string, std::string> parse_headers(char * msg) {
     ocall_int_to_string((endPos + 4), chr);
     std::string sSize2(chr);
     headers[copystring(sSize1)] = copystring(sSize2);
+    emit_debug(chr);
 
     pos = allmsg.find("\r\n");
     firstSpace = allmsg.find(" ");
@@ -143,6 +145,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int client_sock;
     char * finalanswer;
     char answerFromClient[1028];
+    char answerFromClient2[1028];
     int httpanswer;
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
@@ -152,16 +155,19 @@ void handleProxy(int csock, char * msg, int msgsize) {
     ocall_startClient(&client_sock, target, targetPort);
     answer = createNewHeader(msg, target, msgsize);
     //answerFromClient = (char*) malloc(1028);
-    ocall_sendToClient(client_sock, answer, (int)strlen(answer), answerFromClient);
+    ocall_sendToClient(client_sock, answer, (int)strlen(answer), answerFromClient2);
+    memcpy(answerFromClient,answerFromClient2,1028);
     sizeAnswerFromClient = extractSize(answerFromClient);
     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-    emit_debug_int(sizeAnswerFromClient);
-    emit_debug(finalanswer);
-    //free(answerFromClient);
+    //emit_debug_int(sizeAnswerFromClient);
+    //emit_debug(answerFromClient);
+    //emit_debug(finalanswer);
 
     httpanswer = isHttp(finalanswer);
     if(httpanswer == 0) {
         headersAnswer = parse_headers(finalanswer);
+        emit_debug(headersAnswer["HeaderSize"].c_str());
+        emit_debug(headersAnswer["Transfer-Encoding"].c_str());
         if (headersAnswer.count("Content-Length")>0) {
             //TODO Content-Length, then read data until the end and close socket
             int out;

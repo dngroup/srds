@@ -54,10 +54,6 @@ void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer
     memset(buffer, '\0', 1024);
     do_send(sock, request, size);
     sizeAnswer = do_recv(sock, buffer);
-	finalbuffer[0] = '0';
-    finalbuffer[1] = '0';
-    finalbuffer[2] = '0';
-    finalbuffer[3] = '0';
     finalbuffer[0] = (sizeAnswer >> 24) & 0xFF;
     finalbuffer[1] = (sizeAnswer >> 16) & 0xFF;
     finalbuffer[2] = (sizeAnswer >> 8) & 0xFF;
@@ -68,12 +64,12 @@ void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer
     /*
     printf("Request: \n%s\n", request);
     fflush(stdout);
-    printf("Receive: size=%i\nsocket=%i\n%s\n", sizeAnswer, sock, buffer);
+    printf("Receive: size=%i socket=%i\n%s\n", sizeAnswer, sock, buffer);
     fflush(stdout);
     printf("Finalbuffer: \n%s\n", finalbuffer);
     fflush(stdout);
     */
-    memcpy(finalbuffer,finalbuffer2,sizeAnswer+sizeIntinChar);
+    memcpy(finalbuffer2,finalbuffer,sizeAnswer+sizeIntinChar);
 }
 
 void ocall_receiveFromClient(int sock, char * finalbuffer) {

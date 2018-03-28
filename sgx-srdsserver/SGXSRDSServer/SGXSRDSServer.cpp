@@ -27,7 +27,7 @@ sgx_enclave_id_t global_eid = 0;
 
 void ocall_int_to_string(int a, char* chr) {
 	std::string str = std::to_string(a);
-	chr = strdup(str.c_str());
+	memcpy(chr,str.c_str(),strlen(str.c_str()));
 }
 
 void ocall_string_to_int(const char* a, int size, int * out) {
