@@ -10,6 +10,112 @@
 #define BUFLEN 2048
 static sgx_aes_gcm_128bit_key_t key = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
 
+std::string copystring(std::string string) {
+    char *y = new char[string.length() + 1];
+    std::strncpy(y, string.c_str(), string.length());
+    y[string.length()] = '\0';
+    std::string string2(y);
+    return string2;
+}
+
+char * copystring2char(std::string string) {
+    char *y = (char*)malloc(string.length() + 1);
+    std::strncpy(y, string.c_str(), string.length());
+    y[string.length()] = '\0';
+    return y;
+}
+
+struct map_element {
+    char* key;
+    char* value;
+    struct map_element* next;
+};
+
+struct map {
+    struct map_element* first;
+    struct map_element* last;
+    int size;
+};
+
+struct map* map_init() {
+    struct map* map = (struct map*)malloc(sizeof(struct map));
+    map->first = NULL;
+    map->last = NULL;
+    map->size = 0;
+    return map;
+}
+
+void map_add(struct map* map, std::string key, std::string value) {
+    struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
+
+    if (map->size == 0) {
+        map->first = elt;
+    }
+    elt->key = copystring2char(key);
+    elt->value = copystring2char(value);
+    elt->next = NULL;
+    if(map->last!=NULL){
+        map->last->next = elt;
+    }
+    map->last = elt;
+    map->size++;
+}
+struct map_element * map_get_next(struct map_element * element){
+    return element->next;
+}
+
+void map_destroy(struct map* map) {
+    struct map_element * current = map->first;
+    struct map_element * current_old;
+    while(current != NULL) {
+        current_old=current;
+        current = map_get_next(current_old);
+        free(current_old->key);
+        free(current_old->value);
+        free(current_old);
+    }
+    free(map);
+}
+
+int map_find(struct map* map, std::string key) {
+
+    char * key2 = copystring2char(key);
+    struct map_element * current = map->first;
+    if (current != NULL && strcmp(current->key,key2) == 0){
+        return 1;
+    }
+
+    while(current != NULL) {
+
+        if (current->key != NULL) {
+            if (strcmp(current->key, key2) == 0) {
+                return 1;
+            }
+        }
+
+        current = map_get_next(current);
+
+    }
+    return 0;
+}
+
+char * map_get(struct map* map, std::string key) {
+    char * key2 = copystring2char(key);
+    struct map_element * current = map->first;
+    if (current != NULL && strcmp(current->key,key2) == 0){
+        return current->value;
+    }
+
+    while(current != NULL && current->key != NULL){
+        if(strcmp(current->key,key2) == 0){
+            return current->value;
+        }
+        current=map_get_next(current);
+    }
+    return NULL;
+}
+
+
 int extractSize(char * msg) {
 	int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
 	return size;
@@ -72,12 +178,7 @@ int getPosEndOfHeader(char * msg) {
     return allmsg.find("\r\n\r\n");
 }
 
-std::string copystring(std::string string) {
-    char *y = new char[string.length() + 1];
-    std::strncpy(y, string.c_str(), string.length());
-    std::string string2(y);
-    return string2;
-}
+
 
 char* createNewHeader(char* msg, std::string address, int size) {
     std::string header(msg, 0, size);
@@ -92,8 +193,8 @@ char* createNewHeader(char* msg, std::string address, int size) {
     return y;
 }
 
-std::map<std::string, std::string> parse_headers(char * msg) {
-	emit_debug(msg);
+struct map* parse_headers(char * msg) {
+	struct map* headers = map_init();
     int endPos = 0;
     int pos = 0;
     int oldPos = 0;
@@ -101,29 +202,33 @@ std::map<std::string, std::string> parse_headers(char * msg) {
     int posmiddle = 0;
     int firstSpace = 0;
     int secondSpace = 0;
-    std::map<std::string, std::string> headers;
+    //std::map<std::string, std::string> headers;
 
     endPos = allmsg.find("\r\n\r\n");
     std::string sSize1("HeaderSize");
     char * chr = (char*) malloc(1024);
     ocall_int_to_string((endPos + 4), chr);
     std::string sSize2(chr);
-    headers[copystring(sSize1)] = copystring(sSize2);
-    emit_debug(chr);
+    //headers[copystring(sSize1)] = copystring(sSize2);
+    map_add(headers, sSize1, sSize2);
+
 
     pos = allmsg.find("\r\n");
     firstSpace = allmsg.find(" ");
     std::string sMethod1("Method");
     std::string sMethod2(msg, oldPos, firstSpace);
-    headers[copystring(sMethod1)] = copystring(sMethod2);
+    //headers[copystring(sMethod1)] = copystring(sMethod2);
+    map_add(headers, sMethod1, sMethod2);
     secondSpace = allmsg.find(" ", firstSpace + 1);
     std::string sPath1("Path");
     std::string sPath2(msg, firstSpace + 1, secondSpace - firstSpace - 1);
-    headers[copystring(sPath1)] = copystring(sPath2);
+    //headers[copystring(sPath1)] = copystring(sPath2);
+    map_add(headers, sPath1, sPath2);
 
     std::string sProto1("Protocol");
     std::string sProto2(msg, secondSpace + 1, pos - secondSpace - 1);
-    headers[copystring(sProto1)] = copystring(sProto2);
+    //headers[copystring(sProto1)] = copystring(sProto2);
+    map_add(headers, sProto1, sProto2);
 
     while (pos < endPos && pos > 0) {
         oldPos = pos;
@@ -131,9 +236,10 @@ std::map<std::string, std::string> parse_headers(char * msg) {
         posmiddle = allmsg.find(":", oldPos + 1);
         std::string s1(msg, oldPos + 2, posmiddle - oldPos - 2);
         std::string s2(msg, posmiddle + 2, pos - posmiddle - 2);
-        headers[copystring(s1)] = copystring(s2);
-    }
+        //headers[copystring(s1)] = copystring(s2);
+        map_add(headers, s1, s2);
 
+    }
     return headers;
 }
 
@@ -150,7 +256,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
     int totalSizeAnswer = 0;
-    std::map<std::string,std::string> headersAnswer;
+    //std::map<std::string,std::string> headersAnswer;
+    struct map* headersAnswer;
 
     ocall_startClient(&client_sock, target, targetPort);
     answer = createNewHeader(msg, target, msgsize);
@@ -166,15 +273,16 @@ void handleProxy(int csock, char * msg, int msgsize) {
     httpanswer = isHttp(finalanswer);
     if(httpanswer == 0) {
         headersAnswer = parse_headers(finalanswer);
-        emit_debug(headersAnswer["HeaderSize"].c_str());
-        emit_debug(headersAnswer["Transfer-Encoding"].c_str());
-        if (headersAnswer.count("Content-Length")>0) {
+        //emit_debug(headersAnswer["HeaderSize"].c_str());
+
+        //emit_debug(map_get(headersAnswer,"Method"));
+        if (map_find(headersAnswer, "Content-Length") > 0) {
             //TODO Content-Length, then read data until the end and close socket
             int out;
-            ocall_string_to_int(headersAnswer["HeaderSize"].c_str(),(int)strlen(headersAnswer["HeaderSize"].c_str()), &out);
+            ocall_string_to_int(map_get(headersAnswer,"HeaderSize"),(int)strlen(map_get(headersAnswer,"HeaderSize")), &out);
             totalSizeAnswer += sizeAnswerFromClient - out;
-            ocall_string_to_int(headersAnswer["Content-Length"].c_str(),(int)strlen(headersAnswer["HeaderSize"].c_str()), &out);
-            while (testContentLength(out, totalSizeAnswer) != 0) {
+            ocall_string_to_int(map_get(headersAnswer, "Content-Length"),(int)strlen(map_get(headersAnswer,"Content-Length")), &out);
+            while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
                 ocall_receiveFromClient(client_sock, answerFromClient);
@@ -182,14 +290,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
                 //free(answerFromClient);
                 totalSizeAnswer += sizeAnswerFromClient;
-                ocall_string_to_int(headersAnswer["Content-Length"].c_str(),(int)strlen(headersAnswer["HeaderSize"].c_str()), &out);
             }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
             free(finalanswer);
-        } else if (headersAnswer.count("Transfer-Encoding")>0) {
+        } else if (map_find(headersAnswer, "Transfer-Encoding")>0) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
             //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
-
             while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
@@ -209,6 +315,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
         ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
         free(finalanswer);
     }
+    map_destroy(headersAnswer);
 }
 
 void handleTracker(int csock, char * msg) {

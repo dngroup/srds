@@ -72,10 +72,10 @@ void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer
     memcpy(finalbuffer2,finalbuffer,sizeAnswer+sizeIntinChar);
 }
 
-void ocall_receiveFromClient(int sock, char * finalbuffer) {
+void ocall_receiveFromClient(int sock, char * finalbuffer2) {
     int size = 0;
     int sizeIntinChar = 4;
-    finalbuffer = (char*)malloc(sizeof(char) * (1024 + sizeIntinChar));
+    char * finalbuffer = (char*)malloc(sizeof(char) * (1024 + sizeIntinChar));
     finalbuffer = (char*)memset(finalbuffer, '\0', (1024 + sizeIntinChar));
     char * buffer = (char*)malloc(sizeof(char) * 1024);
     buffer = (char*)memset(buffer, 0, 1024);
@@ -87,5 +87,6 @@ void ocall_receiveFromClient(int sock, char * finalbuffer) {
     for (int i = 0; i < size; i++) {
         finalbuffer[i + sizeIntinChar] = buffer[i];
     }
+    memcpy(finalbuffer2,finalbuffer,size+sizeIntinChar);
 }
 

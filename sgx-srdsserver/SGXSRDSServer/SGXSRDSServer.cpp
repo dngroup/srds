@@ -31,8 +31,6 @@ void ocall_int_to_string(int a, char* chr) {
 }
 
 void ocall_string_to_int(const char* a, int size, int * out) {
-	printf("String_to_int: %s\n", a);
-	fflush(stdout);
 	*out = atoi(a);
 }
 
