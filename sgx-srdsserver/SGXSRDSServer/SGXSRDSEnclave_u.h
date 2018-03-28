@@ -17,12 +17,13 @@ extern "C" {
 #endif
 
 void SGX_UBRIDGE(SGX_CDECL, emit_debug, (const char* str));
-void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_startClient, (int* csock, char* address, int port));
-void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_sendToClient, (int sock, char* request, int size, char* finalbuffer));
-void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_receiveFromClient, (int sock, char* finalbuffer));
-void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_sendanswer, (int csock, char* msg, int size));
-void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_int_to_string, (int a, char* chr));
-int SGX_UBRIDGE(SGX_NOCONVENTION, ocall_string_to_int, (char* a, int size));
+void SGX_UBRIDGE(SGX_CDECL, emit_debug_int, (int a));
+void SGX_UBRIDGE(SGX_CDECL, ocall_startClient, (int* csock, char* address, int port));
+void SGX_UBRIDGE(SGX_CDECL, ocall_sendToClient, (int sock, char* request, int size, char* finalbuffer));
+void SGX_UBRIDGE(SGX_CDECL, ocall_receiveFromClient, (int sock, char* finalbuffer));
+void SGX_UBRIDGE(SGX_CDECL, ocall_sendanswer, (int csock, char* msg, int size));
+void SGX_UBRIDGE(SGX_CDECL, ocall_int_to_string, (int a, char* chr));
+void SGX_UBRIDGE(SGX_CDECL, ocall_string_to_int, (const char* a, int size, int* out));
 int SGX_UBRIDGE(SGX_CDECL, sgx_thread_wait_untrusted_event_ocall, (const void* self));
 int SGX_UBRIDGE(SGX_CDECL, sgx_thread_set_untrusted_event_ocall, (const void* waiter));
 

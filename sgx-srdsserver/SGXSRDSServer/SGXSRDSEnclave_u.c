@@ -25,6 +25,10 @@ typedef struct ms_emit_debug_t {
 	char* ms_str;
 } ms_emit_debug_t;
 
+typedef struct ms_emit_debug_int_t {
+	int ms_a;
+} ms_emit_debug_int_t;
+
 typedef struct ms_ocall_startClient_t {
 	int* ms_csock;
 	char* ms_address;
@@ -55,9 +59,9 @@ typedef struct ms_ocall_int_to_string_t {
 } ms_ocall_int_to_string_t;
 
 typedef struct ms_ocall_string_to_int_t {
-	int ms_retval;
 	char* ms_a;
 	int ms_size;
+	int* ms_out;
 } ms_ocall_string_to_int_t;
 
 typedef struct ms_sgx_thread_wait_untrusted_event_ocall_t {
@@ -74,6 +78,14 @@ static sgx_status_t SGX_CDECL SGXSRDSEnclave_emit_debug(void* pms)
 {
 	ms_emit_debug_t* ms = SGX_CAST(ms_emit_debug_t*, pms);
 	emit_debug((const char*)ms->ms_str);
+
+	return SGX_SUCCESS;
+}
+
+static sgx_status_t SGX_CDECL SGXSRDSEnclave_emit_debug_int(void* pms)
+{
+	ms_emit_debug_int_t* ms = SGX_CAST(ms_emit_debug_int_t*, pms);
+	emit_debug_int(ms->ms_a);
 
 	return SGX_SUCCESS;
 }
@@ -121,7 +133,7 @@ static sgx_status_t SGX_CDECL SGXSRDSEnclave_ocall_int_to_string(void* pms)
 static sgx_status_t SGX_CDECL SGXSRDSEnclave_ocall_string_to_int(void* pms)
 {
 	ms_ocall_string_to_int_t* ms = SGX_CAST(ms_ocall_string_to_int_t*, pms);
-	ms->ms_retval = ocall_string_to_int(ms->ms_a, ms->ms_size);
+	ocall_string_to_int((const char*)ms->ms_a, ms->ms_size, ms->ms_out);
 
 	return SGX_SUCCESS;
 }
@@ -144,11 +156,12 @@ static sgx_status_t SGX_CDECL SGXSRDSEnclave_sgx_thread_set_untrusted_event_ocal
 
 static const struct {
 	size_t nr_ocall;
-	void * table[9];
+	void * table[10];
 } ocall_table_SGXSRDSEnclave = {
-	9,
+	10,
 	{
 		(void*)SGXSRDSEnclave_emit_debug,
+		(void*)SGXSRDSEnclave_emit_debug_int,
 		(void*)SGXSRDSEnclave_ocall_startClient,
 		(void*)SGXSRDSEnclave_ocall_sendToClient,
 		(void*)SGXSRDSEnclave_ocall_receiveFromClient,

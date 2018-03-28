@@ -40,17 +40,24 @@ void ocall_startClient(int * csock, char * address, int port) {
     }
 
     *csock = sock;
+    printf("Start client: *csock=%i\n", *csock);
 }
 
-void ocall_sendToClient(int sock, char * request, int size, char * finalbuffer) {
+void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer2) {
     int sizeAnswer = 0;
     int sizeIntinChar = 4;
-    finalbuffer = (char*)malloc(sizeof(char) * (1024 + sizeIntinChar));
-    finalbuffer = (char*)memset(finalbuffer, '\0', (1024 + sizeIntinChar));
-    char * buffer = (char*)malloc(sizeof(char) * 1024);
-    buffer = (char*)memset(buffer, '\0', 1024);
+    int sock = sock2;
+    int size = size2;
+    char * finalbuffer = (char *) malloc(1024 + sizeIntinChar);
+    memset(finalbuffer, '\0', (1024 + sizeIntinChar));
+    char buffer[1024];
+    memset(buffer, '\0', 1024);
     do_send(sock, request, size);
     sizeAnswer = do_recv(sock, buffer);
+	finalbuffer[0] = '0';
+    finalbuffer[1] = '0';
+    finalbuffer[2] = '0';
+    finalbuffer[3] = '0';
     finalbuffer[0] = (sizeAnswer >> 24) & 0xFF;
     finalbuffer[1] = (sizeAnswer >> 16) & 0xFF;
     finalbuffer[2] = (sizeAnswer >> 8) & 0xFF;
@@ -58,6 +65,15 @@ void ocall_sendToClient(int sock, char * request, int size, char * finalbuffer) 
     for (int i = 0; i < sizeAnswer; i++) {
         finalbuffer[i + sizeIntinChar] = buffer[i];
     }
+    /*
+    printf("Request: \n%s\n", request);
+    fflush(stdout);
+    printf("Receive: size=%i\nsocket=%i\n%s\n", sizeAnswer, sock, buffer);
+    fflush(stdout);
+    printf("Finalbuffer: \n%s\n", finalbuffer);
+    fflush(stdout);
+    */
+    memcpy(finalbuffer,finalbuffer2,sizeAnswer+sizeIntinChar);
 }
 
 void ocall_receiveFromClient(int sock, char * finalbuffer) {

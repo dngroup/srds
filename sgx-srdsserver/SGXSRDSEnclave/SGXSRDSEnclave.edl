@@ -10,12 +10,13 @@ enclave {
 
     untrusted {
         [cdecl] void emit_debug([string,in] const char *str);
-        void ocall_startClient([in,size=1] int * csock, [in,size=1024] char *address, int port);
-        void ocall_sendToClient(int sock, [in,size=size] char *request, int size, [out,size=1028] char * finalbuffer);
-        void ocall_receiveFromClient(int sock, [out,size=1028] char * finalbuffer);
-        void ocall_sendanswer(int csock, [in,size=size] char *msg, int size);
-        void ocall_int_to_string(int a, [out, size=1024] char* chr);
-        int ocall_string_to_int([in,size=size] char* a, int size);
+        [cdecl] void emit_debug_int(int a);
+        [cdecl] void ocall_startClient([out,size=4] int * csock, [in,string] char *address, int port);
+        [cdecl] void ocall_sendToClient(int sock, [in,string] char *request, int size, [out,size=1028] char * finalbuffer);
+        [cdecl] void ocall_receiveFromClient(int sock, [out,size=1028] char * finalbuffer);
+        [cdecl] void ocall_sendanswer(int csock, [in,string] char *msg, int size);
+        [cdecl] void ocall_int_to_string(int a, [out, size=1024] char* chr);
+        [cdecl] void ocall_string_to_int([in,string] const char* a, int size, [out,size=4] int * out);
     };
 };
 

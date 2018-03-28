@@ -85,7 +85,7 @@ char* createNewHeader(char* msg, std::string address, int size) {
     int posEnd = header.find("\r\n", posHost);
 
     header.replace(posHost, posEnd-posHost, address);
-    header.insert(posEnd + 3, "Connection: Close\r\n");
+    header.insert(posEnd, "Connection: Close\r\n");
 
     char *y = new char[header.length() + 1];
     std::strncpy(y, header.c_str(), header.length());
@@ -140,9 +140,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int targetPort = 8023;
 
     char * answer;
-    int client_sock = 0;
+    int client_sock;
     char * finalanswer;
-    char * answerFromClient;
+    char answerFromClient[1028];
     int httpanswer;
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
@@ -151,27 +151,32 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
     ocall_startClient(&client_sock, target, targetPort);
     answer = createNewHeader(msg, target, msgsize);
-    answerFromClient = (char*) malloc(1028);
+    //answerFromClient = (char*) malloc(1028);
     ocall_sendToClient(client_sock, answer, (int)strlen(answer), answerFromClient);
     sizeAnswerFromClient = extractSize(answerFromClient);
     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-    free(answerFromClient);
+    emit_debug_int(sizeAnswerFromClient);
+    emit_debug(finalanswer);
+    //free(answerFromClient);
 
     httpanswer = isHttp(finalanswer);
     if(httpanswer == 0) {
         headersAnswer = parse_headers(finalanswer);
         if (headersAnswer.count("Content-Length")>0) {
             //TODO Content-Length, then read data until the end and close socket
-            totalSizeAnswer += sizeAnswerFromClient - ocall_string_to_int(headersAnswer.at("HeaderSize").c_str());
-
-            while (testContentLength(ocall_string_to_int(headersAnswer.at("Content-Length").c_str()), totalSizeAnswer) != 0) {
+            int out;
+            ocall_string_to_int(headersAnswer["HeaderSize"].c_str(),(int)strlen(headersAnswer["HeaderSize"].c_str()), &out);
+            totalSizeAnswer += sizeAnswerFromClient - out;
+            ocall_string_to_int(headersAnswer["Content-Length"].c_str(),(int)strlen(headersAnswer["HeaderSize"].c_str()), &out);
+            while (testContentLength(out, totalSizeAnswer) != 0) {
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
                 ocall_receiveFromClient(client_sock, answerFromClient);
                 sizeAnswerFromClient = extractSize(answerFromClient);
                 finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-                free(answerFromClient);
+                //free(answerFromClient);
                 totalSizeAnswer += sizeAnswerFromClient;
+                ocall_string_to_int(headersAnswer["Content-Length"].c_str(),(int)strlen(headersAnswer["HeaderSize"].c_str()), &out);
             }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
             free(finalanswer);
@@ -185,7 +190,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 ocall_receiveFromClient(client_sock, answerFromClient);
                 sizeAnswerFromClient = extractSize(answerFromClient);
                 finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-                free(answerFromClient);
+                //free(answerFromClient);
             }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
             free(finalanswer);
@@ -201,7 +206,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 }
 
 void handleTracker(int csock, char * msg) {
-    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 17\r\nContent-Type: application/json\r\nConnection: Closed\r\n\r\n[\"peer1\",\"peer2\"]\0";
+    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 17\r\nContent-Type: application/json\r\nConnection: Close\r\n\r\n[\"peer1\",\"peer2\"]\0";
     //char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
 
     ocall_sendanswer(csock, answer, strlen(answer));

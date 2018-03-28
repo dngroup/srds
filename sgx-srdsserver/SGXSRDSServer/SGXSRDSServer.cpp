@@ -30,14 +30,18 @@ void ocall_int_to_string(int a, char* chr) {
 	chr = strdup(str.c_str());
 }
 
-int ocall_string_to_int(char* a, int size) {
-	return atoi(a);
+void ocall_string_to_int(const char* a, int size, int * out) {
+	printf("String_to_int: %s\n", a);
+	fflush(stdout);
+	*out = atoi(a);
 }
 
-void emit_debug(const char *buf)
+void emit_debug(const char *buf){
+    printf("DEBUG: %s\n", buf);
+}
 
-{
-    // printf("DEBUG: %s\n", buf);
+void emit_debug_int(int a){
+    printf("DEBUG_INT: %i\n", a);
 }
 
 int main(int argc, char ** argv) {
