@@ -17,6 +17,15 @@ int isHttp(char* msg) {
     }
 }
 
+int isOption(char* msg) {
+    std::string beginning(msg, 0, 4);
+    if (beginning == "OPTI") {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 int getPosEndOfHeader(char * msg) {
     std::string allmsg(msg);
     return allmsg.find("\r\n\r\n");
@@ -75,9 +84,19 @@ char* createNewHeader(char* msg, std::string address, int size) {
     std::string header(msg, 0, size);
     int posHost = header.find("Host: ") + 6;
     int posEnd = header.find("\r\n", posHost);
+    int posConnection = header.find("Connection: ");
+    if (posConnection != -1) {
+        posConnection = posConnection + 12;
+        int posEndConnection = header.find("\r\n", posConnection);
+        header.replace(posConnection, posEndConnection-posConnection, "Close");
+    } else {
+        header.insert(posEnd + 3, "Connection: Close\r\n");
+    }
+
+
 
     header.replace(posHost, posEnd-posHost, address);
-    header.insert(posEnd + 3, "Connection: Close\r\n");
+
 
     char *y = new char[header.length() + 1];
     std::strcpy(y, header.c_str());

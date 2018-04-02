@@ -9,6 +9,8 @@
 
 int isHttp(char* msg);
 
+int isOption(char* msg);
+
 int getPosEndOfHeader(char * msg);
 
 std::map<std::string,std::string> parse_headers(char * msg);

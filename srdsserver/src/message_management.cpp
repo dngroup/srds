@@ -8,18 +8,23 @@
 #include "server.h"
 #include "client.h"
 
-void ecall_handlemessage(int csock, char * msg, int size){
+void ecall_handlemessage(int csock, char * msg, int size){ //SRDS
 
     int http = isHttp(msg);
 
     if (http == 0) {
         handleProxy(csock, msg, size);
+    } else {
+
+        int option = isOption(msg);
+        if (option == 0) {
+            handleOption(csock);
+        }
     }
 
 }
 
 void handleProxy(int csock, char * msg, int msgsize) {
-    char target[1024] = "msstream.net";
     int targetPort = 8023;
 
     char * answer;
@@ -31,9 +36,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int sizeAnswerFromClient = 0;
     int totalSizeAnswer = 0;
     std::map<std::string,std::string> headersAnswer;
+    //SRDS
+    std::map<std::string,std::string> headersRequest;
+    headersRequest = parse_headers(msg);
+    char * target = (char *)headersRequest.at("X-Forwarded-Host").c_str();
 
-
-    client_sock = ocall_startClient(target, targetPort);
+    client_sock = ocall_startClient(target);
+    //SRDS END
     answer = createNewHeader(msg, target, msgsize);
     answerFromClient = ocall_sendToClient(client_sock, answer, (int)strlen(answer));
     sizeAnswerFromClient = extractSize(answerFromClient);
@@ -43,11 +52,19 @@ void handleProxy(int csock, char * msg, int msgsize) {
     httpanswer = isHttp(finalanswer);
     if(httpanswer == 0) {
         headersAnswer = parse_headers(finalanswer);
-        if (headersAnswer.count("Content-Length")>0) {
+        if (headersAnswer.count("Content-Length")>0 || headersAnswer.count("content-length")>0) { //SRDS
+            //SRDS
+            std::string contentLength;
+            if (headersAnswer.count("Content-Length")>0) {
+                contentLength = "Content-Length";
+            } else {
+                contentLength = "content-length";
+            }
+            //SRDS END
             //TODO Content-Length, then read data until the end and close socket
             totalSizeAnswer += sizeAnswerFromClient - std::stoi(headersAnswer.at("HeaderSize"));
 
-            while (testContentLength(std::stoi(headersAnswer.at("Content-Length")), totalSizeAnswer) != 0) {
+            while (testContentLength(std::stoi(headersAnswer.at(contentLength)), totalSizeAnswer) != 0) { //SRDS
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
                 answerFromClient = ocall_receiveFromClient(client_sock);
@@ -61,7 +78,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
         } else if (headersAnswer.count("Transfer-Encoding")>0) {
             //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
             //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
-
             while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                 ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
                 free(finalanswer);
@@ -72,6 +88,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
             }
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
             free(finalanswer);
+
 
         } else {
             ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
@@ -89,6 +106,15 @@ void handleTracker(int csock, char * msg) {
 
     ocall_sendanswer(csock, answer, strlen(answer));
 }
+
+//SRDS
+void handleOption(int csock) {
+    char answer[1024] = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nConnection: Closed\r\n\r\n\0";
+    //char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
+
+    ocall_sendanswer(csock, answer, strlen(answer));
+}
+//SRDS END
 
 char* substr(char* arr, int begin, int len)
 {

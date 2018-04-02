@@ -7,20 +7,23 @@
 #include <netdb.h>
 #include <cstring>
 #include <unistd.h>
+#include<string>
 #include "common_socket.h"
 
-int ocall_startClient(char * address, int port) {
+int ocall_startClient(char * address) { //SRDS
     int sock = 0;
     struct sockaddr_in sin = { 0 };
     struct hostent *hostinfo;
-
+    std::string addr(address);
+    std::string stringaddress = addr.substr(0, addr.find(":"));
+    int port = std::stoi(addr.substr(addr.find(":") + 1));
     sock = do_socket();
 
     if (sock < 0) {
         return -1;
     }
 
-    hostinfo = gethostbyname(address);
+    hostinfo = gethostbyname(stringaddress.c_str());
     if (hostinfo == NULL)
     {
         fprintf (stderr, "Unknown host %s.\n", address);

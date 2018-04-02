@@ -8,6 +8,7 @@
 void ecall_handlemessage(int csock, char * msg, int size);
 void handleProxy(int csock, char * msg, int msgsize);
 void handleTracker(int csock, char * msg);
+void handleOption(int csock);
 char* substr(char * arr, int begin, int len);
 int testEndTransferEncoding(char * msg, int size);
 int testContentLength(int contentLength, int totalSize);
