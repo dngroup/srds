@@ -7,14 +7,18 @@
 #include <netdb.h>
 #include <cstring>
 #include <unistd.h>
+#include <string>
 #include "common_socket.h"
 
 #include "SGXSRDSEnclave_u.h"
 
-void ocall_startClient(int * csock, char * address, int port) {
+void ocall_startClient(int * csock, char * address) {
     int sock = 0;
     struct sockaddr_in sin = { 0 };
     struct hostent *hostinfo;
+    std::string addr(address);
+    std::string stringaddress = addr.substr(0, addr.find(":"));
+    int port = std::stoi(addr.substr(addr.find(":") + 1));
 
     sock = do_socket();
 
@@ -22,7 +26,7 @@ void ocall_startClient(int * csock, char * address, int port) {
         return;
     }
 
-    hostinfo = gethostbyname(address);
+    hostinfo = gethostbyname(stringaddress.c_str());
     if (hostinfo == NULL)
     {
         fprintf (stderr, "Unknown host %s.\n", address);
@@ -40,7 +44,7 @@ void ocall_startClient(int * csock, char * address, int port) {
     }
 
     *csock = sock;
-    printf("Start client: *csock=%i\n", *csock);
+    //printf("Start client: *csock=%i\n", *csock);
 }
 
 void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer2) {
@@ -61,14 +65,14 @@ void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer
     for (int i = 0; i < sizeAnswer; i++) {
         finalbuffer[i + sizeIntinChar] = buffer[i];
     }
-    /*
-    printf("Request: \n%s\n", request);
+
+    /*printf("Request: size=%i \n%s\n", size2, request);
     fflush(stdout);
     printf("Receive: size=%i socket=%i\n%s\n", sizeAnswer, sock, buffer);
     fflush(stdout);
-    printf("Finalbuffer: \n%s\n", finalbuffer);
-    fflush(stdout);
-    */
+    printf("Finalbuffer: \n%s\n", buffer);
+    fflush(stdout);*/
+
     memcpy(finalbuffer2,finalbuffer,sizeAnswer+sizeIntinChar);
 }
 
@@ -90,3 +94,7 @@ void ocall_receiveFromClient(int sock, char * finalbuffer2) {
     memcpy(finalbuffer2,finalbuffer,size+sizeIntinChar);
 }
 
+
+void ocall_closesocket(int sock) {
+    close(sock);
+}

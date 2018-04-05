@@ -7,7 +7,7 @@
 #include <netdb.h>
 #include <cstring>
 #include <unistd.h>
-#include<string>
+#include <string>
 #include "common_socket.h"
 
 int ocall_startClient(char * address) { //SRDS

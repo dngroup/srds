@@ -2,3 +2,4 @@
 **/*_t.h
 **/*.o
 **/*.so
+cmake-build-debug/

@@ -12,10 +12,13 @@
 #include <iostream>
 #include <list>
 #include <sys/socket.h>
+#include <mutex>
+#include <semaphore.h>
 
 #include "SGXSRDSEnclave_u.h"
 
 extern sgx_enclave_id_t global_eid;
+sem_t mutex;
 
 void int_handler(int x)
 {
@@ -28,6 +31,7 @@ void startServer(int port){
     int csock;
     std::list<int> client_sockets;
     int enable = 1;
+    sem_init(&mutex, 0, 8);
 
     signal(SIGINT || SIGKILL, int_handler);
 
@@ -46,6 +50,7 @@ void startServer(int port){
 
     pthread_t thread_id;
 
+    ecall_init(global_eid);
 
     while( true )
     {
@@ -66,13 +71,12 @@ void * connection_handler(int csock)
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 )
     {
-
+        sem_wait(&mutex);
         ecall_handlemessage(global_eid, sock, client_message, read_size);
+        sem_post(&mutex);
 
         //clear the message buffer
         memset(client_message, 0, 1024);
-        printf("Bye\n");
-        fflush(stdout);
         close(sock);
         break;
     }

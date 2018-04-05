@@ -40,7 +40,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
     std::map<std::string,std::string> headersRequest;
     headersRequest = parse_headers(msg);
     char * target = (char *)headersRequest.at("X-Forwarded-Host").c_str();
-
     client_sock = ocall_startClient(target);
     //SRDS END
     answer = createNewHeader(msg, target, msgsize);
