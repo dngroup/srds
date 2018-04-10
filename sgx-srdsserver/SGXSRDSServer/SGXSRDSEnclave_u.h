@@ -30,7 +30,7 @@ int SGX_UBRIDGE(SGX_CDECL, sgx_thread_set_untrusted_event_ocall, (const void* wa
 
 sgx_status_t decryptMessage(sgx_enclave_id_t eid, char* encMessageIn, size_t len, char* decMessageOut, size_t lenOut);
 sgx_status_t encryptMessage(sgx_enclave_id_t eid, char* decMessageIn, size_t len, char* encMessageOut, size_t lenOut);
-sgx_status_t ecall_handlemessage(sgx_enclave_id_t eid, int csock, char* msg, int size);
+sgx_status_t ecall_handlemessage(sgx_enclave_id_t eid, int csock, int type, char* msg, int size);
 sgx_status_t ecall_init(sgx_enclave_id_t eid);
 
 #ifdef __cplusplus

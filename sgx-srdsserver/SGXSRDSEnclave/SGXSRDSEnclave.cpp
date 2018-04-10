@@ -11,12 +11,10 @@
 #define BUFLEN 2048
 static sgx_aes_gcm_128bit_key_t key = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
 
-volatile int testshared;
 sgx_thread_mutex_t mutex;
 
 void ecall_init() {
     sgx_thread_mutex_init(&mutex, NULL);
-    testshared = 0;
 }
 
 std::string copystring(std::string string) {
@@ -219,6 +217,18 @@ char* createNewHeader(char* msg, std::string address, int size) {
     return y;
 }
 
+std::string addContentToAnswer(char *  answer, std::string content, int size) {
+    std::string finalanswer(answer);
+    int pos = finalanswer.find("Content-Length: ") + 16;
+    int posEnd = finalanswer.find("\r\n", pos);
+    char * chr = (char*) malloc(sizeof(int));
+    ocall_int_to_string(size, chr);
+    std::string s2(chr);
+    finalanswer.replace(pos, posEnd-pos, s2);
+    finalanswer += content;
+    return finalanswer;
+}
+
 struct map* parse_headers(char * msg) {
 	struct map* headers = map_init();
     int endPos = 0;
@@ -232,7 +242,7 @@ struct map* parse_headers(char * msg) {
 
     endPos = allmsg.find("\r\n\r\n");
     std::string sSize1("HeaderSize");
-    char * chr = (char*) malloc(1024);
+    char * chr = (char*) malloc(sizeof(int));
     ocall_int_to_string((endPos + 4), chr);
     std::string sSize2(chr);
     //headers[copystring(sSize1)] = copystring(sSize2);
@@ -266,6 +276,7 @@ struct map* parse_headers(char * msg) {
         map_add(headers, s1, s2);
 
     }
+    //free(chr);
 
     return headers;
 }
@@ -282,7 +293,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
     int totalSizeAnswer = 0;
-    //std::map<std::string,std::string> headersAnswer;
     struct map* headersAnswer;
 
     struct map* headersRequest;
@@ -348,30 +358,44 @@ void handleProxy(int csock, char * msg, int msgsize) {
     map_destroy(headersAnswer);
 }
 
-void handleTracker(int csock, char * msg) {
-    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 17\r\nContent-Type: application/json\r\nConnection: Close\r\n\r\n[\"peer1\",\"peer2\"]\0";
-    //char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
+void handleTracker(int csock, char * msg, int size) {
+    //char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+    struct map* headersRequest = parse_headers(msg);
+    std::string value = map_get(headersRequest, "Method");
+    std::string content = "Superbe plain text à afficher";
 
-    ocall_sendanswer(csock, answer, strlen(answer));
+    std::string finalanswer = addContentToAnswer(answer, content, 30);
+    if (value == "POST") {
+        sgx_thread_mutex_lock(&mutex);
+        emit_debug("POST received");
+        sgx_thread_mutex_unlock(&mutex);
+    } else if (value == "GET") {
+        sgx_thread_mutex_lock(&mutex);
+        emit_debug("GET received");
+        sgx_thread_mutex_unlock(&mutex);
+    }
+
+    ocall_sendanswer(csock, (char*)finalanswer.c_str(), strlen(finalanswer.c_str()));
+    map_destroy(headersRequest);
 }
 
 void handleOption(int csock) {
-    char answer[1024] = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nConnection: Closed\r\n\r\n\0";
+    char answer[1024] = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nConnection: Closed\r\n\r\n\0";
     //char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
 
     ocall_sendanswer(csock, answer, strlen(answer));
 }
 
-void ecall_handlemessage(int csock, char * msg, int size){
+void ecall_handlemessage(int csock, int type, char * msg, int size){
     int http = isHttp(msg);
-
-    sgx_thread_mutex_lock(&mutex);
-    testshared++;
-    emit_debug_int(testshared);
-    sgx_thread_mutex_unlock(&mutex);
-
     if (http == 0) {
-        handleProxy(csock, msg, size);
+        if (type == 0) {
+            handleProxy(csock, msg, size);
+        }
+        if (type == 1) {
+            handleTracker(csock, msg, size);
+        }
     } else {
 
         int option = isOption(msg);

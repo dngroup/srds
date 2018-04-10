@@ -5,7 +5,7 @@
 #ifndef SRDSSERVER_SERVER_H
 #define SRDSSERVER_SERVER_H
 
-void startServer(int port);
+void startServer(int port, int inputtype);
 
 void* connection_handler(int csock);
 

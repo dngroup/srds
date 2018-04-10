@@ -25,13 +25,16 @@ void int_handler(int x)
     exit(0);
 }
 
-void startServer(int port){
+int type = 1;
+
+void startServer(int port, int inputtype){
     
     int sock = do_socket();
     int csock;
     std::list<int> client_sockets;
     int enable = 1;
     sem_init(&mutex, 0, 8);
+    type = inputtype;
 
     signal(SIGINT || SIGKILL, int_handler);
 
@@ -72,7 +75,7 @@ void * connection_handler(int csock)
     while( (read_size = do_recv(sock , client_message)) > 0 )
     {
         sem_wait(&mutex);
-        ecall_handlemessage(global_eid, sock, client_message, read_size);
+        ecall_handlemessage(global_eid, sock, type, client_message, read_size);
         sem_post(&mutex);
 
         //clear the message buffer

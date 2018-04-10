@@ -17,6 +17,7 @@ typedef struct ms_encryptMessage_t {
 
 typedef struct ms_ecall_handlemessage_t {
 	int ms_csock;
+	int ms_type;
 	char* ms_msg;
 	int ms_size;
 } ms_ecall_handlemessage_t;
@@ -209,11 +210,12 @@ sgx_status_t encryptMessage(sgx_enclave_id_t eid, char* decMessageIn, size_t len
 	return status;
 }
 
-sgx_status_t ecall_handlemessage(sgx_enclave_id_t eid, int csock, char* msg, int size)
+sgx_status_t ecall_handlemessage(sgx_enclave_id_t eid, int csock, int type, char* msg, int size)
 {
 	sgx_status_t status;
 	ms_ecall_handlemessage_t ms;
 	ms.ms_csock = csock;
+	ms.ms_type = type;
 	ms.ms_msg = msg;
 	ms.ms_size = size;
 	status = sgx_ecall(eid, 2, &ocall_table_SGXSRDSEnclave, &ms);

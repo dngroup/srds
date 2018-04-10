@@ -61,18 +61,27 @@ int main(int argc, char ** argv) {
 
 	char * arg;
 	int port;
-	if (argc != 2) {
-		port = 8080;
+	int type;
+	if (argc != 3) {
+		printf("USAGE ./SGXSRDSServerApp <port> <type: 0 for proxy | 1 for tracker>\n");
+		return 0;
 	} else {
 		port = atoi(argv[1]);
+		type = atoi(argv[2]);
 	}
 
-	for (int i = 1; i <= argc; i++) {
+	/*for (int i = 1; i <= argc; i++) {
 		arg = argv[i];
 		std::cout << arg << std::endl;
+	}*/
+
+	if (type == 0) {
+		printf("Proxy mode\n");
+	} else if (type == 1) {
+		printf("Tracker mode\n");
 	}
 
-	startServer(port);
+	startServer(port, type);
 
 	return 0;
 }
