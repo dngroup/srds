@@ -217,16 +217,26 @@ char* createNewHeader(char* msg, std::string address, int size) {
     return y;
 }
 
-std::string addContentToAnswer(char *  answer, std::string content, int size) {
-    std::string finalanswer(answer);
-    int pos = finalanswer.find("Content-Length: ") + 16;
-    int posEnd = finalanswer.find("\r\n", pos);
-    char * chr = (char*) malloc(sizeof(int));
+char * addContentToAnswer(std::string header, std::string content) {
+    //std::string header(answer);
+    int pos = header.find("Content-Length: ") + 16;
+    int posEnd = header.find("\r\n", pos);
+    int size = content.length();
+
+    char * chr = (char*) malloc(1024);
     ocall_int_to_string(size, chr);
     std::string s2(chr);
-    finalanswer.replace(pos, posEnd-pos, s2);
-    finalanswer += content;
-    return finalanswer;
+
+
+    header.replace(pos, posEnd-pos, s2);
+    header += content;
+;
+    char *y = new char[header.length()];
+    std::strncpy(y, header.c_str(), header.length());
+    y[header.length()] = '\0';
+
+    free(chr);
+    return y;
 }
 
 struct map* parse_headers(char * msg) {
@@ -242,7 +252,7 @@ struct map* parse_headers(char * msg) {
 
     endPos = allmsg.find("\r\n\r\n");
     std::string sSize1("HeaderSize");
-    char * chr = (char*) malloc(sizeof(int));
+    char * chr = (char*) malloc(1024);
     ocall_int_to_string((endPos + 4), chr);
     std::string sSize2(chr);
     //headers[copystring(sSize1)] = copystring(sSize2);
@@ -276,7 +286,7 @@ struct map* parse_headers(char * msg) {
         map_add(headers, s1, s2);
 
     }
-    //free(chr);
+    free(chr);
 
     return headers;
 }
@@ -359,24 +369,34 @@ void handleProxy(int csock, char * msg, int msgsize) {
 }
 
 void handleTracker(int csock, char * msg, int size) {
-    //char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
-    char answer[1024] = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+    std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+    char * finalanswer;
     struct map* headersRequest = parse_headers(msg);
     std::string value = map_get(headersRequest, "Method");
-    std::string content = "Superbe plain text à afficher";
+    std::string content;
 
-    std::string finalanswer = addContentToAnswer(answer, content, 30);
     if (value == "POST") {
         sgx_thread_mutex_lock(&mutex);
-        emit_debug("POST received");
+        content = "POST received";
+        finalanswer = addContentToAnswer(answer, content);
         sgx_thread_mutex_unlock(&mutex);
     } else if (value == "GET") {
         sgx_thread_mutex_lock(&mutex);
-        emit_debug("GET received");
+        content = "GET received";
+        finalanswer = addContentToAnswer(answer, content);
         sgx_thread_mutex_unlock(&mutex);
+    } else if (value == "DELETE") {
+        sgx_thread_mutex_lock(&mutex);
+        content = "DELETE received";
+        finalanswer = addContentToAnswer(answer, content);
+        sgx_thread_mutex_unlock(&mutex);
+    } else {
+        content = "";
+        finalanswer = addContentToAnswer(answer, content);
     }
 
-    ocall_sendanswer(csock, (char*)finalanswer.c_str(), strlen(finalanswer.c_str()));
+    ocall_sendanswer(csock, finalanswer, strlen(finalanswer));
+    free(finalanswer);
     map_destroy(headersRequest);
 }
 
