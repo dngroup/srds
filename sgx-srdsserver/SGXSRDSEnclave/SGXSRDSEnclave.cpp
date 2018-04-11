@@ -13,25 +13,6 @@ static sgx_aes_gcm_128bit_key_t key = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 
 
 sgx_thread_mutex_t mutex;
 
-void ecall_init() {
-    sgx_thread_mutex_init(&mutex, NULL);
-}
-
-std::string copystring(std::string string) {
-    char *y = new char[string.length() + 1];
-    std::strncpy(y, string.c_str(), string.length());
-    y[string.length()] = '\0';
-    std::string string2(y);
-    return string2;
-}
-
-char * copystring2char(std::string string) {
-    char *y = (char*)malloc(string.length() + 1);
-    std::strncpy(y, string.c_str(), string.length());
-    y[string.length()] = '\0';
-    return y;
-}
-
 struct map_element {
     char* key;
     char* value;
@@ -52,6 +33,30 @@ struct map* map_init() {
     return map;
 }
 
+struct map* trackermap;
+
+void ecall_init() {
+    sgx_thread_mutex_init(&mutex, NULL);
+    trackermap = map_init();
+}
+
+std::string copystring(std::string string) {
+    char *y = new char[string.length() + 1];
+    std::strncpy(y, string.c_str(), string.length());
+    y[string.length()] = '\0';
+    std::string string2(y);
+    return string2;
+}
+
+char * copystring2char(std::string string) {
+    char *y = (char*)malloc(string.length() + 1);
+    std::strncpy(y, string.c_str(), string.length());
+    y[string.length()] = '\0';
+    return y;
+}
+
+
+
 void map_add(struct map* map, std::string key, std::string value) {
     struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
 
@@ -69,6 +74,24 @@ void map_add(struct map* map, std::string key, std::string value) {
 }
 struct map_element * map_get_next(struct map_element * element){
     return element->next;
+}
+
+void map_replace(struct map* map, std::string key, std::string newvalue) {
+    char * key2 = copystring2char(key);
+    struct map_element * current = map->first;
+    if (current != NULL && strcmp(current->key,key2) == 0){
+        free(current->value);
+        current->value = copystring2char(newvalue);
+    }
+
+    while(current != NULL && current->key != NULL){
+        if(strcmp(current->key,key2) == 0){
+            free(current->value);
+            current->value = copystring2char(newvalue);
+        }
+        current=map_get_next(current);
+    }
+
 }
 
 void map_destroy(struct map* map) {
@@ -375,15 +398,29 @@ void handleTracker(int csock, char * msg, int size) {
     std::string value = map_get(headersRequest, "Method");
     std::string content;
 
+
     if (value == "POST") {
         sgx_thread_mutex_lock(&mutex);
-        content = "POST received";
+        content = "";
+        if (map_find(trackermap, "video1") == 0) {
+            emit_debug("Adding");
+            map_add(trackermap, "video1", "ip,5");
+        } else {
+            emit_debug("Replacing");
+            std::string toadd(map_get(trackermap, "video1"));
+            map_replace(trackermap, "video1",  toadd + "/ip,6");
+        }
         finalanswer = addContentToAnswer(answer, content);
         sgx_thread_mutex_unlock(&mutex);
     } else if (value == "GET") {
         sgx_thread_mutex_lock(&mutex);
-        content = "GET received";
-        finalanswer = addContentToAnswer(answer, content);
+        if (map_find(trackermap, "video1") > 0) {
+            std::string tosend(map_get(trackermap, "video1"));
+            finalanswer = addContentToAnswer(answer, tosend);
+        } else {
+            std::string tosend = "";
+            finalanswer = addContentToAnswer(answer, tosend);
+        }
         sgx_thread_mutex_unlock(&mutex);
     } else if (value == "DELETE") {
         sgx_thread_mutex_lock(&mutex);
