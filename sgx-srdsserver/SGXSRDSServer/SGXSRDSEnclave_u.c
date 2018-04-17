@@ -22,6 +22,9 @@ typedef struct ms_ecall_handlemessage_t {
 	int ms_size;
 } ms_ecall_handlemessage_t;
 
+typedef struct ms_ecall_init_t {
+	int ms_type;
+} ms_ecall_init_t;
 
 typedef struct ms_emit_debug_t {
 	char* ms_str;
@@ -49,6 +52,7 @@ typedef struct ms_ocall_receiveFromClient_t {
 } ms_ocall_receiveFromClient_t;
 
 typedef struct ms_ocall_sendanswer_t {
+	int ms_retval;
 	int ms_csock;
 	char* ms_msg;
 	int ms_size;
@@ -122,7 +126,7 @@ static sgx_status_t SGX_CDECL SGXSRDSEnclave_ocall_receiveFromClient(void* pms)
 static sgx_status_t SGX_CDECL SGXSRDSEnclave_ocall_sendanswer(void* pms)
 {
 	ms_ocall_sendanswer_t* ms = SGX_CAST(ms_ocall_sendanswer_t*, pms);
-	ocall_sendanswer(ms->ms_csock, ms->ms_msg, ms->ms_size);
+	ms->ms_retval = ocall_sendanswer(ms->ms_csock, ms->ms_msg, ms->ms_size);
 
 	return SGX_SUCCESS;
 }
@@ -222,10 +226,12 @@ sgx_status_t ecall_handlemessage(sgx_enclave_id_t eid, int csock, int type, char
 	return status;
 }
 
-sgx_status_t ecall_init(sgx_enclave_id_t eid)
+sgx_status_t ecall_init(sgx_enclave_id_t eid, int type)
 {
 	sgx_status_t status;
-	status = sgx_ecall(eid, 3, &ocall_table_SGXSRDSEnclave, NULL);
+	ms_ecall_init_t ms;
+	ms.ms_type = type;
+	status = sgx_ecall(eid, 3, &ocall_table_SGXSRDSEnclave, &ms);
 	return status;
 }
 

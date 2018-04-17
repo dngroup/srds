@@ -12,6 +12,12 @@
     <list default="true" id="08ff6ba0-cb0e-4a87-9247-4d92f0273096" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.cpp" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.cpp" />
+      <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl" />
+      <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.c" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.c" />
+      <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.h" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.h" />
+      <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.cpp" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.cpp" />
+      <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp" />
+      <change beforePath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServerApp" afterPath="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServerApp" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,7 +32,7 @@
       <file leaf-file-name="message_management.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/srdsserver/src/message_management.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
+            <state relative-caret-position="414">
               <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
               <folding />
             </state>
@@ -46,18 +52,8 @@
       <file leaf-file-name="SGXSRDSServer.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSServer.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="72" column="39" lean-forward="false" selection-start-line="72" selection-start-column="39" selection-end-line="72" selection-end-column="39" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="server.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+            <state relative-caret-position="1782">
+              <caret line="133" column="17" lean-forward="false" selection-start-line="133" selection-start-column="17" selection-end-line="133" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -66,38 +62,18 @@
       <file leaf-file-name="SGXSRDSEnclave.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="406" column="50" lean-forward="true" selection-start-line="406" selection-start-column="50" selection-end-line="406" selection-end-column="50" />
+            <state relative-caret-position="480">
+              <caret line="502" column="5" lean-forward="true" selection-start-line="502" selection-start-column="5" selection-end-line="502" selection-end-column="5" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SGXSRDSEnclave_t.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave_t.h">
+      <file leaf-file-name="client.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/client.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="29" column="23" lean-forward="false" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="trackerdb.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/trackerdb.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="12" column="73" lean-forward="false" selection-start-line="12" selection-start-column="73" selection-end-line="12" selection-end-column="73" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="trackerdb.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/trackerdb.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="28" column="2" lean-forward="false" selection-start-line="28" selection-start-column="2" selection-end-line="28" selection-end-column="2" />
+            <state relative-caret-position="1044">
+              <caret line="58" column="33" lean-forward="false" selection-start-line="58" selection-start-column="33" selection-end-line="58" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -106,8 +82,18 @@
       <file leaf-file-name="SGXSRDSEnclave.edl" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="61" lean-forward="false" selection-start-line="7" selection-start-column="61" selection-end-line="7" selection-end-column="61" />
+            <state relative-caret-position="180">
+              <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SGXSRDSEnclave_u.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3888">
+              <caret line="216" column="96" lean-forward="false" selection-start-line="216" selection-start-column="96" selection-end-line="216" selection-end-column="96" />
               <folding />
             </state>
           </provider>
@@ -116,8 +102,28 @@
       <file leaf-file-name="server.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="77" column="50" lean-forward="false" selection-start-line="77" selection-start-column="46" selection-end-line="77" selection-end-column="50" />
+            <state relative-caret-position="1818">
+              <caret line="101" column="14" lean-forward="false" selection-start-line="101" selection-start-column="14" selection-end-line="101" selection-end-column="14" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="common_socket.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="19" column="7" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="common_socket.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1188">
+              <caret line="76" column="5" lean-forward="true" selection-start-line="76" selection-start-column="5" selection-end-line="76" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -133,6 +139,7 @@
       <find>chr</find>
       <find>emit</find>
       <find>Method</find>
+      <find>ocall_send</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -147,11 +154,12 @@
         <option value="$PROJECT_DIR$/srdsserver/src/message_management.cpp" />
         <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/client.cpp" />
         <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/client.h" />
-        <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl" />
-        <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp" />
         <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.h" />
         <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSServer.cpp" />
         <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.config.xml" />
+        <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp" />
+        <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl" />
+        <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.cpp" />
         <option value="$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.cpp" />
       </list>
     </option>
@@ -259,15 +267,17 @@
       <workItem from="1522842239942" duration="2897000" />
       <workItem from="1522914941960" duration="17841000" />
       <workItem from="1523362032875" duration="11576000" />
-      <workItem from="1523435861541" duration="7472000" />
+      <workItem from="1523435861541" duration="14669000" />
+      <workItem from="1523606489869" duration="599000" />
+      <workItem from="1523958957198" duration="5668000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="45453000" />
+    <option name="totallyTimeSpent" value="58917000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="292" y="24" width="1857" height="1092" extended-state="6" />
+    <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -301,14 +311,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.config.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="5" column="11" lean-forward="false" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSServer.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="522">
@@ -321,7 +323,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -329,7 +330,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="522">
           <caret line="29" column="23" lean-forward="false" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -337,7 +337,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="12" column="73" lean-forward="false" selection-start-line="12" selection-start-column="73" selection-end-line="12" selection-end-column="73" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -345,7 +344,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="504">
           <caret line="28" column="2" lean-forward="false" selection-start-line="28" selection-start-column="2" selection-end-line="28" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -401,7 +399,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
           <caret line="7" column="11" lean-forward="false" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="11" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -433,6 +430,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1764">
           <caret line="98" column="16" lean-forward="false" selection-start-line="98" selection-start-column="16" selection-end-line="98" selection-end-column="16" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -484,6 +482,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1584">
           <caret line="88" column="33" lean-forward="true" selection-start-line="88" selection-start-column="33" selection-end-line="88" selection-end-column="33" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -528,6 +527,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="15" column="35" lean-forward="true" selection-start-line="15" selection-start-column="35" selection-end-line="15" selection-end-column="35" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -573,25 +573,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="558">
           <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-270">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -602,18 +587,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/client.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1764">
-          <caret line="98" column="16" lean-forward="false" selection-start-line="98" selection-start-column="16" selection-end-line="98" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/trackerdb.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="504">
           <caret line="28" column="2" lean-forward="false" selection-start-line="28" selection-start-column="2" selection-end-line="28" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -621,7 +598,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
           <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -629,14 +605,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="12" column="73" lean-forward="false" selection-start-line="12" selection-start-column="73" selection-end-line="12" selection-end-column="73" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl">
+    <entry file="file://$PROJECT_DIR$/srdsserver/src/message_management.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="61" lean-forward="false" selection-start-line="7" selection-start-column="61" selection-end-line="7" selection-end-column="61" />
+        <state relative-caret-position="414">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -649,26 +624,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp">
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/client.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="77" column="50" lean-forward="false" selection-start-line="77" selection-start-column="46" selection-end-line="77" selection-end-column="50" />
+        <state relative-caret-position="1044">
+          <caret line="58" column="33" lean-forward="false" selection-start-line="58" selection-start-column="33" selection-end-line="58" selection-end-column="33" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/srdsserver/src/message_management.cpp">
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSServer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="72" column="39" lean-forward="false" selection-start-line="72" selection-start-column="39" selection-end-line="72" selection-end-column="39" />
+        <state relative-caret-position="342">
+          <caret line="19" column="7" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -677,14 +644,53 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="324">
           <caret line="29" column="23" lean-forward="false" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3888">
+          <caret line="216" column="96" lean-forward="false" selection-start-line="216" selection-start-column="96" selection-end-line="216" selection-end-column="96" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/server.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1818">
+          <caret line="101" column="14" lean-forward="false" selection-start-line="101" selection-start-column="14" selection-end-line="101" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/common_socket.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1188">
+          <caret line="76" column="5" lean-forward="true" selection-start-line="76" selection-start-column="5" selection-end-line="76" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSServer/SGXSRDSServer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1782">
+          <caret line="133" column="17" lean-forward="false" selection-start-line="133" selection-start-column="17" selection-end-line="133" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.edl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sgx-srdsserver/SGXSRDSEnclave/SGXSRDSEnclave.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="406" column="50" lean-forward="true" selection-start-line="406" selection-start-column="50" selection-end-line="406" selection-end-column="50" />
+        <state relative-caret-position="480">
+          <caret line="502" column="5" lean-forward="true" selection-start-line="502" selection-start-column="5" selection-end-line="502" selection-end-column="5" />
           <folding />
         </state>
       </provider>

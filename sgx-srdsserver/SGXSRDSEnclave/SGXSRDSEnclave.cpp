@@ -16,6 +16,7 @@ sgx_thread_mutex_t mutex;
 struct map_element {
     char* key;
     char* value;
+    struct map* inmap;
     struct map_element* next;
 };
 
@@ -24,6 +25,7 @@ struct map {
     struct map_element* last;
     int size;
 };
+
 
 struct map* map_init() {
     struct map* map = (struct map*)malloc(sizeof(struct map));
@@ -35,9 +37,16 @@ struct map* map_init() {
 
 struct map* trackermap;
 
-void ecall_init() {
+struct map* proxytable;
+
+void ecall_init(int type) {
     sgx_thread_mutex_init(&mutex, NULL);
-    trackermap = map_init();
+    if (type == 1) {
+        trackermap = map_init();
+    }
+    if (type == 0) {
+        proxytable = map_init();
+    }
 }
 
 std::string copystring(std::string string) {
@@ -65,6 +74,7 @@ void map_add(struct map* map, std::string key, std::string value) {
     }
     elt->key = copystring2char(key);
     elt->value = copystring2char(value);
+    elt->inmap = NULL;
     elt->next = NULL;
     if(map->last!=NULL){
         map->last->next = elt;
@@ -102,6 +112,9 @@ void map_destroy(struct map* map) {
         current = map_get_next(current_old);
         free(current_old->key);
         free(current_old->value);
+        if (current_old->inmap != NULL) {
+            map_destroy(current_old->inmap);
+        }
         free(current_old);
     }
     free(map);
@@ -139,6 +152,38 @@ char * map_get(struct map* map, std::string key) {
     while(current != NULL && current->key != NULL){
         if(strcmp(current->key,key2) == 0){
             return current->value;
+        }
+        current=map_get_next(current);
+    }
+    return NULL;
+}
+
+struct map * map_get_map(struct map* map, std::string key) {
+    char * key2 = copystring2char(key);
+    struct map_element * current = map->first;
+    if (current != NULL && strcmp(current->key,key2) == 0){
+        return current->inmap;
+    }
+
+    while(current != NULL && current->key != NULL){
+        if(strcmp(current->key,key2) == 0){
+            return current->inmap;
+        }
+        current=map_get_next(current);
+    }
+    return NULL;
+}
+
+struct map_element * map_get_elem(struct map* map, std::string key) {
+    char * key2 = copystring2char(key);
+    struct map_element * current = map->first;
+    if (current != NULL && strcmp(current->key,key2) == 0){
+        return current;
+    }
+
+    while(current != NULL && current->key != NULL){
+        if(strcmp(current->key,key2) == 0){
+            return current;
         }
         current=map_get_next(current);
     }
@@ -326,69 +371,81 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
     int totalSizeAnswer = 0;
+    char * target;
     struct map* headersAnswer;
+    int return_send = 0;
 
     struct map* headersRequest;
-    msg[msgsize]='\0';
-    headersRequest = parse_headers(msg);
-    char * target = map_get(headersRequest,"X-Forwarded-Host");
+    try {
+        msg[msgsize] = '\0';
+        headersRequest = parse_headers(msg);
+        target = map_get(headersRequest, "X-Forwarded-Host");
 
-    ocall_startClient(&client_sock, target);
-    answer = createNewHeader(msg, target, msgsize);
+        ocall_startClient(&client_sock, target);
+        answer = createNewHeader(msg, target, msgsize);
 
-    ocall_sendToClient(client_sock, answer, (int)strlen(answer), answerFromClient);
-    sizeAnswerFromClient = extractSize(answerFromClient);
-    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+        ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
+        sizeAnswerFromClient = extractSize(answerFromClient);
+        finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
 
 
-    httpanswer = isHttp(finalanswer);
-    if(httpanswer == 0) {
-        headersAnswer = parse_headers(finalanswer);
+        httpanswer = isHttp(finalanswer);
+        if (httpanswer == 0) {
+            headersAnswer = parse_headers(finalanswer);
 
-        if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
-            std::string contentLength;
-            if (map_find(headersAnswer, "Content-Length")>0) {
-                contentLength = "Content-Length";
+            if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
+                std::string contentLength;
+                if (map_find(headersAnswer, "Content-Length") > 0) {
+                    contentLength = "Content-Length";
+                } else {
+                    contentLength = "content-length";
+                }
+                int out;
+                ocall_string_to_int(map_get(headersAnswer, "HeaderSize"),
+                                    (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
+                totalSizeAnswer += sizeAnswerFromClient - out;
+                ocall_string_to_int(map_get(headersAnswer, contentLength),
+                                    (int) strlen(map_get(headersAnswer, contentLength)), &out);
+                while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
+                    ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+                    free(finalanswer);
+                    ocall_receiveFromClient(client_sock, answerFromClient);
+                    sizeAnswerFromClient = extractSize(answerFromClient);
+                    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                    totalSizeAnswer += sizeAnswerFromClient;
+                }
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+            } else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
+                //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
+                //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
+                while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
+                    ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+                    if (return_send == 0) {
+                        emit_debug("Deco");
+                        break;
+                    }
+                    free(finalanswer);
+                    ocall_receiveFromClient(client_sock, answerFromClient);
+                    sizeAnswerFromClient = extractSize(answerFromClient);
+                    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                }
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+
             } else {
-                contentLength = "content-length";
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
             }
-            int out;
-            ocall_string_to_int(map_get(headersAnswer,"HeaderSize"),(int)strlen(map_get(headersAnswer,"HeaderSize")), &out);
-            totalSizeAnswer += sizeAnswerFromClient - out;
-            ocall_string_to_int(map_get(headersAnswer, contentLength),(int)strlen(map_get(headersAnswer,contentLength)), &out);
-            while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
-                ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-                free(finalanswer);
-                ocall_receiveFromClient(client_sock, answerFromClient);
-                sizeAnswerFromClient = extractSize(answerFromClient);
-                finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-                totalSizeAnswer += sizeAnswerFromClient;
-            }
-            ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-        } else if (map_find(headersAnswer, "Transfer-Encoding")>0) {
-            //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
-            //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
-            while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
-                ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-                free(finalanswer);
-                ocall_receiveFromClient(client_sock, answerFromClient);
-                sizeAnswerFromClient = extractSize(answerFromClient);
-                finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-            }
-            ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-
         } else {
-            ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+            ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
         }
-    } else {
-        ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-    }
 
-    ocall_closesocket(client_sock);
-    free(answer);
-    free(finalanswer);
-    map_destroy(headersRequest);
-    map_destroy(headersAnswer);
+        ocall_closesocket(client_sock);
+        free(answer);
+        free(finalanswer);
+        map_destroy(headersRequest);
+        map_destroy(headersAnswer);
+    } catch (...) {
+        emit_debug("CATCHED");
+    }
 }
 
 void handleTracker(int csock, char * msg, int size) {
@@ -397,6 +454,9 @@ void handleTracker(int csock, char * msg, int size) {
     struct map* headersRequest = parse_headers(msg);
     std::string value = map_get(headersRequest, "Method");
     std::string content;
+    int return_send = 0;
+    struct map* ipmap;
+    struct map_element * current;
 
 
     if (value == "POST") {
@@ -404,18 +464,26 @@ void handleTracker(int csock, char * msg, int size) {
         content = "";
         if (map_find(trackermap, "video1") == 0) {
             emit_debug("Adding");
-            map_add(trackermap, "video1", "ip,5");
+            map_add(trackermap, "video1", "");
+            ipmap = map_get_map(trackermap, "video1");
+            if (ipmap == NULL) {
+                ipmap = map_init();
+            }
+            map_add(ipmap, "ip1", "5");
+            current = map_get_elem(trackermap, "video1");
+            current->inmap = ipmap;
         } else {
             emit_debug("Replacing");
-            std::string toadd(map_get(trackermap, "video1"));
-            map_replace(trackermap, "video1",  toadd + "/ip,6");
+            ipmap = map_get_map(trackermap, "video1");
+            map_replace(ipmap, "ip1", "8");
         }
         finalanswer = addContentToAnswer(answer, content);
         sgx_thread_mutex_unlock(&mutex);
     } else if (value == "GET") {
         sgx_thread_mutex_lock(&mutex);
         if (map_find(trackermap, "video1") > 0) {
-            std::string tosend(map_get(trackermap, "video1"));
+            ipmap = map_get_map(trackermap, "video1");
+            std::string tosend(map_get(ipmap, "ip1"));
             finalanswer = addContentToAnswer(answer, tosend);
         } else {
             std::string tosend = "";
@@ -426,13 +494,16 @@ void handleTracker(int csock, char * msg, int size) {
         sgx_thread_mutex_lock(&mutex);
         content = "DELETE received";
         finalanswer = addContentToAnswer(answer, content);
+        map_destroy(trackermap);
+        trackermap = map_init();
         sgx_thread_mutex_unlock(&mutex);
     } else {
         content = "";
         finalanswer = addContentToAnswer(answer, content);
     }
 
-    ocall_sendanswer(csock, finalanswer, strlen(finalanswer));
+    ocall_sendanswer(&return_send, csock, finalanswer, strlen(finalanswer));
+    emit_debug("Send");
     free(finalanswer);
     map_destroy(headersRequest);
 }
@@ -440,8 +511,9 @@ void handleTracker(int csock, char * msg, int size) {
 void handleOption(int csock) {
     char answer[1024] = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nConnection: Closed\r\n\r\n\0";
     //char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
+    int return_send = 0;
 
-    ocall_sendanswer(csock, answer, strlen(answer));
+    ocall_sendanswer(&return_send, csock, answer, strlen(answer));
 }
 
 void ecall_handlemessage(int csock, int type, char * msg, int size){

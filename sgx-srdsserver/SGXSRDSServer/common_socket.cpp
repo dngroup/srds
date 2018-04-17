@@ -61,7 +61,7 @@ int do_connect(int sock, struct sockaddr_in * sin) {
 
 int do_send(int sock, char * buffer, int size) {
     size_t n = 0;
-    if((n = send(sock, buffer, size, 0)) < 0)
+    if((n = send(sock, buffer, size, 0)) <= 0)
     {
        std::cout << "Can not send to server" << std::endl;
     }
@@ -73,7 +73,7 @@ int do_recv(int sock, char * buffer) {
     ssize_t n = 0;
     if((n = recv(sock, buffer, 1024, 0)) < 0)
     {
-        std::cout << "Error while receiving" << std::endl;
+        std::cout << "Error while receiving: " << n << std::endl;
     }
 
     return n;

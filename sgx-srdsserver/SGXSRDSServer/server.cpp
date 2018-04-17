@@ -53,7 +53,7 @@ void startServer(int port, int inputtype){
 
     pthread_t thread_id;
 
-    ecall_init(global_eid);
+    ecall_init(global_eid, type);
 
     while( true )
     {
@@ -99,6 +99,6 @@ void * connection_handler(int csock)
     return 0;
 }
 
-void ocall_sendanswer(int csock, char * msg, int size) {
-    do_send(csock , msg, size);
+int ocall_sendanswer(int csock, char * msg, int size) {
+    return do_send(csock , msg, size);
 }
