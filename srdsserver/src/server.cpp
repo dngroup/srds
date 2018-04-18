@@ -57,7 +57,8 @@ void * connection_handler(int csock)
 {
     int sock = csock;
     int read_size;
-    char client_message[1024] = "";
+    char * client_message = malloc(1024);
+    memset(client_message, 0, 1024);
 
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 )
@@ -82,6 +83,8 @@ void * connection_handler(int csock)
         perror("recv failed\n");
         close(sock);
     }
+
+    free(client_message);
 
     return 0;
 }

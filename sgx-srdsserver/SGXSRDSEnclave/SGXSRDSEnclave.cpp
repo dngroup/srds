@@ -269,6 +269,8 @@ char* createNewHeader(char* msg, std::string address, int size) {
     int posHost = header.find("Host: ") + 6;
     int posEnd = header.find("\r\n", posHost);
     int posConnection = header.find("Connection: ");
+    int posForward;
+    int posEndForward;
     if (posConnection != -1) {
         posConnection = posConnection + 12;
         int posEndConnection = header.find("\r\n", posConnection);
@@ -278,6 +280,14 @@ char* createNewHeader(char* msg, std::string address, int size) {
     }
 
     header.replace(posHost, posEnd-posHost, address);
+
+    posForward = header.find("X-Forwarded-Host: ") + 18;
+    posEndForward = header.find("\r\n", posForward);
+    header.replace(posForward, posEndForward-posForward, "localhost:8080");
+
+    /*posHost = header.find("Host: ") + 6;
+    posEnd = header.find("\r\n", posHost);
+    header.insert(posEnd + 3, "Encrypt: encrypt\r\n");*/
 
     char *y = new char[header.length() + 1];
     std::strncpy(y, header.c_str(), header.length());
@@ -372,28 +382,28 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int sizeAnswerFromClient = 0;
     int totalSizeAnswer = 0;
     char * target;
-    struct map* headersAnswer;
+    struct map* headersAnswer = NULL;
     int return_send = 0;
 
     struct map* headersRequest;
-    try {
-        msg[msgsize] = '\0';
-        headersRequest = parse_headers(msg);
-        target = map_get(headersRequest, "X-Forwarded-Host");
+    msg[msgsize] = '\0';
+    headersRequest = parse_headers(msg);
+    target = map_get(headersRequest, "X-Forwarded-Host");
 
-        ocall_startClient(&client_sock, target);
-        answer = createNewHeader(msg, target, msgsize);
+    ocall_startClient(&client_sock, target);
+    answer = createNewHeader(msg, target, msgsize);
 
-        ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
-        sizeAnswerFromClient = extractSize(answerFromClient);
-        finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+    ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
+    sizeAnswerFromClient = extractSize(answerFromClient);
+    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
 
-
+    if (sizeAnswerFromClient > 0) {
         httpanswer = isHttp(finalanswer);
         if (httpanswer == 0) {
             headersAnswer = parse_headers(finalanswer);
 
             if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
+                emit_debug("Content-Length !");
                 std::string contentLength;
                 if (map_find(headersAnswer, "Content-Length") > 0) {
                     contentLength = "Content-Length";
@@ -406,7 +416,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 totalSizeAnswer += sizeAnswerFromClient - out;
                 ocall_string_to_int(map_get(headersAnswer, contentLength),
                                     (int) strlen(map_get(headersAnswer, contentLength)), &out);
+
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
+                    emit_debug("Loop !");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     free(finalanswer);
                     ocall_receiveFromClient(client_sock, answerFromClient);
@@ -415,13 +427,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+                emit_debug("end of Content-Length !");
             } else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
                 //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
                 //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
+                emit_debug("Transfer Detected");
                 while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     if (return_send == 0) {
-                        emit_debug("Deco");
                         break;
                     }
                     free(finalanswer);
@@ -437,14 +450,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
         } else {
             ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
         }
+    }
 
-        ocall_closesocket(client_sock);
-        free(answer);
-        free(finalanswer);
-        map_destroy(headersRequest);
+    ocall_closesocket(client_sock);
+    free(answer);
+    free(finalanswer);
+    map_destroy(headersRequest);
+    if (headersAnswer != NULL) {
         map_destroy(headersAnswer);
-    } catch (...) {
-        emit_debug("CATCHED");
     }
 }
 
@@ -520,6 +533,8 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
     int http = isHttp(msg);
     if (http == 0) {
         if (type == 0) {
+            emit_debug("pre proxy");
+            emit_debug_int(size);
             handleProxy(csock, msg, size);
         }
         if (type == 1) {
@@ -532,6 +547,8 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
             handleOption(csock);
         }
     }
+    emit_debug("post free");
+    emit_debug_int(size);
 }
 
 
