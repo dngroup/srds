@@ -188,13 +188,13 @@ struct map_element * map_get_elem(struct map* map, std::string key) {
     return NULL;
 }
 
-void decryptMessage(char *encMessageIn, int len, char *decMessageOut, int lenOut) {
+void decryptMessage(char *encMessageIn, int len, char *decMessageOut, int lenOut, int counter) {
 
 	strncpy(decMessageOut, encMessageIn, len);
 
 }
 
-void encryptMessage(char *decMessageIn, int len, char *encMessageOut, int lenOut) {
+void encryptMessage(char *decMessageIn, int len, char *encMessageOut, int lenOut, int counter) {
 
 	strncpy(encMessageOut, decMessageIn, len);
 
@@ -307,7 +307,7 @@ char * addContentToAnswer(std::string header, std::string content) {
 
     header.replace(pos, posEnd-pos, s2);
     header += content;
-;
+
     char *y = new char[header.length()];
     std::strncpy(y, header.c_str(), header.length());
     y[header.length()] = '\0';
@@ -457,24 +457,32 @@ void handleProxy(int csock, char * msg, int msgsize) {
     }
 }
 
-void handleTracker(int csock, char * msg, int size) {
+void handleTracker(int csock, char * msg, int size, int debug) {
 
 	// Decryption: msg -> fullDecryptedMessage
-	char * fullDecryptedMessage = (char*) malloc(size*sizeof(char));
+	int counter = 0;
 	int endPos = getPosEndOfHeader(msg)+4;
+	int msgSize = size-endPos;
+	char * fullDecryptedMessage = (char*) malloc(size*sizeof(char));
+	char * decryptedMessage = (char*) malloc((msgSize+1)*sizeof(char));
 	strncpy(fullDecryptedMessage, msg, endPos);
 	if (endPos < size) {
-		char * messageToDecrypt = (char*) malloc((size-endPos)*sizeof(char));
-		char * decryptedMessage = (char*) malloc((size-endPos)*sizeof(char));
-		strncpy(messageToDecrypt, msg+endPos+1, size-endPos);
-		decryptMessage(messageToDecrypt, size-endPos, decryptedMessage, size-endPos);
-		strncpy(fullDecryptedMessage+endPos+1, messageToDecrypt, size-endPos);
+		char * messageToDecrypt = (char*) malloc((msgSize+1)*sizeof(char));
+		strncpy(messageToDecrypt, msg+endPos, msgSize);
+		messageToDecrypt[msgSize] = '\0';
+		if (debug == 0) {
+			decryptMessage(messageToDecrypt, msgSize, decryptedMessage, msgSize, counter);
+		} else if (debug == 1) {
+			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, msgSize, counter);
+		}
+		decryptedMessage[msgSize] = '\0';
+		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 		free(messageToDecrypt);
-		free(decryptedMessage);
 	}
 	// fullDecryptedMessage
+	
+	std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
-    std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
     char * finalanswer;
     struct map* headersRequest = parse_headers(fullDecryptedMessage);
     std::string value = map_get(headersRequest, "Method");
@@ -483,59 +491,71 @@ void handleTracker(int csock, char * msg, int size) {
     struct map* ipmap;
     struct map_element * current;
     
-    if (value == "POST") {
-        sgx_thread_mutex_lock(&mutex);
-        content = "";
-        if (map_find(trackermap, "video1") == 0) {
-            emit_debug("Adding");
-            map_add(trackermap, "video1", "");
-            ipmap = map_get_map(trackermap, "video1");
-            if (ipmap == NULL) {
-                ipmap = map_init();
-            }
-            map_add(ipmap, "ip1", "5");
-            current = map_get_elem(trackermap, "video1");
-            current->inmap = ipmap;
-        } else {
-            emit_debug("Replacing");
-            ipmap = map_get_map(trackermap, "video1");
-            map_replace(ipmap, "ip1", "8");
-        }
-        finalanswer = addContentToAnswer(answer, content);
-        sgx_thread_mutex_unlock(&mutex);
-    } else if (value == "GET") {
-        sgx_thread_mutex_lock(&mutex);
-        if (map_find(trackermap, "video1") > 0) {
-            ipmap = map_get_map(trackermap, "video1");
-            std::string tosend(map_get(ipmap, "ip1"));
-            finalanswer = addContentToAnswer(answer, tosend);
-        } else {
-            std::string tosend = "";
-            finalanswer = addContentToAnswer(answer, tosend);
-        }
-        sgx_thread_mutex_unlock(&mutex);
-    } else if (value == "DELETE") {
-        sgx_thread_mutex_lock(&mutex);
-        content = "DELETE received";
-        finalanswer = addContentToAnswer(answer, content);
-        map_destroy(trackermap);
-        trackermap = map_init();
-        sgx_thread_mutex_unlock(&mutex);
-    } else {
-        content = "";
-        finalanswer = addContentToAnswer(answer, content);
-    }
+    if (debug == 0) {
+		if (value == "POST") {
+		    sgx_thread_mutex_lock(&mutex);
+		    content = "";
+		    if (map_find(trackermap, "video1") == 0) {
+		        emit_debug("Adding");
+		        map_add(trackermap, "video1", "");
+		        ipmap = map_get_map(trackermap, "video1");
+		        if (ipmap == NULL) {
+		            ipmap = map_init();
+		        }
+		        map_add(ipmap, "ip1", "5");
+		        current = map_get_elem(trackermap, "video1");
+		        current->inmap = ipmap;
+		    } else {
+		        emit_debug("Replacing");
+		        ipmap = map_get_map(trackermap, "video1");
+		        map_replace(ipmap, "ip1", "8");
+		    }
+		    finalanswer = addContentToAnswer(answer, content);
+		    sgx_thread_mutex_unlock(&mutex);
+		} else if (value == "GET") {
+		    sgx_thread_mutex_lock(&mutex);
+		    if (map_find(trackermap, "video1") > 0) {
+		        ipmap = map_get_map(trackermap, "video1");
+		        std::string tosend(map_get(ipmap, "ip1"));
+		        finalanswer = addContentToAnswer(answer, tosend);
+		    } else {
+		        std::string tosend = "";
+		        finalanswer = addContentToAnswer(answer, tosend);
+		    }
+		    sgx_thread_mutex_unlock(&mutex);
+		} else if (value == "DELETE") {
+		    sgx_thread_mutex_lock(&mutex);
+		    content = "DELETE received";
+		    finalanswer = addContentToAnswer(answer, content);
+		    map_destroy(trackermap);
+		    trackermap = map_init();
+		    sgx_thread_mutex_unlock(&mutex);
+		} else {
+		    content = "";
+		    finalanswer = addContentToAnswer(answer, content);
+		}
+	} else if (debug == 1) {
+		std::string content(decryptedMessage);
+		finalanswer = addContentToAnswer(answer, content);
+	}
     
     // Encryption: answer -> fullEncryptedMessage
-	char * fullEncryptedMessage = (char*) malloc((strlen(finalanswer))*sizeof(char));
+    counter = 0;
+	char * fullEncryptedMessage = (char*) malloc((answer.length()+msgSize)*sizeof(char));
 	endPos = getPosEndOfHeader(finalanswer)+4;
 	strncpy(fullEncryptedMessage, finalanswer, endPos);
 	if (endPos < strlen(finalanswer)) {
-		char * messageToEncrypt = (char*) malloc((size-endPos)*sizeof(char));
-		char * encryptedMessage = (char*) malloc((size-endPos)*sizeof(char));
-		strncpy(messageToEncrypt, finalanswer+endPos+1, size-endPos);
-		encryptMessage(messageToEncrypt, size-endPos, encryptedMessage, size-endPos);
-		strncpy(fullEncryptedMessage+endPos+1, messageToEncrypt, size-endPos);
+		char * messageToEncrypt = (char*) malloc((msgSize+1)*sizeof(char));
+		char * encryptedMessage = (char*) malloc((msgSize+1)*sizeof(char));
+		strncpy(messageToEncrypt, finalanswer+endPos, msgSize);
+		messageToEncrypt[msgSize] = '\0';
+		if (debug == 0) {
+			encryptMessage(messageToEncrypt, msgSize, encryptedMessage, msgSize, counter);
+		} else if (debug == 1) {
+			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, msgSize, counter);
+		}
+		encryptedMessage[msgSize] = '\0';
+		strncpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
 		free(messageToEncrypt);
 		free(encryptedMessage);
 	}
@@ -546,6 +566,7 @@ void handleTracker(int csock, char * msg, int size) {
     free(finalanswer);
     free(fullDecryptedMessage);
     free(fullEncryptedMessage);
+    free(decryptedMessage);
     map_destroy(headersRequest);
 }
 
@@ -564,7 +585,11 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
             handleProxy(csock, msg, size);
         }
         if (type == 1) {
-            handleTracker(csock, msg, size);
+            handleTracker(csock, msg, size, 0);
+        }
+		if (type == 11) {
+			// tracker encryption test
+			handleTracker(csock, msg, size, 1);
         }
     } else {
 
