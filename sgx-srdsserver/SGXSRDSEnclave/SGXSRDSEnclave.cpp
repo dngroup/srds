@@ -64,8 +64,6 @@ char * copystring2char(std::string string) {
     return y;
 }
 
-
-
 void map_add(struct map* map, std::string key, std::string value) {
     struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
 
@@ -190,6 +188,17 @@ struct map_element * map_get_elem(struct map* map, std::string key) {
     return NULL;
 }
 
+void decryptMessage(char *encMessageIn, int len, char *decMessageOut, int lenOut) {
+
+	strncpy(decMessageOut, encMessageIn, len);
+
+}
+
+void encryptMessage(char *decMessageIn, int len, char *encMessageOut, int lenOut) {
+
+	strncpy(encMessageOut, decMessageIn, len);
+
+}
 
 int extractSize(char * msg) {
 	int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
@@ -383,11 +392,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
         ocall_startClient(&client_sock, target);
         answer = createNewHeader(msg, target, msgsize);
-
+		
         ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
+        
         sizeAnswerFromClient = extractSize(answerFromClient);
         finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
-
 
         httpanswer = isHttp(finalanswer);
         if (httpanswer == 0) {
@@ -449,16 +458,31 @@ void handleProxy(int csock, char * msg, int msgsize) {
 }
 
 void handleTracker(int csock, char * msg, int size) {
+
+	// Decryption: msg -> fullDecryptedMessage
+	char * fullDecryptedMessage = (char*) malloc(size*sizeof(char));
+	int endPos = getPosEndOfHeader(msg)+4;
+	strncpy(fullDecryptedMessage, msg, endPos);
+	if (endPos < size) {
+		char * messageToDecrypt = (char*) malloc((size-endPos)*sizeof(char));
+		char * decryptedMessage = (char*) malloc((size-endPos)*sizeof(char));
+		strncpy(messageToDecrypt, msg+endPos+1, size-endPos);
+		decryptMessage(messageToDecrypt, size-endPos, decryptedMessage, size-endPos);
+		strncpy(fullDecryptedMessage+endPos+1, messageToDecrypt, size-endPos);
+		free(messageToDecrypt);
+		free(decryptedMessage);
+	}
+	// fullDecryptedMessage
+
     std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
     char * finalanswer;
-    struct map* headersRequest = parse_headers(msg);
+    struct map* headersRequest = parse_headers(fullDecryptedMessage);
     std::string value = map_get(headersRequest, "Method");
     std::string content;
     int return_send = 0;
     struct map* ipmap;
     struct map_element * current;
-
-
+    
     if (value == "POST") {
         sgx_thread_mutex_lock(&mutex);
         content = "";
@@ -501,10 +525,27 @@ void handleTracker(int csock, char * msg, int size) {
         content = "";
         finalanswer = addContentToAnswer(answer, content);
     }
-
-    ocall_sendanswer(&return_send, csock, finalanswer, strlen(finalanswer));
+    
+    // Encryption: answer -> fullEncryptedMessage
+	char * fullEncryptedMessage = (char*) malloc((strlen(finalanswer))*sizeof(char));
+	endPos = getPosEndOfHeader(finalanswer)+4;
+	strncpy(fullEncryptedMessage, finalanswer, endPos);
+	if (endPos < strlen(finalanswer)) {
+		char * messageToEncrypt = (char*) malloc((size-endPos)*sizeof(char));
+		char * encryptedMessage = (char*) malloc((size-endPos)*sizeof(char));
+		strncpy(messageToEncrypt, finalanswer+endPos+1, size-endPos);
+		encryptMessage(messageToEncrypt, size-endPos, encryptedMessage, size-endPos);
+		strncpy(fullEncryptedMessage+endPos+1, messageToEncrypt, size-endPos);
+		free(messageToEncrypt);
+		free(encryptedMessage);
+	}
+	// fullEncryptedMessage
+	
+    ocall_sendanswer(&return_send, csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
     emit_debug("Send");
     free(finalanswer);
+    free(fullDecryptedMessage);
+    free(fullEncryptedMessage);
     map_destroy(headersRequest);
 }
 
@@ -534,42 +575,3 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
     }
 }
 
-
-void decryptMessage(char *encMessageIn, size_t len, char *decMessageOut, size_t lenOut)
-{
-
-	uint8_t *encMessage = (uint8_t *) encMessageIn;
-	uint8_t p_dst[BUFLEN] = {0};
-
-	sgx_rijndael128GCM_decrypt(
-		&key,
-		encMessage + SGX_AESGCM_MAC_SIZE + SGX_AESGCM_IV_SIZE,
-		lenOut,
-		p_dst,
-		encMessage + SGX_AESGCM_MAC_SIZE, SGX_AESGCM_IV_SIZE,
-		NULL, 0,
-		(sgx_aes_gcm_128bit_tag_t *) encMessage);
-	memcpy(decMessageOut, p_dst, lenOut);
-        emit_debug((char *) p_dst);
-
-}
-
-void encryptMessage(char *decMessageIn, size_t len, char *encMessageOut, size_t lenOut)
-{
-
-	uint8_t *origMessage = (uint8_t *) decMessageIn;
-	uint8_t p_dst[BUFLEN] = {0};
-
-	// Generate the IV (nonce)
-	sgx_read_rand(p_dst + SGX_AESGCM_MAC_SIZE, SGX_AESGCM_IV_SIZE);
-
-	sgx_rijndael128GCM_encrypt(
-		&key,
-		origMessage, len, 
-		p_dst + SGX_AESGCM_MAC_SIZE + SGX_AESGCM_IV_SIZE,
-		p_dst + SGX_AESGCM_MAC_SIZE, SGX_AESGCM_IV_SIZE,
-		NULL, 0,
-		(sgx_aes_gcm_128bit_tag_t *) (p_dst));	
-	memcpy(encMessageOut,p_dst,lenOut);
-
-}

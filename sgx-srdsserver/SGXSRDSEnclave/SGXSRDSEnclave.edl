@@ -3,8 +3,6 @@ enclave {
 	from "sgx_tstdc.edl" import sgx_thread_wait_untrusted_event_ocall, sgx_thread_set_untrusted_event_ocall; 
 	
     trusted {
-        public void decryptMessage([in,size=len] char *encMessageIn, size_t len, [out,size=lenOut] char *decMessageOut, size_t lenOut);
-        public void encryptMessage([in,size=len] char *decMessageIn, size_t len, [out,size=lenOut] char *encMessageOut, size_t lenOut);
         public void ecall_handlemessage(int csock, int type, [in,size=size] char *msg, int size);
         public void ecall_init(int type);
     };
