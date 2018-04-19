@@ -408,11 +408,13 @@ char * addContentToAnswer(std::string header, std::string content) {
     return y;
 }
 
-struct map* parse_headers(char * msg) {
+struct map* parse_headers(char * msg2, int headersSize) {
 	struct map* headers = map_init();
     int endPos = 0;
     int pos = 0;
     int oldPos = 0;
+    char * msg = (char *) malloc(headersSize * sizeof(char));
+    strncpy(msg, msg2, headersSize);
     std::string allmsg(msg);
     int posmiddle = 0;
     int firstSpace = 0;
@@ -495,7 +497,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
     struct map* headersRequest;
     msg[msgsize] = '\0';
-    headersRequest = parse_headers(msg);
+    headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
     target = map_get(headersRequest, "X-Forwarded-Host");
     fromSGX = (map_find(headersRequest, "From-SGX")>0);
     ocall_startClient(&client_sock, target);
@@ -580,7 +582,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     if (sizeAnswerFromClient > 0) {
         httpanswer = isHttp(finalanswer);
         if (httpanswer == 0) {
-            headersAnswer = parse_headers(finalanswer);
+            headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer)+4);
 
             if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
                 std::string contentLength;
@@ -742,7 +744,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
     char * finalanswer;
-    struct map* headersRequest = parse_headers(fullDecryptedMessage);
+    struct map* headersRequest = parse_headers(fullDecryptedMessage, getPosEndOfHeader(fullDecryptedMessage)+4);
     std::string value = map_get(headersRequest, "Method");
     std::string content;
     int return_send = 0;
