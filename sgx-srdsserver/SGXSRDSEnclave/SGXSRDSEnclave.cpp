@@ -479,10 +479,13 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	int endPos = getPosEndOfHeader(msg)+4;
 	int msgSize = size-endPos;
 	char * fullDecryptedMessage = (char*) malloc(size*sizeof(char));
+	memset(fullDecryptedMessage, 0, size*sizeof(char));
 	char * decryptedMessage = (char*) malloc((msgSize+1)*sizeof(char));
+	memset(decryptedMessage, 0, (msgSize+1)*sizeof(char));
 	strncpy(fullDecryptedMessage, msg, endPos);
 	if (endPos < size) {
 		char * messageToDecrypt = (char*) malloc((msgSize+1)*sizeof(char));
+		memset(messageToDecrypt, 0, (msgSize+1)*sizeof(char));
 		strncpy(messageToDecrypt, msg+endPos, msgSize);
 		messageToDecrypt[msgSize] = '\0';
 		if (debug == 0) {
@@ -557,11 +560,14 @@ void handleTracker(int csock, char * msg, int size, int debug) {
     // Encryption: answer -> fullEncryptedMessage
     counter = 0;
 	char * fullEncryptedMessage = (char*) malloc((answer.length()+msgSize)*sizeof(char));
+	memset(fullEncryptedMessage, 0, (answer.length()+msgSize)*sizeof(char));
 	endPos = getPosEndOfHeader(finalanswer)+4;
 	strncpy(fullEncryptedMessage, finalanswer, endPos);
 	if (endPos < strlen(finalanswer)) {
 		char * messageToEncrypt = (char*) malloc((msgSize+1)*sizeof(char));
+		memset(messageToEncrypt, 0, (msgSize+1)*sizeof(char));
 		char * encryptedMessage = (char*) malloc((msgSize+1)*sizeof(char));
+		memset(encryptedMessage, 0, (msgSize+1)*sizeof(char));
 		strncpy(messageToEncrypt, finalanswer+endPos, msgSize);
 		messageToEncrypt[msgSize] = '\0';
 		if (debug == 0) {
