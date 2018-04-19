@@ -84,18 +84,12 @@ void * connection_handler(int csock)
         sem_post(&mutex);
         pthread_mutex_unlock(&lock);
 
-        printf("out of ecall\n");
-        fflush(stdout);
-
         //clear the message buffer
         memset(client_message, 0, 1024);
-        printf("before close\n");
-        fflush(stdout);
         close(sock);
         break;
     }
-    printf("out of while\n");
-    fflush(stdout);
+
     if(read_size == 0)
     {
         printf("Client disconnected\n");
