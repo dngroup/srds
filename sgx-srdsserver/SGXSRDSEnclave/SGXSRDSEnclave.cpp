@@ -101,7 +101,7 @@ void map_replace(struct map* map, std::string key, std::string newvalue) {
         }
         current=map_get_next(current);
     }
-
+    free(key2);
 }
 
 void map_destroy(struct map* map) {
@@ -125,6 +125,7 @@ int map_find(struct map* map, std::string key) {
     char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
+        free(key2);
         return 1;
     }
 
@@ -132,6 +133,7 @@ int map_find(struct map* map, std::string key) {
 
         if (current->key != NULL) {
             if (strcmp(current->key, key2) == 0) {
+                free(key2);
                 return 1;
             }
         }
@@ -139,6 +141,7 @@ int map_find(struct map* map, std::string key) {
         current = map_get_next(current);
 
     }
+    free(key2);
     return 0;
 }
 
@@ -146,15 +149,18 @@ char * map_get(struct map* map, std::string key) {
     char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
+        free(key2);
         return current->value;
     }
 
     while(current != NULL && current->key != NULL){
         if(strcmp(current->key,key2) == 0){
+            free(key2);
             return current->value;
         }
         current=map_get_next(current);
     }
+    free(key2);
     return NULL;
 }
 
@@ -162,15 +168,18 @@ struct map * map_get_map(struct map* map, std::string key) {
     char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
+        free(key2);
         return current->inmap;
     }
 
     while(current != NULL && current->key != NULL){
         if(strcmp(current->key,key2) == 0){
+            free(key2);
             return current->inmap;
         }
         current=map_get_next(current);
     }
+    free(key2);
     return NULL;
 }
 
@@ -178,16 +187,61 @@ struct map_element * map_get_elem(struct map* map, std::string key) {
     char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
+        free(key2);
         return current;
     }
 
     while(current != NULL && current->key != NULL){
         if(strcmp(current->key,key2) == 0){
+            free(key2);
             return current;
         }
         current=map_get_next(current);
     }
+    free(key2);
     return NULL;
+}
+
+int isBiggerThan(std::string value, char* valueInMem) {
+    char * value2 = (char*)value.c_str();
+    int sizeValue = strlen(value2);
+    int sizeValueInMem = strlen(valueInMem);
+    int returnvalue = 1;
+
+    if (sizeValue > sizeValueInMem) {
+        returnvalue = 0;
+    } else if (sizeValue == sizeValueInMem) {
+        for (int i = 0; i < sizeValueInMem; i++) {
+            if (value2[i] > valueInMem[i]) {
+                returnvalue = 0;
+                break;
+            }
+            if (value2[i] < valueInMem[i]) {
+                break;
+            }
+        }
+    }
+
+    return returnvalue;
+}
+
+std::string map_findKeysByValueBiggerThan(struct map* map, std::string value) {
+    std:: string output = "";
+    struct map_element * current = map->first;
+
+    while(current != NULL && current->key != NULL){
+
+        if (isBiggerThan(value, current->value) > 0) {
+            std::string topush(current->key);
+            if (output.length() > 0 && output[output.length()-1] != ',') {
+                output += ",";
+            }
+            output += topush;
+        }
+        current=map_get_next(current);
+    }
+
+    return output;
 }
 
 // assume that there exist a 128 bits symmetric key priorly provisioned to the enclaves
@@ -417,7 +471,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int return_send = 0;
 
     struct map* headersRequest;
-
     msg[msgsize] = '\0';
     headersRequest = parse_headers(msg);
     target = map_get(headersRequest, "X-Forwarded-Host");
@@ -435,7 +488,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
             headersAnswer = parse_headers(finalanswer);
 
             if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
-                emit_debug("Content-Length !");
                 std::string contentLength;
                 if (map_find(headersAnswer, "Content-Length") > 0) {
                     contentLength = "Content-Length";
@@ -450,7 +502,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
                                     (int) strlen(map_get(headersAnswer, contentLength)), &out);
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
-                    emit_debug("Loop !");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     free(finalanswer);
                     ocall_receiveFromClient(client_sock, answerFromClient);
@@ -459,11 +510,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-                emit_debug("end of Content-Length !");
+
             } else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
                 //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
                 //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
-                emit_debug("Transfer Detected");
+
                 while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     if (return_send == 0) {
@@ -525,7 +576,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		free(messageToDecrypt);
 	}
 	// fullDecryptedMessage
-
+	
 	std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
     char * finalanswer;
@@ -535,34 +586,52 @@ void handleTracker(int csock, char * msg, int size, int debug) {
     int return_send = 0;
     struct map* ipmap;
     struct map_element * current;
-
+    
     if (debug == 0) {
 		if (value == "POST") {
 		    sgx_thread_mutex_lock(&mutex);
 		    content = "";
-		    if (map_find(trackermap, "video1") == 0) {
-		        emit_debug("Adding");
-		        map_add(trackermap, "video1", "");
-		        ipmap = map_get_map(trackermap, "video1");
+            std::string msgContent(decryptedMessage);
+            int firstComa = msgContent.find(",");
+            int secondComa = msgContent.find(",", firstComa + 1);
+            std::string  videoID = msgContent.substr(0, firstComa);
+            std::string  ipToChange = msgContent.substr(firstComa+1, secondComa-firstComa-1);
+            std::string  numberOfSegment = msgContent.substr(secondComa+1);
+
+		    if (map_find(trackermap, videoID) == 0) {
+		        map_add(trackermap, videoID, "");
+		        ipmap = map_get_map(trackermap, videoID);
 		        if (ipmap == NULL) {
 		            ipmap = map_init();
 		        }
-		        map_add(ipmap, "ip1", "5");
-		        current = map_get_elem(trackermap, "video1");
+		        map_add(ipmap, ipToChange, numberOfSegment);
+		        current = map_get_elem(trackermap, videoID);
 		        current->inmap = ipmap;
 		    } else {
-		        emit_debug("Replacing");
-		        ipmap = map_get_map(trackermap, "video1");
-		        map_replace(ipmap, "ip1", "8");
+		        ipmap = map_get_map(trackermap, videoID);
+                if (map_find(ipmap, ipToChange) == 0) {
+                    map_add(ipmap, ipToChange, numberOfSegment);
+                } else {                    map_replace(ipmap, ipToChange, numberOfSegment);
+                }
 		    }
 		    finalanswer = addContentToAnswer(answer, content);
 		    sgx_thread_mutex_unlock(&mutex);
 		} else if (value == "GET") {
 		    sgx_thread_mutex_lock(&mutex);
-		    if (map_find(trackermap, "video1") > 0) {
-		        ipmap = map_get_map(trackermap, "video1");
-		        std::string tosend(map_get(ipmap, "ip1"));
-		        finalanswer = addContentToAnswer(answer, tosend);
+            std::string msgContent(decryptedMessage);
+            int firstComa = msgContent.find(",");
+            std::string  videoID = msgContent.substr(0, firstComa);
+            std::string  numberOfSegments = msgContent.substr(firstComa+1);
+		    if (map_find(trackermap, videoID) > 0) {
+		        ipmap = map_get_map(trackermap, videoID);
+                if (ipmap != NULL) {
+                    std::string tosend = map_findKeysByValueBiggerThan(ipmap, numberOfSegments);
+                    finalanswer = addContentToAnswer(answer, tosend);
+                } else {
+                    std::string tosend = "";
+                    finalanswer = addContentToAnswer(answer, tosend);
+                }
+
 		    } else {
 		        std::string tosend = "";
 		        finalanswer = addContentToAnswer(answer, tosend);
@@ -583,7 +652,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		std::string content(decryptedMessage);
 		finalanswer = addContentToAnswer(answer, content);
 	}
-
+    
     // Encryption: answer -> fullEncryptedMessage
     counter = 0;
     endPos = getPosEndOfHeader(finalanswer)+4;
@@ -613,9 +682,8 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		free(encryptedMessage);
 	}
 	// fullEncryptedMessage
-
+	
     ocall_sendanswer(&return_send, csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
-    emit_debug("Send");
     free(finalanswer);
     free(fullDecryptedMessage);
     free(fullEncryptedMessage);
@@ -635,8 +703,6 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
     int http = isHttp(msg);
     if (http == 0) {
         if (type == 0) {
-            emit_debug("pre proxy");
-            emit_debug_int(size);
             handleProxy(csock, msg, size);
         }
         if (type == 1) {
@@ -653,6 +719,5 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
             handleOption(csock);
         }
     }
-    emit_debug("post free");
-    emit_debug_int(size);
 }
+
