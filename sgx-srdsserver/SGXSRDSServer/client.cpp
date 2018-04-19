@@ -39,7 +39,7 @@ void ocall_startClient(int * csock, char * address) {
 
     if(do_connect(sock, &sin) < 0)
     {
-        fprintf (stderr, "fail to connect");
+        fprintf (stderr, "fail to connect\n");
         return;
     }
 
