@@ -730,6 +730,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     ocall_closesocket(client_sock);
     free(answer);
     free(finalanswer);
+    free(remainingBuffer);
     map_destroy(headersRequest);
     if (headersAnswer != NULL) {
         map_destroy(headersAnswer);
