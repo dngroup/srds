@@ -6,7 +6,7 @@ port = 8081
 mode = 11 # 0: proxy, 1: tracker, 11: tracker encryption test
 filename = './encryptedtext.out'
 text = 'Placeholder text. Newlines and spaces are handled.'
-sleeptime = 3
+sleeptime = 5
 
 def main():
 	os.system('make clean && make')
