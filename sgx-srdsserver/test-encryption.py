@@ -5,7 +5,7 @@ import os
 port = 8081
 mode = 11 # 0: proxy, 1: tracker, 11: tracker encryption test
 filename = './encryptedtext.out'
-text = '123456781234567\n'
+text = '12345678newline\n'
 sleeptime = 3
 
 def main():

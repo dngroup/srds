@@ -458,6 +458,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     //char target[1024] = "msstream.net";
     int targetPort = 8023;
 
+	bool fromSGX = true;
     char * answer;
     int client_sock;
     char * finalanswer;
@@ -478,9 +479,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
     ocall_startClient(&client_sock, target);
     answer = createNewHeader(msg, target, msgsize);
 
-    ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
+	// msg -> if data: encrypt / if fromSGX: decrypt 
+	// no need to worry about counter here (counter = 0)
+
+    ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient); 
     sizeAnswerFromClient = extractSize(answerFromClient);
-    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient); // finalanswer -> first (last?) subpacket
+    
+    // finalanswer -> if fromSGX: encrypt / else: decrypt
+    // no need to worry about counter here (counter = 0) but will be incremented later, keep final value!
 
     if (sizeAnswerFromClient > 0) {
         httpanswer = isHttp(finalanswer);
