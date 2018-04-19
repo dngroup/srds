@@ -3,3 +3,8 @@
 **/*.o
 **/*.so
 cmake-build-debug/
+.idea/
+sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.c
+sgx-srdsserver/SGXSRDSServer/SGXSRDSEnclave_u.h
+sgx-srdsserver/SGXSRDSServerApp
+
