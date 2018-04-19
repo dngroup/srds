@@ -580,9 +580,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
     // finalanswer -> if fromSGX: encrypt / else: decrypt
 
     if (sizeAnswerFromClient > 0) {
+        emit_debug("http");
         httpanswer = isHttp(finalanswer);
+        emit_debug("http_end");
         if (httpanswer == 0) {
+            emit_debug("parse http");
             headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer)+4);
+            emit_debug("parse http end");
 
             if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
                 std::string contentLength;
@@ -592,11 +596,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     contentLength = "content-length";
                 }
                 int out;
+                emit_debug("before ocall");
                 ocall_string_to_int(map_get(headersAnswer, "HeaderSize"),
                                     (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
                 totalSizeAnswer += sizeAnswerFromClient - out;
                 ocall_string_to_int(map_get(headersAnswer, contentLength),
                                     (int) strlen(map_get(headersAnswer, contentLength)), &out);
+                emit_debug("before while");
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("while testContentLength");
