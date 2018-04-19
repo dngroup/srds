@@ -560,7 +560,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
     // Encryption: answer -> fullEncryptedMessage
     counter = 0;
     endPos = getPosEndOfHeader(finalanswer)+4;
-    msgSize = finalanswer.length() - endPos;
+    msgSize = strlen(finalanswer) - endPos;
 	char * fullEncryptedMessage = (char*) malloc((answer.length()+msgSize)*sizeof(char));
 	memset(fullEncryptedMessage, 0, (answer.length()+msgSize)*sizeof(char));
 	strncpy(fullEncryptedMessage, finalanswer, endPos);
