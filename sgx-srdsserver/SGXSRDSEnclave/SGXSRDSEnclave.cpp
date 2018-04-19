@@ -58,8 +58,12 @@ std::string copystring(std::string string) {
 }
 
 char * copystring2char(std::string string) {
+    emit_debug("before malloc");
+    emit_debug_int(string.length());
     char *y = (char*)malloc(string.length() + 1);
+    emit_debug("after malloc");
     std::strncpy(y, string.c_str(), string.length());
+    emit_debug("after copy");
     y[string.length()] = '\0';
     return y;
 }
@@ -68,12 +72,15 @@ char * copystring2char(std::string string) {
 
 void map_add(struct map* map, std::string key, std::string value) {
     struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
-
+    emit_debug("created mapelement");
     if (map->size == 0) {
         map->first = elt;
     }
+    emit_debug(key.c_str());
     elt->key = copystring2char(key);
+    emit_debug("keycopied");
     elt->value = copystring2char(value);
+    emit_debug("both copied");
     elt->inmap = NULL;
     elt->next = NULL;
     if(map->last!=NULL){
@@ -413,22 +420,31 @@ struct map* parse_headers(char * msg2, int headersSize) {
     int endPos = 0;
     int pos = 0;
     int oldPos = 0;
+    emit_debug("debut");
     char * msg = (char *) malloc(headersSize * sizeof(char));
     strncpy(msg, msg2, headersSize);
+    emit_debug("copy");
     std::string allmsg(msg);
+    emit_debug("string");
     int posmiddle = 0;
     int firstSpace = 0;
     int secondSpace = 0;
     //std::map<std::string, std::string> headers;
 
     endPos = allmsg.find("\r\n\r\n");
+    emit_debug("find");
     std::string sSize1("HeaderSize");
     char * chr = (char*) malloc(1024);
+    emit_debug("malloc");
     ocall_int_to_string((endPos + 4), chr);
+    emit_debug("ocall");
+    emit_debug(chr);
     std::string sSize2(chr);
+    emit_debug("added");
+    emit_debug(sSize2.c_str());
     //headers[copystring(sSize1)] = copystring(sSize2);
     map_add(headers, sSize1, sSize2);
-
+    emit_debug("first");
 
     pos = allmsg.find("\r\n");
     firstSpace = allmsg.find(" ");
@@ -441,11 +457,13 @@ struct map* parse_headers(char * msg2, int headersSize) {
     std::string sPath2(msg, firstSpace + 1, secondSpace - firstSpace - 1);
     //headers[copystring(sPath1)] = copystring(sPath2);
     map_add(headers, sPath1, sPath2);
+    emit_debug("second");
 
     std::string sProto1("Protocol");
     std::string sProto2(msg, secondSpace + 1, pos - secondSpace - 1);
     //headers[copystring(sProto1)] = copystring(sProto2);
     map_add(headers, sProto1, sProto2);
+    emit_debug("third");
 
     while (pos < endPos && pos > 0) {
         oldPos = pos;
