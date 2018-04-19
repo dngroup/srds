@@ -504,6 +504,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	int endPos = getPosEndOfHeader(msg)+4;
 	int msgSizeCnt = msgsize-endPos;
 	if (endPos < msgsize) {
+		emit_debug("endPos < msgsize");
 		char * fullDecryptedMessage = (char*) malloc(msgsize*sizeof(char));
 		memset(fullDecryptedMessage, 0, msgsize*sizeof(char));
 		emit_debug("decryptedMessage");
@@ -537,7 +538,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
     
     endPos = getPosEndOfHeader(finalanswer)+4;
 	msgSizeCnt = sizeAnswerFromClient-endPos;
-	if (msgSizeCnt > 1) {
+	if (msgSizeCnt > 0) {
+		emit_debug("msgSizeCnt > 0");
 		emit_debug("fullDecryptedMessage");
 		char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
 		memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
@@ -564,9 +566,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 		memset(remainingBuffer, 0, 16);
 		remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+		emit_debug("remainingSize ok");
 		free(messageToDecrypt);
+		emit_debug("free(messageToDecrypt) ok");
 		free(decryptedMessage);
+		emit_debug("free(decryptedMessage) ok");
 		free(fullDecryptedMessage);
+		emit_debug("free(fullDecryptedMessage) ok");
 	}
     
     // finalanswer -> if fromSGX: encrypt / else: decrypt
@@ -591,9 +597,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
                                     (int) strlen(map_get(headersAnswer, contentLength)), &out);
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
+                	emit_debug("while testContentLength");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     free(finalanswer);
+                    emit_debug("ocall_sendanswer ok");
                     ocall_receiveFromClient(client_sock, answerFromClient);
+                    emit_debug("ocall_receiveFromClient ok");
                     sizeAnswerFromClient = extractSize(answerFromClient);
                     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
 					
