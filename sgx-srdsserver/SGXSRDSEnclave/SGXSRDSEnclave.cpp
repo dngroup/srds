@@ -361,7 +361,7 @@ char* createNewHeader(char* msg, std::string address, int size) {
         int posEndConnection = header.find("\r\n", posConnection);
         header.replace(posConnection, posEndConnection-posConnection, "Close");
     } else {
-        header.insert(posEnd + 3, "Connection: Close\r\n");
+        header.insert(posEnd + 2, "Connection: Close\r\n");
     }
 
     header.replace(posHost, posEnd-posHost, address);
@@ -370,9 +370,15 @@ char* createNewHeader(char* msg, std::string address, int size) {
     posEndForward = header.find("\r\n", posForward);
     header.replace(posForward, posEndForward-posForward, "localhost:8080");
 
-    /*posHost = header.find("Host: ") + 6;
-    posEnd = header.find("\r\n", posHost);
-    header.insert(posEnd + 3, "Encrypt: encrypt\r\n");*/
+    if (header.find("From-SGX") == -1) {
+        posHost = header.find("Host: ") + 6;
+        posEnd = header.find("\r\n", posHost);
+        header.insert(posEnd + 2, "From-SGX: fromsgx\r\n");
+    } else {
+        posHost = header.find("From-SGX: ");
+        posEnd = header.find("\r\n", posHost);
+        header.replace(posHost, posEnd+2-posHost, "");
+    }
 
     char *y = new char[header.length() + 1];
     std::strncpy(y, header.c_str(), header.length());
@@ -475,7 +481,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     msg[msgsize] = '\0';
     headersRequest = parse_headers(msg);
     target = map_get(headersRequest, "X-Forwarded-Host");
-
+    fromSGX = (map_find(headersRequest, "From-SGX")>0);
     ocall_startClient(&client_sock, target);
     answer = createNewHeader(msg, target, msgsize);
 
