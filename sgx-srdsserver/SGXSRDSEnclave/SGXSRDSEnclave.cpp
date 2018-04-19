@@ -585,8 +585,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		        ipmap = map_get_map(trackermap, videoID);
                 if (map_find(ipmap, ipToChange) == 0) {
                     map_add(ipmap, ipToChange, numberOfSegment);
-                } else {
-                    map_replace(ipmap, ipToChange, numberOfSegment);
+                } else {                    map_replace(ipmap, ipToChange, numberOfSegment);
                 }
 		    }
 		    finalanswer = addContentToAnswer(answer, content);
