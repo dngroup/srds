@@ -537,7 +537,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     
     endPos = getPosEndOfHeader(finalanswer)+4;
 	msgSizeCnt = sizeAnswerFromClient-endPos;
-	if (msgSizeCnt < 1) {
+	if (msgSizeCnt > 1) {
 		emit_debug("fullDecryptedMessage");
 		char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
 		memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
