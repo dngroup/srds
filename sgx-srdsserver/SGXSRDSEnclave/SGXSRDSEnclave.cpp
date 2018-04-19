@@ -244,16 +244,36 @@ std::string map_findKeysByValueBiggerThan(struct map* map, std::string value) {
     return output;
 }
 
-void decryptMessage(char *encMessageIn, int len, char *decMessageOut, int lenOut, int counter) {
+// assume that there exist a 128 bits symmetric key priorly provisioned to the enclaves
+char* sgx_provisioned_key = (char*)"1234567890123456";
 
-	strncpy(decMessageOut, encMessageIn, len);
-
+void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
+{
+    // within our simulation counters do not exceed 2^32 values, meaning that they can
+    // be represented on 4 bytes.
+    ctr[ctr_size - 4] = (val & 0xff000000) >> 24;
+    ctr[ctr_size - 3] = (val & 0x00ff0000) >> 16;
+    ctr[ctr_size - 2] = (val & 0x0000ff00) >>  8;
+    ctr[ctr_size - 1] = (val & 0x000000ff);
 }
 
-void encryptMessage(char *decMessageIn, int len, char *encMessageOut, int lenOut, int counter) {
+sgx_status_t decryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
+{
+    uint8_t ctr_bytes[16] = {0};
+    set_ctr_bytes(counter, ctr_bytes, 16);
+    return sgx_aes_ctr_decrypt((sgx_aes_ctr_128bit_key_t*) sgx_provisioned_key,
+        (uint8_t*) in, in_size, ctr_bytes, 128,
+        (uint8_t*) out);
+}
 
-	strncpy(encMessageOut, decMessageIn, len);
-
+sgx_status_t encryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
+{
+    uint8_t ctr_bytes[16] = {0};
+    set_ctr_bytes(counter, ctr_bytes, 16);
+    return sgx_aes_ctr_encrypt(
+        (sgx_aes_ctr_128bit_key_t*) sgx_provisioned_key,
+        (uint8_t*) in, in_size, ctr_bytes, 128,
+        (uint8_t*) out);
 }
 
 int extractSize(char * msg) {
@@ -541,9 +561,9 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		strncpy(messageToDecrypt, msg+endPos, msgSize);
 		messageToDecrypt[msgSize] = '\0';
 		if (debug == 0) {
-			decryptMessage(messageToDecrypt, msgSize, decryptedMessage, msgSize, counter);
+			decryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
 		} else if (debug == 1) {
-			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, msgSize, counter);
+			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
 		}
 		decryptedMessage[msgSize] = '\0';
 		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
@@ -642,9 +662,9 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		strncpy(messageToEncrypt, finalanswer+endPos, msgSize);
 		messageToEncrypt[msgSize] = '\0';
 		if (debug == 0) {
-			encryptMessage(messageToEncrypt, msgSize, encryptedMessage, msgSize, counter);
+			encryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
 		} else if (debug == 1) {
-			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, msgSize, counter);
+			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
 		}
 		encryptedMessage[msgSize] = '\0';
 		strncpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
