@@ -454,11 +454,27 @@ struct map* parse_headers(char * msg) {
     return headers;
 }
 
+int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
+	int remainingSize;
+	if (totalSize % 16 == 0) {
+		remainingSize = 0;
+	} else {
+		remainingSize = (totalSize % 16);
+		strncpy(bufferOut, bufferIn + (16 * (totalSize/16)), totalSize - remainingSize);
+	}
+	return remainingSize;
+}
+
 void handleProxy(int csock, char * msg, int msgsize) {
     //char target[1024] = "msstream.net";
     int targetPort = 8023;
 
 	bool fromSGX = true;
+	
+	uint32_t counter = 0;
+	int remainingSize = 0;
+	char * remainingBuffer = (char *) malloc(16 * sizeof(char));
+	
     char * answer;
     int client_sock;
     char * finalanswer;
@@ -478,16 +494,63 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
     ocall_startClient(&client_sock, target);
     answer = createNewHeader(msg, target, msgsize);
-
-	// msg -> if data: encrypt / if fromSGX: decrypt 
-	// no need to worry about counter here (counter = 0)
+    
+	int endPos = getPosEndOfHeader(msg)+4;
+	int msgSizeCnt = msgsize-endPos;
+	if (endPos < msgsize) {
+		char * fullDecryptedMessage = (char*) malloc(msgsize*sizeof(char));
+		memset(fullDecryptedMessage, 0, msgsize*sizeof(char));
+		char * decryptedMessage = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+		memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+		strncpy(fullDecryptedMessage, msg, endPos);
+		char * messageToDecrypt = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+		memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
+		strncpy(messageToDecrypt, msg+endPos, msgSizeCnt);		
+		messageToDecrypt[msgSizeCnt] = '\0';		
+		if (fromSGX) {
+			decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
+		} else {
+			encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
+		}
+		decryptedMessage[msgSizeCnt] = '\0';
+		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSizeCnt);
+		strncpy(msg, fullDecryptedMessage, msgsize);
+		free(messageToDecrypt);
+		free(decryptedMessage);
+		free(fullDecryptedMessage);
+	}
 
     ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient); 
     sizeAnswerFromClient = extractSize(answerFromClient);
     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient); // finalanswer -> first (last?) subpacket
     
+    endPos = getPosEndOfHeader(finalanswer)+4;
+	msgSizeCnt = sizeAnswerFromClient-endPos;
+	char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
+	memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
+	char * decryptedMessage = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+	memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+	strncpy(fullDecryptedMessage, finalanswer, endPos);
+	char * messageToDecrypt = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+	memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
+	strncpy(messageToDecrypt, finalanswer+endPos, msgSizeCnt);
+	messageToDecrypt[msgSizeCnt] = '\0';		
+	if (fromSGX) {
+		encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+	} else {
+		decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+	}
+	counter = msgSizeCnt / 16;
+	decryptedMessage[msgSizeCnt] = '\0';
+	strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSizeCnt);
+	strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
+	memset(remainingBuffer, 0, 16);
+	remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+	free(messageToDecrypt);
+	free(decryptedMessage);
+	free(fullDecryptedMessage);
+    
     // finalanswer -> if fromSGX: encrypt / else: decrypt
-    // no need to worry about counter here (counter = 0) but will be incremented later, keep final value!
 
     if (sizeAnswerFromClient > 0) {
         httpanswer = isHttp(finalanswer);
@@ -514,6 +577,34 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
                     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+					
+					endPos = getPosEndOfHeader(finalanswer)+4;
+					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
+					char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
+					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
+					char * decryptedMessage = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+					strncpy(fullDecryptedMessage, finalanswer, endPos);
+					char * messageToDecrypt = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+					memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
+					strncpy(messageToDecrypt, remainingBuffer, remainingSize);
+					strncpy(messageToDecrypt+remainingSize, finalanswer+endPos, msgSizeCnt-remainingSize);
+					messageToDecrypt[msgSizeCnt] = '\0';
+					if (fromSGX) {
+						encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+					} else {
+						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+					}
+					counter += msgSizeCnt / 16;
+					decryptedMessage[msgSizeCnt] = '\0';
+					strncpy(fullDecryptedMessage+endPos+remainingSize, decryptedMessage, msgSizeCnt-remainingSize);
+					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
+					memset(remainingBuffer, 0, 16);
+					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+					free(messageToDecrypt);
+					free(decryptedMessage);
+					free(fullDecryptedMessage);
+                    
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
@@ -531,6 +622,33 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
                     finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                    
+                    endPos = getPosEndOfHeader(finalanswer)+4;
+					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
+					char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
+					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
+					char * decryptedMessage = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+					strncpy(fullDecryptedMessage, finalanswer, endPos);
+					char * messageToDecrypt = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+					memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
+					strncpy(messageToDecrypt, remainingBuffer, remainingSize);
+					strncpy(messageToDecrypt+remainingSize, finalanswer+endPos, msgSizeCnt-remainingSize);
+					messageToDecrypt[msgSizeCnt] = '\0';
+					if (fromSGX) {
+						encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+					} else {
+						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+					}
+					counter += msgSizeCnt / 16;
+					decryptedMessage[msgSizeCnt] = '\0';
+					strncpy(fullDecryptedMessage+endPos+remainingSize, decryptedMessage, msgSizeCnt-remainingSize);
+					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
+					memset(remainingBuffer, 0, 16);
+					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+					free(messageToDecrypt);
+					free(decryptedMessage);
+					free(fullDecryptedMessage);
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 
@@ -555,7 +673,6 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 
 	// Decryption: msg -> fullDecryptedMessage
 	uint32_t counter = 0;
-	uint32_t counter_bytes = 0;
 	
 	int endPos = getPosEndOfHeader(msg)+4;
 	int msgSize = size-endPos;
@@ -575,9 +692,6 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
 		}
 		counter = msgSize / 16;
-		counter_bytes = 16 * (msgSize / 16) + msgSize % 16;
-		emit_debug_int(counter);
-		emit_debug_int(counter_bytes);
 		decryptedMessage[msgSize] = '\0';
 		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 		free(messageToDecrypt);
@@ -680,9 +794,6 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
 		}
 		counter = msgSize / 16;
-		counter_bytes = 16 * (msgSize / 16) + msgSize % 16;
-		emit_debug_int(counter);
-		emit_debug_int(counter_bytes);
 		encryptedMessage[msgSize] = '\0';
 		strncpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
 		free(messageToEncrypt);
