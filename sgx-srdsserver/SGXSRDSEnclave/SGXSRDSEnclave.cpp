@@ -496,7 +496,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 void handleTracker(int csock, char * msg, int size, int debug) {
 
 	// Decryption: msg -> fullDecryptedMessage
-	int counter = 0;
+	uint32_t counter = 0;
+	uint32_t counter_bytes = 0;
+	
 	int endPos = getPosEndOfHeader(msg)+4;
 	int msgSize = size-endPos;
 	char * fullDecryptedMessage = (char*) malloc(size*sizeof(char));
@@ -508,12 +510,16 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char * messageToDecrypt = (char*) malloc((msgSize+1)*sizeof(char));
 		memset(messageToDecrypt, 0, (msgSize+1)*sizeof(char));
 		strncpy(messageToDecrypt, msg+endPos, msgSize);
-		messageToDecrypt[msgSize] = '\0';
+		messageToDecrypt[msgSize] = '\0';		
 		if (debug == 0) {
 			decryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
 		} else if (debug == 1) {
 			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
 		}
+		counter = msgSize / 16;
+		counter_bytes = 16 * (msgSize / 16) + msgSize % 16;
+		emit_debug_int(counter);
+		emit_debug_int(counter_bytes);
 		decryptedMessage[msgSize] = '\0';
 		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 		free(messageToDecrypt);
@@ -597,6 +603,10 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		} else if (debug == 1) {
 			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
 		}
+		counter = msgSize / 16;
+		counter_bytes = 16 * (msgSize / 16) + msgSize % 16;
+		emit_debug_int(counter);
+		emit_debug_int(counter_bytes);
 		encryptedMessage[msgSize] = '\0';
 		strncpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
 		free(messageToEncrypt);
