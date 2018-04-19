@@ -190,6 +190,17 @@ struct map_element * map_get_elem(struct map* map, std::string key) {
     return NULL;
 }
 
+void decryptMessage(char *encMessageIn, int len, char *decMessageOut, int lenOut, int counter) {
+
+	strncpy(decMessageOut, encMessageIn, len);
+
+}
+
+void encryptMessage(char *decMessageIn, int len, char *encMessageOut, int lenOut, int counter) {
+
+	strncpy(encMessageOut, decMessageIn, len);
+
+}
 
 int extractSize(char * msg) {
 	int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
@@ -461,63 +472,116 @@ void handleProxy(int csock, char * msg, int msgsize) {
     }
 }
 
-void handleTracker(int csock, char * msg, int size) {
-    std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+void handleTracker(int csock, char * msg, int size, int debug) {
+
+	// Decryption: msg -> fullDecryptedMessage
+	int counter = 0;
+	int endPos = getPosEndOfHeader(msg)+4;
+	int msgSize = size-endPos;
+	char * fullDecryptedMessage = (char*) malloc(size*sizeof(char));
+	char * decryptedMessage = (char*) malloc((msgSize+1)*sizeof(char));
+	strncpy(fullDecryptedMessage, msg, endPos);
+	if (endPos < size) {
+		char * messageToDecrypt = (char*) malloc((msgSize+1)*sizeof(char));
+		strncpy(messageToDecrypt, msg+endPos, msgSize);
+		messageToDecrypt[msgSize] = '\0';
+		if (debug == 0) {
+			decryptMessage(messageToDecrypt, msgSize, decryptedMessage, msgSize, counter);
+		} else if (debug == 1) {
+			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, msgSize, counter);
+		}
+		decryptedMessage[msgSize] = '\0';
+		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
+		free(messageToDecrypt);
+	}
+	// fullDecryptedMessage
+	
+	std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+
     char * finalanswer;
-    struct map* headersRequest = parse_headers(msg);
+    struct map* headersRequest = parse_headers(fullDecryptedMessage);
     std::string value = map_get(headersRequest, "Method");
     std::string content;
     int return_send = 0;
     struct map* ipmap;
     struct map_element * current;
-
-
-    if (value == "POST") {
-        sgx_thread_mutex_lock(&mutex);
-        content = "";
-        if (map_find(trackermap, "video1") == 0) {
-            emit_debug("Adding");
-            map_add(trackermap, "video1", "");
-            ipmap = map_get_map(trackermap, "video1");
-            if (ipmap == NULL) {
-                ipmap = map_init();
-            }
-            map_add(ipmap, "ip1", "5");
-            current = map_get_elem(trackermap, "video1");
-            current->inmap = ipmap;
-        } else {
-            emit_debug("Replacing");
-            ipmap = map_get_map(trackermap, "video1");
-            map_replace(ipmap, "ip1", "8");
-        }
-        finalanswer = addContentToAnswer(answer, content);
-        sgx_thread_mutex_unlock(&mutex);
-    } else if (value == "GET") {
-        sgx_thread_mutex_lock(&mutex);
-        if (map_find(trackermap, "video1") > 0) {
-            ipmap = map_get_map(trackermap, "video1");
-            std::string tosend(map_get(ipmap, "ip1"));
-            finalanswer = addContentToAnswer(answer, tosend);
-        } else {
-            std::string tosend = "";
-            finalanswer = addContentToAnswer(answer, tosend);
-        }
-        sgx_thread_mutex_unlock(&mutex);
-    } else if (value == "DELETE") {
-        sgx_thread_mutex_lock(&mutex);
-        content = "DELETE received";
-        finalanswer = addContentToAnswer(answer, content);
-        map_destroy(trackermap);
-        trackermap = map_init();
-        sgx_thread_mutex_unlock(&mutex);
-    } else {
-        content = "";
-        finalanswer = addContentToAnswer(answer, content);
-    }
-
-    ocall_sendanswer(&return_send, csock, finalanswer, strlen(finalanswer));
+    
+    if (debug == 0) {
+		if (value == "POST") {
+		    sgx_thread_mutex_lock(&mutex);
+		    content = "";
+		    if (map_find(trackermap, "video1") == 0) {
+		        emit_debug("Adding");
+		        map_add(trackermap, "video1", "");
+		        ipmap = map_get_map(trackermap, "video1");
+		        if (ipmap == NULL) {
+		            ipmap = map_init();
+		        }
+		        map_add(ipmap, "ip1", "5");
+		        current = map_get_elem(trackermap, "video1");
+		        current->inmap = ipmap;
+		    } else {
+		        emit_debug("Replacing");
+		        ipmap = map_get_map(trackermap, "video1");
+		        map_replace(ipmap, "ip1", "8");
+		    }
+		    finalanswer = addContentToAnswer(answer, content);
+		    sgx_thread_mutex_unlock(&mutex);
+		} else if (value == "GET") {
+		    sgx_thread_mutex_lock(&mutex);
+		    if (map_find(trackermap, "video1") > 0) {
+		        ipmap = map_get_map(trackermap, "video1");
+		        std::string tosend(map_get(ipmap, "ip1"));
+		        finalanswer = addContentToAnswer(answer, tosend);
+		    } else {
+		        std::string tosend = "";
+		        finalanswer = addContentToAnswer(answer, tosend);
+		    }
+		    sgx_thread_mutex_unlock(&mutex);
+		} else if (value == "DELETE") {
+		    sgx_thread_mutex_lock(&mutex);
+		    content = "DELETE received";
+		    finalanswer = addContentToAnswer(answer, content);
+		    map_destroy(trackermap);
+		    trackermap = map_init();
+		    sgx_thread_mutex_unlock(&mutex);
+		} else {
+		    content = "";
+		    finalanswer = addContentToAnswer(answer, content);
+		}
+	} else if (debug == 1) {
+		std::string content(decryptedMessage);
+		finalanswer = addContentToAnswer(answer, content);
+	}
+    
+    // Encryption: answer -> fullEncryptedMessage
+    counter = 0;
+	char * fullEncryptedMessage = (char*) malloc((answer.length()+msgSize)*sizeof(char));
+	endPos = getPosEndOfHeader(finalanswer)+4;
+	strncpy(fullEncryptedMessage, finalanswer, endPos);
+	if (endPos < strlen(finalanswer)) {
+		char * messageToEncrypt = (char*) malloc((msgSize+1)*sizeof(char));
+		char * encryptedMessage = (char*) malloc((msgSize+1)*sizeof(char));
+		strncpy(messageToEncrypt, finalanswer+endPos, msgSize);
+		messageToEncrypt[msgSize] = '\0';
+		if (debug == 0) {
+			encryptMessage(messageToEncrypt, msgSize, encryptedMessage, msgSize, counter);
+		} else if (debug == 1) {
+			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, msgSize, counter);
+		}
+		encryptedMessage[msgSize] = '\0';
+		strncpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
+		free(messageToEncrypt);
+		free(encryptedMessage);
+	}
+	// fullEncryptedMessage
+	
+    ocall_sendanswer(&return_send, csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
     emit_debug("Send");
     free(finalanswer);
+    free(fullDecryptedMessage);
+    free(fullEncryptedMessage);
+    free(decryptedMessage);
     map_destroy(headersRequest);
 }
 
@@ -538,7 +602,11 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
             handleProxy(csock, msg, size);
         }
         if (type == 1) {
-            handleTracker(csock, msg, size);
+            handleTracker(csock, msg, size, 0);
+        }
+		if (type == 11) {
+			// tracker encryption test
+			handleTracker(csock, msg, size, 1);
         }
     } else {
 
@@ -551,42 +619,3 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
     emit_debug_int(size);
 }
 
-
-void decryptMessage(char *encMessageIn, size_t len, char *decMessageOut, size_t lenOut)
-{
-
-	uint8_t *encMessage = (uint8_t *) encMessageIn;
-	uint8_t p_dst[BUFLEN] = {0};
-
-	sgx_rijndael128GCM_decrypt(
-		&key,
-		encMessage + SGX_AESGCM_MAC_SIZE + SGX_AESGCM_IV_SIZE,
-		lenOut,
-		p_dst,
-		encMessage + SGX_AESGCM_MAC_SIZE, SGX_AESGCM_IV_SIZE,
-		NULL, 0,
-		(sgx_aes_gcm_128bit_tag_t *) encMessage);
-	memcpy(decMessageOut, p_dst, lenOut);
-        emit_debug((char *) p_dst);
-
-}
-
-void encryptMessage(char *decMessageIn, size_t len, char *encMessageOut, size_t lenOut)
-{
-
-	uint8_t *origMessage = (uint8_t *) decMessageIn;
-	uint8_t p_dst[BUFLEN] = {0};
-
-	// Generate the IV (nonce)
-	sgx_read_rand(p_dst + SGX_AESGCM_MAC_SIZE, SGX_AESGCM_IV_SIZE);
-
-	sgx_rijndael128GCM_encrypt(
-		&key,
-		origMessage, len, 
-		p_dst + SGX_AESGCM_MAC_SIZE + SGX_AESGCM_IV_SIZE,
-		p_dst + SGX_AESGCM_MAC_SIZE, SGX_AESGCM_IV_SIZE,
-		NULL, 0,
-		(sgx_aes_gcm_128bit_tag_t *) (p_dst));	
-	memcpy(encMessageOut,p_dst,lenOut);
-
-}
