@@ -537,35 +537,37 @@ void handleProxy(int csock, char * msg, int msgsize) {
     
     endPos = getPosEndOfHeader(finalanswer)+4;
 	msgSizeCnt = sizeAnswerFromClient-endPos;
-	emit_debug("fullDecryptedMessage");
-	char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
-	memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
-	emit_debug("decryptedMessage");
-	char * decryptedMessage = (char*) malloc((msgSizeCnt+1)*sizeof(char));
-	memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
-	strncpy(fullDecryptedMessage, finalanswer, endPos);
-	emit_debug("messageToDecrypt");
-	char * messageToDecrypt = (char*) malloc((msgSizeCnt+1)*sizeof(char));
-	memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
-	strncpy(messageToDecrypt, finalanswer+endPos, msgSizeCnt);
-	messageToDecrypt[msgSizeCnt] = '\0';		
-	emit_debug("[fromSGX]");
-	if (fromSGX) {
-		encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
-	} else {
-		decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+	if (msgSizeCnt < 1) {
+		emit_debug("fullDecryptedMessage");
+		char * fullDecryptedMessage = (char*) malloc(sizeAnswerFromClient*sizeof(char));
+		memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
+		emit_debug("decryptedMessage");
+		char * decryptedMessage = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+		memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+		strncpy(fullDecryptedMessage, finalanswer, endPos);
+		emit_debug("messageToDecrypt");
+		char * messageToDecrypt = (char*) malloc((msgSizeCnt+1)*sizeof(char));
+		memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
+		strncpy(messageToDecrypt, finalanswer+endPos, msgSizeCnt);
+		messageToDecrypt[msgSizeCnt] = '\0';		
+		emit_debug("[fromSGX]");
+		if (fromSGX) {
+			encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+		} else {
+			decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+		}
+		counter = msgSizeCnt / 16;
+		decryptedMessage[msgSizeCnt] = '\0';
+		emit_debug("fullDecryptedMessage");
+		strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSizeCnt);
+		emit_debug("finalanswer");
+		strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
+		memset(remainingBuffer, 0, 16);
+		remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+		free(messageToDecrypt);
+		free(decryptedMessage);
+		free(fullDecryptedMessage);
 	}
-	counter = msgSizeCnt / 16;
-	decryptedMessage[msgSizeCnt] = '\0';
-	emit_debug("fullDecryptedMessage");
-	strncpy(fullDecryptedMessage+endPos, decryptedMessage, msgSizeCnt);
-	emit_debug("finalanswer");
-	strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
-	memset(remainingBuffer, 0, 16);
-	remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
-	free(messageToDecrypt);
-	free(decryptedMessage);
-	free(fullDecryptedMessage);
     
     // finalanswer -> if fromSGX: encrypt / else: decrypt
 
