@@ -72,13 +72,13 @@ char * copystring2char(std::string string2) {
     emit_debug("before malloc");
     emit_debug_int(strlen(string));
     emit_debug("copystring2char 5");
-    //char * y = (char *) malloc(((int)strlen(string)+1)*sizeof(char));
+    char * y = (char *) malloc(((int)strlen(string)+1)*sizeof(char));
     emit_debug("after malloc");
-    //std::strncpy(y, string, strlen(string));
+    std::strncpy(y, string, strlen(string));
     emit_debug("after copy");
-    //y[strlen(string)] = '\0';
+    y[strlen(string)] = '\0';
     emit_debug("after 0");
-    //free(string);
+    free(y);
     emit_debug("after free");
     return string;
 }
