@@ -58,33 +58,20 @@ std::string copystring(std::string string) {
 }
 
 char * copystring2char(std::string string2) {
-	emit_debug("copystring2char 1");
 	int length = (int)string2.length();
-	emit_debug_int(length);
-	emit_debug(string2.c_str());
-	emit_debug("copystring2char 2");
 	char * st = (char *) malloc((length+1)*sizeof(char));
-	emit_debug("copystring2char 3");
 	std::strncpy(st, string2.c_str(), length+1);
-	emit_debug("copystring2char 4");
 	st[length] = '\0';
-    emit_debug("copystring2char 5");
     return st;
 }
 
-
-
 void map_add(struct map* map, std::string key, std::string value) {
     struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
-    emit_debug("created mapelement");
     if (map->size == 0) {
         map->first = elt;
     }
-    emit_debug(key.c_str());
     elt->key = copystring2char(key);
-    emit_debug("keycopied");
     elt->value = copystring2char(value);
-    emit_debug("both copied");
     elt->inmap = NULL;
     elt->next = NULL;
     if(map->last!=NULL){
@@ -553,6 +540,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     sizeAnswerFromClient = extractSize(answerFromClient);
     char finalanswer[sizeAnswerFromClient];
     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
+    emit_debug(finalanswer);
     
     endPos = getPosEndOfHeader(finalanswer)+4;
 	msgSizeCnt = sizeAnswerFromClient-endPos;
@@ -631,7 +619,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
 					emit_debug("decryptedMessage");
 					char decryptedMessage[msgSizeCnt+1];
-					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+					//memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
 					emit_debug(finalanswer);
 					emit_debug_int(endPos);
 					strncpy(fullDecryptedMessage, finalanswer, endPos);
@@ -683,7 +671,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
 					emit_debug("decryptedMessage");
 					char decryptedMessage[msgSizeCnt+1];
-					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+					//memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
 					emit_debug(finalanswer);
 					emit_debug_int(endPos);
 					strncpy(fullDecryptedMessage, finalanswer, endPos);
