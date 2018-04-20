@@ -644,7 +644,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("13");
 					
                     
-                    totalSizeAnswer += (sizeAnswerFromClient-remainingSize);
+                    totalSizeAnswer += sizeAnswerFromClient;
                 }
                 if (remainingSize > 0) {
                 	char finalanswerRemaining[32];
@@ -660,7 +660,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
                 emit_debug("sent =");
-                emit_debug_int(sizeAnswerFromClient-remainingSize);
+                emit_debug_int(sizeAnswerFromClient+remainingSize);
 
             } else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
                 //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
@@ -712,7 +712,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
                 emit_debug("sent =");
-                emit_debug_int(sizeAnswerFromClient-remainingSize);
+                emit_debug_int(sizeAnswerFromClient+remainingSize);
 
             } else {
                 if (remainingSize > 0) {
@@ -729,7 +729,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
                 emit_debug("sent =");
-                emit_debug_int(sizeAnswerFromClient-remainingSize);
+                emit_debug_int(sizeAnswerFromClient+remainingSize);
             }
         } else {
             if (remainingSize > 0) {
@@ -746,7 +746,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
                 emit_debug("sent =");
-                emit_debug_int(sizeAnswerFromClient-remainingSize);
+                emit_debug_int(sizeAnswerFromClient+remainingSize);
         }
     }
 
