@@ -60,6 +60,8 @@ std::string copystring(std::string string) {
 char * copystring2char(std::string string2) {
 	emit_debug("copystring2char 1");
 	int length = (int)string2.length();
+	emit_debug_int(length);
+	emit_debug(string2.c_str());
 	emit_debug("copystring2char 2");
 	char * st = (char *) malloc((length+1)*sizeof(char));
 	emit_debug("copystring2char 3");
