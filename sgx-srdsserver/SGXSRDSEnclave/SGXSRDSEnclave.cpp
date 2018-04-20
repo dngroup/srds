@@ -281,7 +281,7 @@ int extractSize(char * msg) {
 
 void extractBuffer(char * msg, int size, char * bufferOut) {
     int sizeIntinChar = 4;
-    bufferOut = (char*)memset(bufferOut, '\0', size);
+    memset(bufferOut, '\0', size);
 
     for(int i = 0; i< size; i++) {
         bufferOut[i] = msg [i + sizeIntinChar];
@@ -498,7 +498,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int return_send = 0;
 
     struct map* headersRequest;
-    msg[msgsize] = '\0';
     headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
     target = map_get(headersRequest, "X-Forwarded-Host");
     fromSGX = (map_find(headersRequest, "From-SGX")>0);
@@ -607,49 +606,25 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("while testContentLength");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-                    emit_debug("ocall_sendanswer ok");
                     ocall_receiveFromClient(client_sock, answerFromClient);
-                    emit_debug("ocall_receiveFromClient ok");
                     sizeAnswerFromClient = extractSize(answerFromClient);
                     char finalanswer[sizeAnswerFromClient+1];
+                    char decryptedMessage[sizeAnswerFromClient+1];
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
+                    memset(decryptedMessage, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 					finalanswer[sizeAnswerFromClient] = '\0';
-					endPos = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer)+4;
-					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
-					emit_debug("fullDecryptedMessage");
-					char fullDecryptedMessage[sizeAnswerFromClient];
-					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
-					emit_debug("decryptedMessage");
-					char decryptedMessage[msgSizeCnt+1];
-					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
-					emit_debug(finalanswer);
-					emit_debug_int(endPos);
-					emit_debug_int(sizeAnswerFromClient);
-					strncpy(fullDecryptedMessage, finalanswer, endPos);
-					emit_debug("messageToDecrypt");
-					char messageToDecrypt[msgSizeCnt+1];
-					memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
-					strncpy(messageToDecrypt, remainingBuffer, remainingSize);
-					emit_debug("remainingSize");
-					strncpy(messageToDecrypt+remainingSize, finalanswer, msgSizeCnt-remainingSize);
-					messageToDecrypt[msgSizeCnt] = '\0';
-					emit_debug("fromSGX");
+					
 					if (fromSGX) {
-						encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+						encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					} else {
-						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+						decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					}
 					emit_debug(decryptedMessage);
-					counter += msgSizeCnt / 16;
-					decryptedMessage[msgSizeCnt] = '\0';
-					emit_debug("fullDecryptedMessage");
-					strncpy(fullDecryptedMessage+endPos+remainingSize, decryptedMessage, msgSizeCnt-remainingSize);
+					counter += sizeAnswerFromClient / 16;
+					decryptedMessage[sizeAnswerFromClient] = '\0';
 					emit_debug("finalanswer");
-					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
-					memset(remainingBuffer, 0, 16);
-					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
-					emit_debug_int(remainingSize);
+					strncpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
                     
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
@@ -668,42 +643,22 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
                     char finalanswer[sizeAnswerFromClient+1];
+                    char decryptedMessage[sizeAnswerFromClient+1];
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
-                   	extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-                    finalanswer[sizeAnswerFromClient] = '\0';
-                    endPos = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer)+4;
-					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
-					emit_debug("fullDecryptedMessage");
-					char fullDecryptedMessage[sizeAnswerFromClient];
-					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
-					emit_debug("decryptedMessage");
-					char decryptedMessage[msgSizeCnt+1];
-					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
-					emit_debug(finalanswer);
-					emit_debug_int(endPos);
-					strncpy(fullDecryptedMessage, finalanswer, endPos);
-					emit_debug("messageToDecrypt");
-					char messageToDecrypt[msgSizeCnt+1];
-					memset(messageToDecrypt, 0, (msgSizeCnt+1)*sizeof(char));
-					strncpy(messageToDecrypt, remainingBuffer, remainingSize);
-					emit_debug("remainingSize");
-					strncpy(messageToDecrypt+remainingSize, finalanswer, msgSizeCnt-remainingSize);
-					messageToDecrypt[msgSizeCnt] = '\0';
+                    memset(decryptedMessage, 0, (sizeAnswerFromClient+1)*sizeof(char));
+                    extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+					finalanswer[sizeAnswerFromClient] = '\0';
+                    
 					if (fromSGX) {
-						encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+						encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					} else {
-						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+						decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					}
 					emit_debug(decryptedMessage);
-					counter += msgSizeCnt / 16;
-					decryptedMessage[msgSizeCnt] = '\0';
-					emit_debug("fullDecryptedMessage");
-					strncpy(fullDecryptedMessage+endPos+remainingSize, decryptedMessage, msgSizeCnt-remainingSize);
+					counter += sizeAnswerFromClient / 16;
+					decryptedMessage[sizeAnswerFromClient] = '\0';
 					emit_debug("finalanswer");
-					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
-					memset(remainingBuffer, 0, 16);
-					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
-					emit_debug_int(remainingSize);
+					strncpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 
