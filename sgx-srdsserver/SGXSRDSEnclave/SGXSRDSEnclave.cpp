@@ -58,13 +58,14 @@ std::string copystring(std::string string) {
 }
 
 char * copystring2char(std::string string) {
+	string.append('\0');
 	if (string.length() != strlen(string.c_str())) {
 		emit_debug("string.length() != strlen(string.c_str()) for string :");
 		emit_debug(string.c_str());
 	}
     emit_debug("before malloc");
     emit_debug_int(string.length());
-    char *y = (char*)malloc(string.length() + 1);
+    char * y = (char *) malloc(((int)string.length()+1)*sizeof(char));
     emit_debug("after malloc");
     std::strncpy(y, string.c_str(), string.length());
     emit_debug("after copy");
