@@ -715,10 +715,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
     }
 
     ocall_closesocket(client_sock);
-    emit_debug("free answer");
-    free(answer);
-    emit_debug("free finalanswer");
-    free(finalanswer);
     emit_debug("free headersRequest");
     map_destroy(headersRequest);
     emit_debug("free headersAnswer");
