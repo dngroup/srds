@@ -531,7 +531,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
     ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient); 
     sizeAnswerFromClient = extractSize(answerFromClient);
-    char finalanswer[1040];
+    char finalanswer[1056];
     memset(finalanswer, 0, (sizeAnswerFromClient)*sizeof(char));
     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
     
@@ -608,6 +608,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
                     emit_debug("remainingSize =");
                     emit_debug_int(remainingSize);
+                    emit_debug("sent =");
+                    emit_debug_int(sizeAnswerFromClient-remainingSize);
                     
                     
                     memset(answerFromClient, 0, 1028);
@@ -657,6 +659,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
+                emit_debug("sent =");
+                emit_debug_int(sizeAnswerFromClient-remainingSize);
 
             } else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
                 //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
@@ -667,6 +671,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
                     emit_debug("remainingSize =");
                     emit_debug_int(remainingSize);
+                    emit_debug("sent =");
+               		emit_debug_int(sizeAnswerFromClient-remainingSize);
                     if (return_send == 0) {
                         break;
                     }
@@ -705,6 +711,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
+                emit_debug("sent =");
+                emit_debug_int(sizeAnswerFromClient-remainingSize);
 
             } else {
                 if (remainingSize > 0) {
@@ -720,6 +728,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
+                emit_debug("sent =");
+                emit_debug_int(sizeAnswerFromClient-remainingSize);
             }
         } else {
             if (remainingSize > 0) {
@@ -735,6 +745,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
+                emit_debug("sent =");
+                emit_debug_int(sizeAnswerFromClient-remainingSize);
         }
     }
 
