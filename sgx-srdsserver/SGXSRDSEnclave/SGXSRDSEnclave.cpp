@@ -606,6 +606,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("testContentLength");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
+                    
+                    
                     memset(answerFromClient, 0, 1028);
                     emit_debug("1");
                     ocall_receiveFromClient(client_sock, answerFromClient);
@@ -626,7 +628,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     emit_debug("9");
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
 					emit_debug("10");
-					
 					if (fromSGX) {
 						encryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
 					} else {
@@ -637,10 +638,21 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("12");
 					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
 					emit_debug("13");
+					
                     
                     totalSizeAnswer += (sizeAnswerFromClient-remainingSize);
                 }
-                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
+                if (remainingSize > 0) {
+                	char finalanswerRemaining[32];
+                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
+                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
+                	if (fromSGX) {
+						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					} else {
+						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					}
+                }
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
 
             } else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
                 //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
@@ -652,6 +664,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     if (return_send == 0) {
                         break;
                     }
+                    
+                    
                     memset(answerFromClient, 0, 1028);
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
@@ -660,10 +674,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(decryptedMessage, 0, (sizeAnswerFromClient+remainingSize)*sizeof(char));
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer+remainingSize);
                     memcpy(finalanswer, remainingBuffer, remainingSize);
-                    
                     memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
-					
 					if (fromSGX) {
 						encryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
 					} else {
@@ -671,14 +683,46 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
 					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
+					
+					
                 }
-                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
+                if (remainingSize > 0) {
+                	char finalanswerRemaining[32];
+                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
+                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
+                	if (fromSGX) {
+						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					} else {
+						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					}
+                }
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
 
             } else {
-                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+                if (remainingSize > 0) {
+                	char finalanswerRemaining[32];
+                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
+                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
+                	if (fromSGX) {
+						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					} else {
+						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					}
+                }
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
             }
         } else {
-            ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+            if (remainingSize > 0) {
+                	char finalanswerRemaining[32];
+                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
+                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
+                	if (fromSGX) {
+						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					} else {
+						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
+					}
+                }
+                ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
         }
     }
 
