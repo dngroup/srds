@@ -63,6 +63,8 @@ char * copystring2char(std::string string2) {
 	emit_debug_int(length);
 	emit_debug(string2.c_str());
 	emit_debug("copystring2char 2");
+	char * toto = (char*) malloc (1*sizeof(char));
+	emit_debug("copystring2char 2.0");
 	char * st = (char *) malloc((length+1)*sizeof(char));
 	emit_debug("copystring2char 3");
 	std::strncpy(st, string2.c_str(), length+1);
