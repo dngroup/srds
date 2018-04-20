@@ -606,24 +606,37 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("testContentLength");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
+                    memset(answerFromClient, 0, 1028);
+                    emit_debug("1");
                     ocall_receiveFromClient(client_sock, answerFromClient);
+                    emit_debug("2");
                     sizeAnswerFromClient = extractSize(answerFromClient);
+                    emit_debug("3");
                     char decryptedMessage[sizeAnswerFromClient+remainingSize];
+                    emit_debug("4");
                     memset(finalanswer, 0, (sizeAnswerFromClient+remainingSize)*sizeof(char));
+                    emit_debug("5");
                     memset(decryptedMessage, 0, (sizeAnswerFromClient+remainingSize)*sizeof(char));
+                    emit_debug("6");
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer+remainingSize);
+                    emit_debug("7");
                     memcpy(finalanswer, remainingBuffer, remainingSize);
-                    
+                    emit_debug("8");
                     memset(remainingBuffer, 0, 16);
+                    emit_debug("9");
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
+					emit_debug("10");
 					
 					if (fromSGX) {
 						encryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
 					} else {
 						decryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
 					}
+					emit_debug("11");
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
+					emit_debug("12");
 					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
+					emit_debug("13");
                     
                     totalSizeAnswer += (sizeAnswerFromClient-remainingSize);
                 }
@@ -639,6 +652,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     if (return_send == 0) {
                         break;
                     }
+                    memset(answerFromClient, 0, 1028);
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
                     char decryptedMessage[sizeAnswerFromClient+remainingSize];
