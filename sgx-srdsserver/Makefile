@@ -85,7 +85,7 @@ Crypto_Library_Name := sgx_tcrypto
 SGXSRDSEnclave_Cpp_Files := SGXSRDSEnclave/SGXSRDSEnclave.cpp
 SGXSRDSEnclave_Include_Paths := -IInclude -ISGXSRDSEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport
 
-SGXSRDSEnclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(SGXSRDSEnclave_Include_Paths)
+SGXSRDSEnclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fno-stack-protector $(SGXSRDSEnclave_Include_Paths)
 SGXSRDSEnclave_Cpp_Flags := $(SGXSRDSEnclave_C_Flags) -std=c++03 -nostdinc++
 SGXSRDSEnclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
