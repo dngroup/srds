@@ -615,7 +615,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 					finalanswer[sizeAnswerFromClient] = '\0';
-					endPos = getPosEndOfHeader(finalanswer)+4;
+					endPos = getPosEndOfHeader(finalanswer) < 1 ? sizeAnswerFromClient : getPosEndOfHeader(finalanswer)+4;
 					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
 					emit_debug("fullDecryptedMessage");
 					char fullDecryptedMessage[sizeAnswerFromClient];
@@ -669,7 +669,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
                    	extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
                     finalanswer[sizeAnswerFromClient] = '\0';
-                    endPos = getPosEndOfHeader(finalanswer)+4;
+                    endPos = getPosEndOfHeader(finalanswer) < 1 ? sizeAnswerFromClient : getPosEndOfHeader(finalanswer)+4;
 					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
 					emit_debug("fullDecryptedMessage");
 					char fullDecryptedMessage[sizeAnswerFromClient];
