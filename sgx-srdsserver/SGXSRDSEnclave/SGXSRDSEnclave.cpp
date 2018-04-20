@@ -505,7 +505,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     ocall_startClient(&client_sock, target);
     answer = createNewHeader(msg, target, msgsize);
     
-	int endPos = getPosEndOfHeader(msg) < 0 ? msgsize : getPosEndOfHeader(msg)+4;
+	int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg)+4;
 	int msgSizeCnt = msgsize-endPos;
 	if (endPos < msgsize) {
 		emit_debug("endPos < msgsize");
@@ -542,7 +542,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
     emit_debug(finalanswer);
     
-    endPos = getPosEndOfHeader(finalanswer) < 0 ? sizeAnswerFromClient : getPosEndOfHeader(finalanswer)+4;
+    endPos = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer)+4;
 	msgSizeCnt = sizeAnswerFromClient-endPos;
 	if (msgSizeCnt > 0) {
 		emit_debug("msgSizeCnt > 0");
@@ -615,7 +615,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 					finalanswer[sizeAnswerFromClient] = '\0';
-					endPos = getPosEndOfHeader(finalanswer) < 0 ? sizeAnswerFromClient : getPosEndOfHeader(finalanswer)+4;
+					endPos = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer)+4;
 					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
 					emit_debug("fullDecryptedMessage");
 					char fullDecryptedMessage[sizeAnswerFromClient];
@@ -671,7 +671,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
                    	extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
                     finalanswer[sizeAnswerFromClient] = '\0';
-                    endPos = getPosEndOfHeader(finalanswer) < 0 ? sizeAnswerFromClient : getPosEndOfHeader(finalanswer)+4;
+                    endPos = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer)+4;
 					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
 					emit_debug("fullDecryptedMessage");
 					char fullDecryptedMessage[sizeAnswerFromClient];
