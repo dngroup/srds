@@ -57,16 +57,22 @@ std::string copystring(std::string string) {
     return string2;
 }
 
-void copystring2char(std::string string, char** p_y) { 
-	emit_debug("before malloc"); 
-	emit_debug_int(string.length()); 
-	*p_y = (char*)malloc(string.length() + 1); 
-	emit_debug("after malloc"); 
-	std::strncpy(*p_y, string.c_str(), 
-	string.length()); 
-	emit_debug("after copy"); 
-	*p_y[string.length()] = '\0';
+char * copystring2char(std::string string) {
+	if (string.length() != strlen(string.c_str())) {
+		emit_debug("string.length() != strlen(string.c_str()) for string :");
+		emit_debug(string.c_str());
+	}
+    emit_debug("before malloc");
+    emit_debug_int(string.length());
+    char *y = (char*)malloc(string.length() + 1);
+    emit_debug("after malloc");
+    std::strncpy(y, string.c_str(), string.length());
+    emit_debug("after copy");
+    y[string.length()] = '\0';
+    return y;
 }
+
+
 
 void map_add(struct map* map, std::string key, std::string value) {
     struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
@@ -75,9 +81,9 @@ void map_add(struct map* map, std::string key, std::string value) {
         map->first = elt;
     }
     emit_debug(key.c_str());
-    copystring2char(key, &elt->key);
+    elt->key = copystring2char(key);
     emit_debug("keycopied");
-    copystring2char(value, &elt->value);
+    elt->value = copystring2char(value);
     emit_debug("both copied");
     elt->inmap = NULL;
     elt->next = NULL;
@@ -92,18 +98,17 @@ struct map_element * map_get_next(struct map_element * element){
 }
 
 void map_replace(struct map* map, std::string key, std::string newvalue) {
-    char * key2; 
-    copystring2char(key, &key2);
+    char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
         free(current->value);
-        copystring2char(newvalue, &current->value);
+        current->value = copystring2char(newvalue);
     }
 
     while(current != NULL && current->key != NULL){
         if(strcmp(current->key,key2) == 0){
             free(current->value);
-            copystring2char(newvalue, &current->value);
+            current->value = copystring2char(newvalue);
         }
         current=map_get_next(current);
     }
@@ -128,8 +133,7 @@ void map_destroy(struct map* map) {
 
 int map_find(struct map* map, std::string key) {
 
-    char * key2; 
-    copystring2char(key, &key2);
+    char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
         free(key2);
@@ -153,8 +157,7 @@ int map_find(struct map* map, std::string key) {
 }
 
 char * map_get(struct map* map, std::string key) {
-    char * key2; 
-    copystring2char(key, &key2);
+    char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
         free(key2);
@@ -173,8 +176,7 @@ char * map_get(struct map* map, std::string key) {
 }
 
 struct map * map_get_map(struct map* map, std::string key) {
-    char * key2; 
-    copystring2char(key, &key2);
+    char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
         free(key2);
@@ -193,8 +195,7 @@ struct map * map_get_map(struct map* map, std::string key) {
 }
 
 struct map_element * map_get_elem(struct map* map, std::string key) {
-    char * key2; 
-    copystring2char(key, &key2);
+    char * key2 = copystring2char(key);
     struct map_element * current = map->first;
     if (current != NULL && strcmp(current->key,key2) == 0){
         free(key2);
