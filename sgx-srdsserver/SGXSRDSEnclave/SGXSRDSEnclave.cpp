@@ -640,6 +640,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					} else {
 						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
 					}
+					emit_debug(decryptedMessage);
 					counter += msgSizeCnt / 16;
 					decryptedMessage[msgSizeCnt] = '\0';
 					emit_debug("fullDecryptedMessage");
@@ -692,6 +693,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					} else {
 						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
 					}
+					emit_debug(decryptedMessage);
 					counter += msgSizeCnt / 16;
 					decryptedMessage[msgSizeCnt] = '\0';
 					emit_debug("fullDecryptedMessage");
