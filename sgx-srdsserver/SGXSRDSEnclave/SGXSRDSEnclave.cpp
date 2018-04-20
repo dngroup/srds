@@ -600,15 +600,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 ocall_string_to_int(map_get(headersAnswer, contentLength),
                                     (int) strlen(map_get(headersAnswer, contentLength)), &out);
                 emit_debug("before while");
-                
-                char finalanswer[sizeAnswerFromClient+1];
-                char decryptedMessage[sizeAnswerFromClient+1];
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("while testContentLength");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
+                    char decryptedMessage[sizeAnswerFromClient+1];
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     memset(decryptedMessage, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
@@ -633,9 +631,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 //TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
                 //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 
-				char finalanswer[sizeAnswerFromClient+1];
-                char decryptedMessage[sizeAnswerFromClient+1];
-
                 while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("while testEndTransferEncoding");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
@@ -644,6 +639,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     }
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
+                    char decryptedMessage[sizeAnswerFromClient+1];
                     memset(finalanswer, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     memset(decryptedMessage, 0, (sizeAnswerFromClient+1)*sizeof(char));
                     extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
