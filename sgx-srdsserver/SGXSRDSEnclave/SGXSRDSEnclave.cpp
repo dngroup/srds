@@ -63,8 +63,6 @@ char * copystring2char(std::string string2) {
 	emit_debug_int(length);
 	emit_debug(string2.c_str());
 	emit_debug("copystring2char 2");
-	char * toto = (char*) malloc (1*sizeof(char));
-	emit_debug("copystring2char 2.0");
 	char * st = (char *) malloc((length+1)*sizeof(char));
 	emit_debug("copystring2char 3");
 	std::strncpy(st, string2.c_str(), length+1);
@@ -294,15 +292,13 @@ int extractSize(char * msg) {
 	return size;
 }
 
-char * extractBuffer(char * msg, int size) {
+void extractBuffer(char * msg, int size, char * bufferOut) {
     int sizeIntinChar = 4;
-    char * buffer = (char *)malloc(sizeof(char) * size);
-    buffer = (char*)memset(buffer, '\0', size);
+    bufferOut = (char*)memset(bufferOut, '\0', size);
 
     for(int i = 0; i< size; i++) {
-        buffer[i] = msg [i + sizeIntinChar];
+        bufferOut[i] = msg [i + sizeIntinChar];
     }
-    return buffer;
 }
 
 int isHttp(char* msg) {
@@ -482,7 +478,7 @@ struct map* parse_headers(char * msg2, int headersSize) {
 
     }
     free(chr);
-
+	free(msg);
     return headers;
 }
 
@@ -509,7 +505,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	
     char * answer;
     int client_sock;
-    char * finalanswer;
     char answerFromClient[1028];
     int httpanswer;
     int testIsEnd = 0;
@@ -560,7 +555,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
     ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient); 
     sizeAnswerFromClient = extractSize(answerFromClient);
-    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient); // finalanswer -> first (last?) subpacket
+    char * finalanswer = (char *)malloc(sizeof(char) * sizeAnswerFromClient);
+    extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
     
     endPos = getPosEndOfHeader(finalanswer)+4;
 	msgSizeCnt = sizeAnswerFromClient-endPos;
@@ -595,7 +591,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		emit_debug("remainingSize ok");
 		free(messageToDecrypt);
 		emit_debug("free(messageToDecrypt) ok");
-		// free(decryptedMessage);
+		free(decryptedMessage);
 		emit_debug("free(decryptedMessage) ok");
 		free(fullDecryptedMessage);
 		emit_debug("free(fullDecryptedMessage) ok");
@@ -636,7 +632,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     emit_debug("ocall_receiveFromClient ok");
                     sizeAnswerFromClient = extractSize(answerFromClient);
-                    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                    char * finalanswer = (char *)malloc(sizeof(char) * sizeAnswerFromClient);
+                    extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 					
 					endPos = getPosEndOfHeader(finalanswer)+4;
 					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
@@ -673,7 +670,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("free decryptedMessage");
 					free(decryptedMessage);
 					emit_debug("free fullDecryptedMessage");
-					//free(fullDecryptedMessage);
+					free(fullDecryptedMessage);
 					emit_debug("OK free fullDecryptedMessage");
                     
                     totalSizeAnswer += sizeAnswerFromClient;
@@ -693,7 +690,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     free(finalanswer);
                     ocall_receiveFromClient(client_sock, answerFromClient);
                     sizeAnswerFromClient = extractSize(answerFromClient);
-                    finalanswer = extractBuffer(answerFromClient, sizeAnswerFromClient);
+                    char * finalanswer = (char *)malloc(sizeof(char) * sizeAnswerFromClient);
+                   	extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
                     
                     endPos = getPosEndOfHeader(finalanswer)+4;
 					msgSizeCnt = sizeAnswerFromClient-endPos+remainingSize;
@@ -729,7 +727,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("free decryptedMessage");
 					free(decryptedMessage);
 					emit_debug("free fullDecryptedMessage");
-					//free(fullDecryptedMessage);
+					free(fullDecryptedMessage);
 					emit_debug("OK free fullDecryptedMessage");
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
@@ -750,9 +748,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
     emit_debug("memset remainingBuffer");
     memset(remainingBuffer, 0, 16);
   	emit_debug("free remainingBuffer");
-    //free(remainingBuffer);
+    free(remainingBuffer);
     emit_debug("free headersRequest");
-    //map_destroy(headersRequest);
+    map_destroy(headersRequest);
     emit_debug("free headersAnswer");
     if (headersAnswer != NULL) {
         map_destroy(headersAnswer);
