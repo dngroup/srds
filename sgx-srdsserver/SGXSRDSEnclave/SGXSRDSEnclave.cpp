@@ -59,7 +59,7 @@ std::string copystring(std::string string) {
 
 char * copystring2char(std::string string2) {
 	emit_debug("copystring2char 1");
-	char * string = (char *) malloc(((int)string2.length()+1)*sizeof(char));
+	char * string = (char *) malloc(((int)string2.length()+2)*sizeof(char));
 	emit_debug("copystring2char 2");
 	std::strncpy(string, string2.c_str(), string2.length()+1);
 	emit_debug("copystring2char 3");
