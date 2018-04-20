@@ -572,7 +572,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 		memset(remainingBuffer, 0, 16);
 		remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
-		emit_debug("remainingSize ok");
+		emit_debug_int(remainingSize);
 		emit_debug("finalanswer with decrypted text");
 		emit_debug(finalanswer);
 	}
@@ -649,6 +649,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 					memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+					emit_debug_int(remainingSize);
                     
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
@@ -702,6 +703,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 					memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+					emit_debug_int(remainingSize);
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 
