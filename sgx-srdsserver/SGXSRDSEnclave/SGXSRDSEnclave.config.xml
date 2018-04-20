@@ -1,8 +1,8 @@
 <EnclaveConfiguration> 
   <ProdID>0</ProdID> 
   <ISVSVN>0</ISVSVN> 
-  <StackMaxSize>0x240000</StackMaxSize>
-  <HeapMaxSize>0x400000</HeapMaxSize>
+  <StackMaxSize>0x480000</StackMaxSize>
+  <HeapMaxSize>0x800000</HeapMaxSize>
   <TCSNum>8</TCSNum>
   <TCSPolicy>1</TCSPolicy> 
   <DisableDebug>0</DisableDebug>
