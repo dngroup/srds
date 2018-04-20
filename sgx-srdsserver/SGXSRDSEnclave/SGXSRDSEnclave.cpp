@@ -69,6 +69,7 @@ char * copystring2char(std::string string) {
     std::strncpy(y, string.c_str(), string.length());
     emit_debug("after copy");
     y[string.length()] = '\0';
+    emit_debug("after 0");
     return y;
 }
 
@@ -593,7 +594,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		emit_debug("remainingSize ok");
 		free(messageToDecrypt);
 		emit_debug("free(messageToDecrypt) ok");
-		free(decryptedMessage);
+		// free(decryptedMessage);
 		emit_debug("free(decryptedMessage) ok");
 		free(fullDecryptedMessage);
 		emit_debug("free(fullDecryptedMessage) ok");
@@ -666,9 +667,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 					memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+					emit_debug("free messageToDecrypt");
 					free(messageToDecrypt);
+					emit_debug("free decryptedMessage");
 					free(decryptedMessage);
-					free(fullDecryptedMessage);
+					emit_debug("free fullDecryptedMessage");
+					//free(fullDecryptedMessage);
+					emit_debug("OK free fullDecryptedMessage");
                     
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
@@ -679,6 +684,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 //TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 
                 while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
+                	emit_debug("while testEndTransferEncoding");
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
                     if (return_send == 0) {
                         break;
@@ -717,9 +723,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					strncpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 					memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+					emit_debug("free messageToDecrypt");
 					free(messageToDecrypt);
+					emit_debug("free decryptedMessage");
 					free(decryptedMessage);
-					free(fullDecryptedMessage);
+					emit_debug("free fullDecryptedMessage");
+					//free(fullDecryptedMessage);
+					emit_debug("OK free fullDecryptedMessage");
                 }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 
@@ -732,13 +742,21 @@ void handleProxy(int csock, char * msg, int msgsize) {
     }
 
     ocall_closesocket(client_sock);
+    emit_debug("free answer");
     free(answer);
+    emit_debug("free finalanswer");
     free(finalanswer);
-    free(remainingBuffer);
-    map_destroy(headersRequest);
+    emit_debug("memset remainingBuffer");
+    memset(remainingBuffer, 0, 16);
+  	emit_debug("free remainingBuffer");
+    //free(remainingBuffer);
+    emit_debug("free headersRequest");
+    //map_destroy(headersRequest);
+    emit_debug("free headersAnswer");
     if (headersAnswer != NULL) {
         map_destroy(headersAnswer);
     }
+    emit_debug("end of method");
 }
 
 void handleTracker(int csock, char * msg, int size, int debug) {
