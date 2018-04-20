@@ -622,7 +622,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
 					emit_debug("decryptedMessage");
 					char decryptedMessage[msgSizeCnt+1];
-					//memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
 					emit_debug(finalanswer);
 					emit_debug_int(endPos);
 					emit_debug_int(sizeAnswerFromClient);
@@ -676,7 +676,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
 					emit_debug("decryptedMessage");
 					char decryptedMessage[msgSizeCnt+1];
-					//memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
+					memset(decryptedMessage, 0, (msgSizeCnt+1)*sizeof(char));
 					emit_debug(finalanswer);
 					emit_debug_int(endPos);
 					strncpy(fullDecryptedMessage, finalanswer, endPos);
