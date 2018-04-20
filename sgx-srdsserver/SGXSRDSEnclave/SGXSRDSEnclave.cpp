@@ -61,13 +61,13 @@ char * copystring2char(std::string string2) {
 	emit_debug("copystring2char 1");
 	int length = (int)string2.length();
 	emit_debug("copystring2char 2");
-	char * string = (char *) malloc((length+1)*sizeof(char));
+	char * st = (char *) malloc((length+1)*sizeof(char));
 	emit_debug("copystring2char 3");
-	std::strncpy(string, string2.c_str(), length+1);
+	std::strncpy(st, string2.c_str(), length+1);
 	emit_debug("copystring2char 4");
-	string[length] = '\0';
+	st[length] = '\0';
     emit_debug("copystring2char 5");
-    return string;
+    return st;
 }
 
 
