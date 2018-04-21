@@ -460,7 +460,7 @@ int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
 		remainingSize = 0;
 	} else {
 		remainingSize = (totalSize % 16);
-		memcpy(bufferOut, bufferIn + (16 * (totalSize/16)), totalSize - remainingSize);
+		memcpy(bufferOut, bufferIn + (16 * (totalSize/16)), totalSize);
 	}
 	return remainingSize;
 }
@@ -563,20 +563,20 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		emit_debug(messageToDecrypt);
 		if (fromSGX) {
 			emit_debug("fromSGX");
-			encryptMessage(messageToDecrypt, msgSizeCnt-remainingSize, decryptedMessage, counter);
+			encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
 		} else {
 			emit_debug("not fromSGX");
-			decryptMessage(messageToDecrypt, msgSizeCnt-remainingSize, decryptedMessage, counter);
+			decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
 		}
 		emit_debug("5.50");
 		emit_debug("decryptedMessage =");
 		emit_debug(decryptedMessage);
 		counter = msgSizeCnt / 16;
-		char fullDecryptedMessage[sizeAnswerFromClient-remainingSize];
+		char fullDecryptedMessage[sizeAnswerFromClient];
 		memset(fullDecryptedMessage, 0, sizeAnswerFromClient*sizeof(char));
 		memcpy(fullDecryptedMessage, finalanswer, endPos);
-		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSizeCnt-remainingSize);
-		memcpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient-remainingSize);
+		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSizeCnt);
+		memcpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 		emit_debug("5.75");
 		emit_debug("finalanswer =");
 		emit_debug(finalanswer);
@@ -605,12 +605,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("testContentLength");
+                	if (out == msgSizeCnt) {
+                    	remainingSize = 0;
+                    }
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
                     emit_debug("remainingSize =");
                     emit_debug_int(remainingSize);
                     emit_debug("sent =");
-                    emit_debug_int(sizeAnswerFromClient-remainingSize);
-                    
+					emit_debug_int(sizeAnswerFromClient-remainingSize);
                     
                     memset(answerFromClient, 0, 1028);
                     emit_debug("1");
