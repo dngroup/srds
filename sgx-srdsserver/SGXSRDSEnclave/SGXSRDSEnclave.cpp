@@ -642,7 +642,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("11");
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
 					emit_debug("12");
-					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
+					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient+remainingSize);
 					emit_debug("13");
 					
                     
@@ -686,7 +686,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						decryptMessage(finalanswer, sizeAnswerFromClient+remainingSize, decryptedMessage, counter);
 					}
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
-					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
+					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient+remainingSize);
 					
 					
                 }
