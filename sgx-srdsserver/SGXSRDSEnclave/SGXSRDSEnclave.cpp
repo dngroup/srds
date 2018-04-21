@@ -605,6 +605,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("testContentLength");
+                	if (msgSizeCnt + (getPosEndOfHeader(finalanswer)+4 - sizeAnswerFromClient) == out) {
+                		remainingSize = 0;
+                	}
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
                     emit_debug("remainingSize =");
                     emit_debug_int(remainingSize);
