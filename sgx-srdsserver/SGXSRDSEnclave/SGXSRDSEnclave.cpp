@@ -507,18 +507,19 @@ void handleProxy(int csock, char * msg, int msgsize) {
     int testIsEnd = 0;
     int sizeAnswerFromClient = 0;
     int totalSizeAnswer = 0;
-    char * target;
+    char * target2;
     struct map* headersAnswer = NULL;
     int return_send = 0;
 
     struct map* headersRequest;
     headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
-    target = map_get(headersRequest, "X-Forwarded-Host");
-    char targetDecrypted[strlen(target)+100];
+    target2 = map_get(headersRequest, "X-Forwarded-Host");
+    char target[strlen(target2)+100];
+    char targetDecrypted[strlen(target2)+100];
     if (encrypt_IPs) {
-		decryptMessage(target, strlen(target)+100-1, targetDecrypted, 0);
+		decryptMessage(target, strlen(target2)+100-1, targetDecrypted, 0);
 	} else {
-		memcpy(target, targetDecrypted, strlen(target)+100-1);
+		memcpy(target, targetDecrypted, strlen(target2)+100-1);
 	}
 	memcpy(target, targetDecrypted, strlen(targetDecrypted)+1);
 	target[strlen(targetDecrypted)] = '\0';
