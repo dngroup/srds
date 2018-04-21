@@ -635,9 +635,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
 					emit_debug("10");
 					if (fromSGX) {
-						encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
+						encryptMessage(finalanswer, sizeAnswerFromClient+remainingSize, decryptedMessage, counter);
 					} else {
-						decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
+						decryptMessage(finalanswer, sizeAnswerFromClient+remainingSize, decryptedMessage, counter);
 					}
 					emit_debug("11");
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
@@ -681,9 +681,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
 					if (fromSGX) {
-						encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
+						encryptMessage(finalanswer, sizeAnswerFromClient+remainingSize, decryptedMessage, counter);
 					} else {
-						decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
+						decryptMessage(finalanswer, sizeAnswerFromClient+remainingSize, decryptedMessage, counter);
 					}
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
 					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
