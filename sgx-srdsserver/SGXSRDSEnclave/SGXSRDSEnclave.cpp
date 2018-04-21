@@ -648,16 +648,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     
                     totalSizeAnswer += sizeAnswerFromClient;
                 }
-                if (remainingSize > 0) {
-                	char finalanswerRemaining[32];
-                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
-                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
-                	if (fromSGX) {
-						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					} else {
-						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					}
-                }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
@@ -700,16 +690,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					
 					
                 }
-                if (remainingSize > 0) {
-                	char finalanswerRemaining[32];
-                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
-                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
-                	if (fromSGX) {
-						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					} else {
-						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					}
-                }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
@@ -717,16 +697,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 emit_debug_int(sizeAnswerFromClient+remainingSize);
 
             } else {
-                if (remainingSize > 0) {
-                	char finalanswerRemaining[32];
-                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
-                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
-                	if (fromSGX) {
-						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					} else {
-						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					}
-                }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
@@ -734,16 +704,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
                 emit_debug_int(sizeAnswerFromClient+remainingSize);
             }
         } else {
-            if (remainingSize > 0) {
-                	char finalanswerRemaining[32];
-                	memcpy(finalanswerRemaining, remainingBuffer, remainingSize);
-                	memcpy(finalanswerRemaining+remainingSize, finalanswer, sizeAnswerFromClient);
-                	if (fromSGX) {
-						encryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					} else {
-						decryptMessage(finalanswerRemaining, sizeAnswerFromClient+remainingSize, finalanswer, counter);
-					}
-                }
                 ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient+remainingSize);
                 emit_debug("remainingSize =");
                 emit_debug_int(remainingSize);
