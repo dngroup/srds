@@ -10,6 +10,8 @@
 
 sgx_thread_mutex_t mutex;
 
+bool encrypt_IPs = false;
+
 namespace blockchain_values {
 
 	// BODY must be: application/x-www-form-urlencoded
@@ -368,8 +370,6 @@ int getPosEndOfHeader(char * msg) {
     return allmsg.find("\r\n\r\n");
 }
 
-
-
 char* createNewHeader(char* msg, std::string address, int size) {
     std::string header(msg, 0, size);
     int posHost = header.find("Host: ") + 6;
@@ -514,6 +514,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
     struct map* headersRequest;
     headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
     target = map_get(headersRequest, "X-Forwarded-Host");
+    char targetDecrypted[strlen(target)+100];
+    if (encrypt_IPs) {
+		decryptMessage(target, strlen(target)+100-1, targetDecrypted, 0);
+	}
+	memcpy(target, targetDecrypted, strlen(targetDecrypted)+1);
+	target[strlen(targetDecrypted)] = '\0';
+    
     fromSGX = (map_find(headersRequest, "From-SGX")>0);
     ocall_startClient(&client_sock, target);
     answer = createNewHeader(msg, target, msgsize);
@@ -716,8 +723,18 @@ void handleTracker(int csock, char * msg, int size, int debug) {
             int firstComa = msgContent.find(",");
             int secondComa = msgContent.find(",", firstComa + 1);
             std::string  videoID = msgContent.substr(0, firstComa);
-            std::string  ipToChange = msgContent.substr(firstComa+1, secondComa-firstComa-1);
+            std::string  ipToChange2 = msgContent.substr(firstComa+1, secondComa-firstComa-1);
             std::string  numberOfSegment = msgContent.substr(secondComa+1);
+            
+            char target[ipToChange2.length()+1];
+            char targetEncrypted[ipToChange2.length()+1];
+            memcpy(target, ipToChange2.c_str(), ipToChange2.length());
+            target[ipToChange2.length()] = '\0';
+			if (encrypt_IPs) {
+				encryptMessage(target, ipToChange2.length(), targetEncrypted, 0);
+			}
+			targetEncrypted[ipToChange2.length()+1] = '\0';
+			std::string  ipToChange(targetEncrypted);
 
 		    if (map_find(trackermap, videoID) == 0) {
 		        map_add(trackermap, videoID, "");
@@ -732,7 +749,8 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		        ipmap = map_get_map(trackermap, videoID);
                 if (map_find(ipmap, ipToChange) == 0) {
                     map_add(ipmap, ipToChange, numberOfSegment);
-                } else {                    map_replace(ipmap, ipToChange, numberOfSegment);
+                } else {
+                	map_replace(ipmap, ipToChange, numberOfSegment);
                 }
 		    }
 		    finalanswer = addContentToAnswer(answer, content);
