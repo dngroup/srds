@@ -517,6 +517,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
     char targetDecrypted[strlen(target)+100];
     if (encrypt_IPs) {
 		decryptMessage(target, strlen(target)+100-1, targetDecrypted, 0);
+	} else {
+		memcpy(target, targetDecrypted, strlen(target)+100-1);
 	}
 	memcpy(target, targetDecrypted, strlen(targetDecrypted)+1);
 	target[strlen(targetDecrypted)] = '\0';
@@ -732,6 +734,8 @@ void handleTracker(int csock, char * msg, int size, int debug) {
             target[ipToChange2.length()] = '\0';
 			if (encrypt_IPs) {
 				encryptMessage(target, ipToChange2.length(), targetEncrypted, 0);
+			} else {
+				memcpy(target, targetEncrypted, ipToChange2.length());
 			}
 			targetEncrypted[ipToChange2.length()+1] = '\0';
 			std::string  ipToChange(targetEncrypted);
