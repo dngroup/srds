@@ -660,6 +660,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
                 while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("testEndTransferEncoding");
+                	if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
+                		remainingSize = 0;
+                	}
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
                     emit_debug("remainingSize =");
                     emit_debug_int(remainingSize);
