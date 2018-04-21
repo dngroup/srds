@@ -605,9 +605,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
                 while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
                 	emit_debug("testContentLength");
-                	if (out == msgSizeCnt) {
-                    	remainingSize = 0;
-                    }
                     ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient-remainingSize);
                     emit_debug("remainingSize =");
                     emit_debug_int(remainingSize);
@@ -635,9 +632,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
 					emit_debug("10");
 					if (fromSGX) {
-						encryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
+						encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					} else {
-						decryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
+						decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					}
 					emit_debug("11");
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
@@ -691,9 +688,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
                     memset(remainingBuffer, 0, 16);
 					remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient+remainingSize);
 					if (fromSGX) {
-						encryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
+						encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					} else {
-						decryptMessage(finalanswer, sizeAnswerFromClient-remainingSize, decryptedMessage, counter);
+						decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 					}
 					counter += (sizeAnswerFromClient+remainingSize) / 16;
 					memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient-remainingSize);
