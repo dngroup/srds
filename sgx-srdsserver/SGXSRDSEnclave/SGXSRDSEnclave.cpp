@@ -517,9 +517,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
     char target[strlen(target2)+100];
     char targetDecrypted[strlen(target2)+100];
     if (encrypt_IPs) {
-		decryptMessage(target, strlen(target2)+100-1, targetDecrypted, 0);
+		decryptMessage(target2, strlen(target2)+100-1, targetDecrypted, 0);
 	} else {
-		memcpy(target, targetDecrypted, strlen(target2)+100-1);
+		memcpy(targetDecrypted, target2, strlen(target2)+100-1);
 	}
 	memcpy(target, targetDecrypted, strlen(targetDecrypted)+1);
 	target[strlen(targetDecrypted)] = '\0';
