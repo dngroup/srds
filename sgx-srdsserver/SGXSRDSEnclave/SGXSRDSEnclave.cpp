@@ -698,6 +698,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
     }
 }
 
+char * returnMPD(void) {
+	char mpd[] = "MPD-HERE";
+	memset(mpd, 0, (strlen(mpd))*sizeof(char));
+	char encryptedMPD[strlen(mpd)];
+	memset(encryptedMPD, 0, strlen(mpd)*sizeof(char));
+	encryptMessage(mpd, strlen(mpd), encryptedMPD, 0);
+	return encryptedMPD;
+}
+
 void handleTracker(int csock, char * msg, int size, int debug) {
 
 	// Decryption: msg -> fullDecryptedMessage
@@ -721,7 +730,6 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		}
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
-		free(messageToDecrypt);
 	}
 	// fullDecryptedMessage
 	
