@@ -738,14 +738,18 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		
 		emit_debug_int(14);
 
+		emit_debug("ocall_closesocket");
 		ocall_closesocket(client_sock);
 		if (finalanswer != NULL) {
+			emit_debug("finalanswer");
 			free(finalanswer);
 		}
 		if (headersRequest != NULL) {
+			emit_debug("headersRequest");
 			map_destroy(headersRequest);
 		}
 		if (headersAnswer != NULL) {
+			emit_debug("headersAnswer");
 			map_destroy(headersAnswer);
 		}
 		emit_debug("proxy forwarding (probably) successful!");
