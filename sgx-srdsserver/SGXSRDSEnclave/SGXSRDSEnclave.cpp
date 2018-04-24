@@ -632,18 +632,20 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						
+						emit_debug_int(sizeAnswerFromClient + remainingSize);
+						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
-						char decryptedMessage[sizeAnswerFromClient + remainingSize];
+						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize);
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						
 						emit_debug_int(6);
 						
 						if (fromSGX) {
 							emit_debug("fromSGX");
-							emit_debug(finalanswer);
 							emit_debug_int(sizeAnswerFromClient + remainingSize);
 							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,	counter);
 						} else {
@@ -654,6 +656,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						emit_debug("memcpy");
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						free(decryptedMessage);
 
 						totalSizeAnswer += sizeAnswerFromClient;
 					}
@@ -690,7 +693,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer,
 															   sizeAnswerFromClient + remainingSize);
-						char decryptedMessage[sizeAnswerFromClient + remainingSize];
+						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize);
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 															   
 						emit_debug_int(10);
@@ -704,6 +707,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						free(decryptedMessage);
 
 					}
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
