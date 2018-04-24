@@ -124,8 +124,11 @@ void map_replace(struct map* map, std::string key, std::string newvalue) {
 }
 
 void map_destroy(struct map* map) {
-	struct map_element * current = map->first;
+	struct map_element * current;
 	struct map_element * current_old;
+	if (map->first != NULL) {
+		current = map->first;
+	}
 	while(current != NULL) {
 		current_old=current;
 		current = map_get_next(current_old);
