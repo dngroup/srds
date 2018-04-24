@@ -650,12 +650,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					totalSizeAnswer += sizeAnswerFromClient - out;
 					ocall_string_to_int(map_get(headersAnswer, contentLength),
 										(int) strlen(map_get(headersAnswer, contentLength)), &out);
-
-					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
-						if (msgSizeCnt + (getPosEndOfHeader(finalanswer) + 4 - sizeAnswerFromClient) == out) {
+					if (msgSizeCnt + (getPosEndOfHeader(finalanswer) + 4 - sizeAnswerFromClient) == out) {
 							over = true;
 							remainingSize = 0;
-						}
+					}
+					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
+						
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 						
 						emit_debug_int(5);
@@ -712,13 +712,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					//TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 					
 					emit_debug_int(8);
-
+					if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
+						over = true;
+						remainingSize = 0;
+					}
 					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 &&
 						   sizeAnswerFromClient != 0) {
-						if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
-							over = true;
-							remainingSize = 0;
-						}
+						
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 						if (return_send == 0) {
 							break;
