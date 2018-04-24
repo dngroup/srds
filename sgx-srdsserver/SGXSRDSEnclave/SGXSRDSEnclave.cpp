@@ -639,6 +639,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
+						emit_debug_int(remainingSize);
 						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize);
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						
@@ -654,8 +655,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						}
 						emit_debug("out");
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
+						emit_debug("realloc");
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						emit_debug("memcpy");
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						emit_debug("free");
 						free(decryptedMessage);
 
 						totalSizeAnswer += sizeAnswerFromClient;
@@ -706,7 +711,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 										   counter);
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
+						emit_debug("realloc");
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						emit_debug("memcpy");
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						emit_debug("free");
 						free(decryptedMessage);
 
 					}
