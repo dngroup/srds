@@ -868,9 +868,11 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		} else if (value == "GET") {
 			sgx_thread_mutex_lock(&mutex);
 			std::string msgContent(decryptedMessage);
-			int firstComa = msgContent.find(",");
-			std::string  videoID = msgContent.substr(0, firstComa);
-			std::string  numberOfSegments = msgContent.substr(firstComa+1);
+			int begin = msgContent.find("/?");
+			int firstComa = msgContent.find(",", begin);
+			int endpath = msgContent.find(" ", begin);
+			std::string  videoID = msgContent.substr(begin, firstComa-begin);
+			std::string  numberOfSegments = msgContent.substr(firstComa+1, endpath-firstcoma-1);
 			if (map_find(trackermap, videoID) > 0) {
 				ipmap = map_get_map(trackermap, videoID);
 				if (ipmap != NULL) {
