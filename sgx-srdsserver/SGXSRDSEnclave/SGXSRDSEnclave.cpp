@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = false;
-bool encrypt = false;
+bool encrypt = true;
 
 int numberOfTokens = 4;
 
