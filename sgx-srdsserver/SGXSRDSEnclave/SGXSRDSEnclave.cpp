@@ -872,7 +872,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			int firstComa = msgContent.find(",", begin);
 			int endpath = msgContent.find(" ", begin);
 			std::string  videoID = msgContent.substr(begin, firstComa-begin);
-			std::string  numberOfSegments = msgContent.substr(firstComa+1, endpath-firstcoma-1);
+			std::string  numberOfSegments = msgContent.substr(firstComa+1, endpath-firstComa-1);
 			if (map_find(trackermap, videoID) > 0) {
 				ipmap = map_get_map(trackermap, videoID);
 				if (ipmap != NULL) {
