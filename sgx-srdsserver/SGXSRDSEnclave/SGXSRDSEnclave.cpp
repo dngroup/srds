@@ -148,7 +148,7 @@ void map_destroy(struct map* map) {
 			}
 			emit_debug("9");
 			if (current_old->value && current_old->value != NULL) {
-				free(current_old->value);
+				//free(current_old->value);
 			}
 			emit_debug("10");
 			if (current_old->inmap && current_old->inmap != NULL) {
