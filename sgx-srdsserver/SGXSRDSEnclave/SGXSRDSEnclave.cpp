@@ -696,10 +696,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 &&
 						   sizeAnswerFromClient != 0) {
 						
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 						if (return_send == 0) {
 							break;
 						}
+						
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
