@@ -633,8 +633,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						if (finalanswer != NULL) {
 							free(finalanswer);
 						}
-						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
@@ -648,12 +648,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							emit_debug("fromSGX");
 							emit_debug(finalanswer);
 							emit_debug_int(sizeAnswerFromClient + remainingSize);
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,
-										   counter);
+							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,	counter);
 						} else {
 							emit_debug("else");
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,
-										   counter);
+							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage, counter);
 						}
 						emit_debug("out");
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
@@ -691,8 +689,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						if (finalanswer != NULL) {
 							free(finalanswer);
 						}
-						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
