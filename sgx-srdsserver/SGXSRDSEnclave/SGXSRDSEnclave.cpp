@@ -630,10 +630,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
-						if (finalanswer != NULL) {
-							free(finalanswer);
-						}
-						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
@@ -686,10 +683,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
-						if (finalanswer != NULL) {
-							free(finalanswer);
-						}
-						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
