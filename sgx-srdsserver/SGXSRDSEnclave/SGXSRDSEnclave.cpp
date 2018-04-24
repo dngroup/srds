@@ -126,46 +126,46 @@ void map_replace(struct map* map, std::string key, std::string newvalue) {
 void map_destroy(struct map* map) {
 	struct map_element * current;
 	struct map_element * current_old;
-	emit_debug("1");
+
 	if (map && map->first && map->first != NULL) {
-		emit_debug("2");
+
 		current = map->first;
 	} else {
-		emit_debug("3");
+
 		current = NULL;
 	}
-	emit_debug("4");
+
 	while(current && current != NULL) {
-		emit_debug("5");
+
 		current_old=current;
-		emit_debug("6");
+
 		current = map_get_next(current_old);
-		emit_debug("7");
+
 		if (current_old && current_old != NULL) {
-			emit_debug("8");
+
 			if (current_old->key && current_old->key != NULL) {
 				//free(current_old->key);
 			}
-			emit_debug("9");
+
 			if (current_old->value && current_old->value != NULL) {
 				//free(current_old->value);
 			}
-			emit_debug("10");
+
 			if (current_old->inmap && current_old->inmap != NULL) {
 				map_destroy(current_old->inmap);
 			}
-			emit_debug("11");
+
 			if (current_old && current_old != NULL) {
 				//free(current_old);
 			}
-			emit_debug("12");
+
 		}
 	}
-	emit_debug("13");
+
 	if (map && map != NULL) {
 		//free(map);
 	}	
-	emit_debug("14");
+
 }
 
 int map_find(struct map* map, std::string key) {
@@ -625,6 +625,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 				headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer) + 4);
 				
 				emit_debug_int(4);
+					
+				bool over = false;
 
 				if (map_find(headersAnswer, "Content-Length") > 0 || map_find(headersAnswer, "content-length") > 0) {
 					std::string contentLength;
@@ -642,6 +644,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
 						if (msgSizeCnt + (getPosEndOfHeader(finalanswer) + 4 - sizeAnswerFromClient) == out) {
+							over = true;
 							remainingSize = 0;
 						}
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
@@ -699,6 +702,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 &&
 						   sizeAnswerFromClient != 0) {
 						if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
+							over = true;
 							remainingSize = 0;
 						}
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
