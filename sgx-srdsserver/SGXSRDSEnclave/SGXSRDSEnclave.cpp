@@ -135,25 +135,37 @@ void map_destroy(struct map* map) {
 		current = NULL;
 	}
 	emit_debug("4");
-	while(current != NULL) {
+	while(current && current != NULL) {
+		emit_debug("5");
 		current_old=current;
+		emit_debug("6");
 		current = map_get_next(current_old);
-		if (current_old->key != NULL) {
-			free(current_old->key);
-		}
-		if (current_old->value != NULL) {
-			free(current_old->value);
-		}
-		if (current_old->inmap != NULL) {
-			map_destroy(current_old->inmap);
-		}
-		if (current_old != NULL) {
-			free(current_old);
+		emit_debug("7");
+		if (current_old && current_old != NULL) {
+			emit_debug("8");
+			if (current_old->key != NULL) {
+				free(current_old->key);
+			}
+			emit_debug("9");
+			if (current_old->value != NULL) {
+				free(current_old->value);
+			}
+			emit_debug("10");
+			if (current_old->inmap != NULL) {
+				map_destroy(current_old->inmap);
+			}
+			emit_debug("11");
+			if (current_old != NULL) {
+				free(current_old);
+			}
+			emit_debug("12");
 		}
 	}
+	emit_debug("13");
 	if (map && map != NULL) {
 		free(map);
 	}	
+	emit_debug("14");
 }
 
 int map_find(struct map* map, std::string key) {
