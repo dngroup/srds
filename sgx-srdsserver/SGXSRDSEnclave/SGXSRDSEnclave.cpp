@@ -649,8 +649,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
 						emit_debug_int(remainingSize);
-						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize);
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize + 16);
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
 						emit_debug_int(6);
 						
@@ -707,8 +707,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer,
 															   sizeAnswerFromClient + remainingSize);
-						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize);
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
+						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize + 16);
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 															   
 						emit_debug_int(10);
 						
