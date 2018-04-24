@@ -645,7 +645,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
 						if (msgSizeCnt + (getPosEndOfHeader(finalanswer) + 4 - sizeAnswerFromClient) == out) {
 							over = true;
-							remainingSize = -remainingSize;
+							remainingSize = 0;
 						}
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 						
@@ -704,7 +704,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						   sizeAnswerFromClient != 0) {
 						if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
 							over = true;
-							remainingSize = -remainingSize;
+							remainingSize = 0;
 						}
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 						if (return_send == 0) {
