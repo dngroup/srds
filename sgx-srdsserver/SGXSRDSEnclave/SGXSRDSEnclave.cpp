@@ -126,8 +126,10 @@ void map_replace(struct map* map, std::string key, std::string newvalue) {
 void map_destroy(struct map* map) {
 	struct map_element * current;
 	struct map_element * current_old;
-	if (map->first != NULL) {
+	if (map && map->first && map->first != NULL) {
 		current = map->first;
+	} else {
+		current = NULL;
 	}
 	while(current != NULL) {
 		current_old=current;
@@ -145,7 +147,7 @@ void map_destroy(struct map* map) {
 			free(current_old);
 		}
 	}
-	if (map != NULL) {
+	if (map && map != NULL) {
 		free(map);
 	}	
 }
