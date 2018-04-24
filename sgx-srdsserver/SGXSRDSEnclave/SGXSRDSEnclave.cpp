@@ -640,10 +640,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
-						int paddedSize = 0;
-						if ((sizeAnswerFromClient + remainingSize) < 16) {
-							paddedSize = 16 - (sizeAnswerFromClient + remainingSize);
-						}
+						int paddedSize = 16 - ((sizeAnswerFromClient + remainingSize)%16);
 						
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
@@ -707,10 +704,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
-						int paddedSize = 0;
-						if ((sizeAnswerFromClient + remainingSize) < 16) {
-							paddedSize = 16 - (sizeAnswerFromClient + remainingSize);
-						}
+						int paddedSize = 16 - ((sizeAnswerFromClient + remainingSize)%16);
 						
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
