@@ -496,7 +496,7 @@ int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
 		remainingSize = 0;
 	} else {
 		remainingSize = (totalSize % 16);
-		memcpy(bufferOut, bufferIn + (16 * (totalSize/16)), totalSize);
+		memcpy(bufferOut, bufferIn + (16 * (totalSize/16)), remainingSize);
 	}
 	return remainingSize;
 }
