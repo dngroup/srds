@@ -11,6 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = false;
+bool encrypt = false;
 
 int numberOfTokens = 4;
 
@@ -574,10 +575,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			char messageToDecrypt[msgSizeCnt];
 			memset(messageToDecrypt, 0, (msgSizeCnt) * sizeof(char));
 			memcpy(messageToDecrypt, msg + endPos, msgSizeCnt);
-			if (fromSGX) {
-				decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
+			if (encrypt) {
+				if (fromSGX) {
+					decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
+				} else {
+					encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
+				}
 			} else {
-				encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
+				memcpy(decryptedMessage, messageToDecrypt, msgSizeCnt);
 			}
 			memcpy(fullDecryptedMessage + endPos, decryptedMessage, msgSizeCnt);
 			memcpy(msg, fullDecryptedMessage, msgsize);
@@ -602,10 +607,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(messageToDecrypt, finalanswer + endPos, msgSizeCnt);
 			memset(remainingBuffer, 0, 16);
 			remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
-			if (fromSGX) {
-				encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+			if (encrypt) {
+				if (fromSGX) {
+					encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+				} else {
+					decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+				}
 			} else {
-				decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
+				memcpy(decryptedMessage, messageToDecrypt, msgSizeCnt);
 			}
 			counter = msgSizeCnt / 16;
 			char fullDecryptedMessage[sizeAnswerFromClient];
@@ -661,7 +670,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
-						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
+						sizeAnswerFromClienhttps://vignette.wikia.nocookie.net/simpsons/images/e/e9/Nelson_Ha-Ha.jpg/revision/latest?cb=20121205194057t = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
@@ -671,13 +680,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						
 						emit_debug_int(6);
 						
-						if (fromSGX) {
-							emit_debug("fromSGX");
-							emit_debug_int(sizeAnswerFromClient + remainingSize);
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+						if (encrypt) {
+							if (fromSGX) {
+								emit_debug("fromSGX");
+								emit_debug_int(sizeAnswerFromClient + remainingSize);
+								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+							} else {
+								emit_debug("else");
+								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+							}
 						} else {
-							emit_debug("else");
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						emit_debug("out");
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
@@ -733,10 +746,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
 															   
 						emit_debug_int(10);
 						
-						if (fromSGX) {
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+						if (encrypt) {
+							if (fromSGX) {
+								emit_debug("fromSGX");
+								emit_debug_int(sizeAnswerFromClient + remainingSize);
+								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+							} else {
+								emit_debug("else");
+								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+							}
 						} else {
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						emit_debug("realloc");
@@ -807,10 +827,14 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char messageToDecrypt[msgSize];
 		memset(messageToDecrypt, 0, (msgSize)*sizeof(char));
 		memcpy(messageToDecrypt, msg+endPos, msgSize);	
-		if (debug == 0) {
-			decryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
-		} else if (debug == 1) {
-			encryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
+		if (encrypt) {
+			if (debug == 0) {
+				decryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
+			} else if (debug == 1) {
+				encryptMessage(messageToDecrypt, msgSize, decryptedMessage, counter);
+			}
+		} else {
+			memcpy(decryptedMessage, messageToDecrypt, msgSize);
 		}
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
@@ -921,10 +945,14 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char encryptedMessage[msgSize];
 		memset(encryptedMessage, 0, (msgSize)*sizeof(char));
 		memcpy(messageToEncrypt, finalanswer+endPos, msgSize);
-		if (debug == 0) {
-			encryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
-		} else if (debug == 1) {
-			decryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
+		if (encrypt) {
+			if (debug == 0) {
+				encryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
+			} else if (debug == 1) {
+				decryptMessage(messageToEncrypt, msgSize, encryptedMessage, counter);
+			}
+		} else {
+			memcpy(encryptedMessage, messageToEncrypt, msgSize);
 		}
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
