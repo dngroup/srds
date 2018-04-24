@@ -49,7 +49,7 @@ struct map {
 
 
 struct map* map_init() {
-	struct map* map = (struct map*)malloc(sizeof(struct map));
+	struct map* map = (struct map*)malloc(sizeof(struct map*));
 	map->first = NULL;
 	map->last = NULL;
 	map->size = 0;
@@ -87,7 +87,7 @@ char * copystring2char(std::string string2) {
 }
 
 void map_add(struct map* map, std::string key, std::string value) {
-	struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
+	struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element*));
 	if (map->size == 0) {
 		map->first = elt;
 	}
@@ -126,11 +126,15 @@ void map_replace(struct map* map, std::string key, std::string newvalue) {
 void map_destroy(struct map* map) {
 	struct map_element * current;
 	struct map_element * current_old;
+	emit_debug("1");
 	if (map && map->first && map->first != NULL) {
+		emit_debug("2");
 		current = map->first;
 	} else {
+		emit_debug("3");
 		current = NULL;
 	}
+	emit_debug("4");
 	while(current != NULL) {
 		current_old=current;
 		current = map_get_next(current_old);
