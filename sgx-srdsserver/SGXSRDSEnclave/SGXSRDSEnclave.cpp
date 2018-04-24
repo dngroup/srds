@@ -661,9 +661,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
+						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
-						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
+						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
 						emit_debug_int(remainingSize);
 						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
@@ -722,9 +723,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
+						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
-						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
+						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
 						emit_debug_int(remainingSize);
 						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
