@@ -640,10 +640,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
-						int paddedSize = 16 - ((sizeAnswerFromClient + remainingSize)%16);
-						
-						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
@@ -652,18 +650,18 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
 						emit_debug_int(remainingSize);
-						char decryptedMessage[sizeAnswerFromClient + remainingSize + paddedSize];
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
 						emit_debug_int(6);
 						
 						if (fromSGX) {
 							emit_debug("fromSGX");
 							emit_debug_int(sizeAnswerFromClient + remainingSize);
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage, counter);
+							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 						} else {
 							emit_debug("else");
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage, counter);
+							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 						}
 						emit_debug("out");
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
@@ -702,10 +700,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
-						int paddedSize = 16 - ((sizeAnswerFromClient + remainingSize)%16);
-						
-						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
@@ -714,17 +710,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
 						emit_debug_int(remainingSize);
-						char decryptedMessage[sizeAnswerFromClient + remainingSize + paddedSize];
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 															   
 						emit_debug_int(10);
 						
 						if (fromSGX) {
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage,
-										   counter);
+							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 						} else {
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage,
-										   counter);
+							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						emit_debug("realloc");
