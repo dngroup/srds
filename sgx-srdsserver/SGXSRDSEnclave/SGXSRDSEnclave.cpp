@@ -660,10 +660,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						if (fromSGX) {
 							emit_debug("fromSGX");
 							emit_debug_int(sizeAnswerFromClient + remainingSize);
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,	counter);
+							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage, counter);
 						} else {
 							emit_debug("else");
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage, counter);
+							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage, counter);
 						}
 						emit_debug("out");
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
@@ -720,10 +720,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						emit_debug_int(10);
 						
 						if (fromSGX) {
-							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,
+							encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage,
 										   counter);
 						} else {
-							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize, decryptedMessage,
+							decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + paddedSize, decryptedMessage,
 										   counter);
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
