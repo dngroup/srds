@@ -655,6 +655,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							remainingSize = 0;
 					}
 					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
+						emit_debug(remainingBuffer);
 						
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 						
@@ -670,7 +671,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
-						sizeAnswerFromClienhttps://vignette.wikia.nocookie.net/simpsons/images/e/e9/Nelson_Ha-Ha.jpg/revision/latest?cb=20121205194057t = sizeAnswerFromClient + remainingSize;
+						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
@@ -702,6 +703,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 						totalSizeAnswer += sizeAnswerFromClient;
 					}
+					emit_debug(remainingBuffer);
 					emit_debug("ocall_sendanswer");
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
