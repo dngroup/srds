@@ -639,8 +639,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
-						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						
+						int paddedSize = 0;
+						if ((sizeAnswerFromClient + remainingSize) < 16) {
+							paddedSize = 16 - (sizeAnswerFromClient + remainingSize);
+						}
+						
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
 						
 						emit_debug_int(sizeAnswerFromClient + remainingSize);
 						
@@ -649,8 +655,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
 						emit_debug_int(remainingSize);
-						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize + 16);
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize + paddedSize);
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
 						
 						emit_debug_int(6);
 						
@@ -700,15 +706,24 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
-						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						
+						int paddedSize = 0;
+						if ((sizeAnswerFromClient + remainingSize) < 16) {
+							paddedSize = 16 - (sizeAnswerFromClient + remainingSize);
+						}
+						
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
+						
+						emit_debug_int(sizeAnswerFromClient + remainingSize);
+						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
-						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer,
-															   sizeAnswerFromClient + remainingSize);
-						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize + 16);
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient + remainingSize);
+						emit_debug_int(remainingSize);
+						char *  decryptedMessage = (char *) malloc(sizeAnswerFromClient + remainingSize + paddedSize);
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + paddedSize) * sizeof(char));
 															   
 						emit_debug_int(10);
 						
