@@ -540,7 +540,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	target2 = map_get(headersRequest, "X-Forwarded-Host");
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
-		std::string answer = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+		std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 		char chr[1024];
 		ocall_int_to_string(numberOfTokens, chr);
 		std::string content(chr);
