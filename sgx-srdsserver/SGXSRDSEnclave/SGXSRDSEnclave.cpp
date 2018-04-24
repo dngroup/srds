@@ -566,7 +566,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 		ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 		sizeAnswerFromClient = extractSize(answerFromClient);
-		char finalanswer[1056];
+		char * finalanswer = (char *) malloc(1056*sizeof(char));
 		memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
 		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
 
@@ -630,6 +630,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
+						if (finalanswer != NULL) {
+							free(finalanswer);
+						}
+						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
@@ -684,6 +688,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
+						if (finalanswer != NULL) {
+							free(finalanswer);
+						}
+						finalanswer = (char *) malloc((sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						memcpy(finalanswer, remainingBuffer, remainingSize);
@@ -725,6 +733,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		emit_debug_int(14);
 
 		ocall_closesocket(client_sock);
+		if (finalanswer != NULL) {
+			free(finalanswer);
+		}
 		if (headersRequest != NULL) {
 			map_destroy(headersRequest);
 		}
