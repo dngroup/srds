@@ -536,8 +536,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersAnswer = NULL;
 	int return_send = 0;
 
-	emit_debug_int(1);
-
 	struct map* headersRequest;
 	headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	target2 = map_get(headersRequest, "X-Forwarded-Host");
@@ -588,8 +586,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(msg, fullDecryptedMessage, msgsize);
 		}
 
-		emit_debug_int(2);
-
 		ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 		sizeAnswerFromClient = extractSize(answerFromClient);
 		char * finalanswer = (char *) malloc(1056*sizeof(char));
@@ -623,8 +619,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(fullDecryptedMessage + endPos, decryptedMessage, msgSizeCnt);
 			memcpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 		}
-		
-		emit_debug_int(3);
 
 		// finalanswer -> if fromSGX: encrypt / else: decrypt
 
@@ -632,8 +626,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			httpanswer = isHttp(finalanswer);
 			if (httpanswer == 0) {
 				headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer) + 4);
-				
-				emit_debug_int(4);
 					
 				bool over = false;
 
@@ -658,8 +650,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						emit_debug(remainingBuffer);
 						
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
-						
-						emit_debug_int(5);
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
@@ -668,52 +658,37 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
-						emit_debug_int(sizeAnswerFromClient + remainingSize);
-						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
-						emit_debug_int(remainingSize);
 						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
-						emit_debug_int(6);
-						
 						if (encrypt) {
 							if (fromSGX) {
-								emit_debug("fromSGX");
-								emit_debug_int(sizeAnswerFromClient + remainingSize);
 								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							} else {
-								emit_debug("else");
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
 							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
-						emit_debug("out");
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
-						emit_debug("realloc");
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-						emit_debug("memcpy");
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 
 						totalSizeAnswer += sizeAnswerFromClient;
 					}
 					emit_debug(remainingBuffer);
-					emit_debug("ocall_sendanswer");
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-					
-					emit_debug_int(7);
 
 				} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
 					//TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
 					//TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 					
-					emit_debug_int(8);
 					if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
 						over = true;
 						remainingSize = 0;
@@ -725,8 +700,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						if (return_send == 0) {
 							break;
 						}
-						
-						emit_debug_int(9);
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
@@ -735,69 +708,46 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
 						
-						emit_debug_int(sizeAnswerFromClient + remainingSize);
-						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 16);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
-						emit_debug_int(remainingSize);
 						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
-															   
-						emit_debug_int(10);
 						
 						if (encrypt) {
 							if (fromSGX) {
-								emit_debug("fromSGX");
-								emit_debug_int(sizeAnswerFromClient + remainingSize);
 								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							} else {
-								emit_debug("else");
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
 							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
-						emit_debug("realloc");
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-						emit_debug("memcpy");
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 
 					}
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-					
-					emit_debug_int(11);
 
 				} else {
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-					
-					emit_debug_int(12);
 				}
 			} else {
 				ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-				
-				emit_debug_int(13);
 			}
 		}
-		
-		emit_debug_int(14);
-
-		emit_debug("ocall_closesocket");
 		ocall_closesocket(client_sock);
 		if (finalanswer != NULL) {
-			emit_debug("finalanswer");
 			free(finalanswer);
 		}
 		if (headersRequest != NULL) {
-			emit_debug("headersRequest");
 			map_destroy(headersRequest);
 		}
 		if (headersAnswer != NULL) {
-			emit_debug("headersAnswer");
 			map_destroy(headersAnswer);
 		}
 		emit_debug("proxy forwarding (probably) successful!");
