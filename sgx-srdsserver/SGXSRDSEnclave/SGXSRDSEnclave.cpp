@@ -822,7 +822,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			if (encrypt_IPs) {
 				encryptMessage(target, ipToChange2.length(), targetEncrypted, 0);
 			} else {
-				memcpy(target, targetEncrypted, ipToChange2.length());
+				memcpy(targetEncrypted, target, ipToChange2.length());
 			}
 			targetEncrypted[ipToChange2.length()+1] = '\0';
 			std::string  ipToChange(targetEncrypted);
