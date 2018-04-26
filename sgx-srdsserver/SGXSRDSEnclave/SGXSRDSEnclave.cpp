@@ -10,10 +10,24 @@
 
 sgx_thread_mutex_t mutex;
 
-bool encrypt_IPs = true;
+bool encrypt_IPs = false;
 bool encrypt = false;
 
 int numberOfTokens = 4;
+
+int extractSize(char * msg) {
+	int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
+	return size;
+}
+
+void extractBuffer(char * msg, int size, char * bufferOut) {
+	int sizeIntinChar = 4;
+	memset(bufferOut, '\0', size);
+
+	for(int i = 0; i< size; i++) {
+		bufferOut[i] = msg [i + sizeIntinChar];
+	}
+}
 
 namespace blockchain_values {
 
@@ -31,8 +45,74 @@ namespace blockchain_values {
 	const char * hex_sign = "207bedf94ad5378a8a483538296409bcf273ef764679758e2354a56efd7433ba9ed137f1077c65233054a1d79e3fc829308c8405a1841f0d3da079bd7a75b85fe93f42aecd984513e6c003695ca94d7d3bffaf32ad6a8ca7c5b299a13c07a2e5c2093c0787eaa9057016b0b0e27717cad2859fd4319659713e90b64d4d8dbba28ae125a1eded5d2584945423382f802debcbdc5206b3f1d38147550b03b5c5c72211a1c997fe89821a8a4c06d61efc41ccd3a25991e6800804d8d2fa87ab69ef9c96a1f0c8341e8fc63ea3b186702cc48d670ca4f65ce7f36d6d03983e4dd436c68ab46b67b6f5567e786ec17e09b59918c71bd86aaf68a3dd487165a1e65d18b6f55c7cba55e6fc56bbbee812bcfa71ac555ca83f472a106683bc51a76a018554bd7bf515c5584645e6b3b31a9255532afce7e09fa82e8b2c8d69f0763548adba33812ba490bf8bef3bf4d122e96f6be23d57b68fd6797154b92098059c6d6f5421ef33c9e5ea745bef4fb3ec40b6d5f08175ab71e82673044cda5418483e9cd61124caecfb245ebf249b86cfba1b66ba6ad914bc5538226a2ac5d85c52154bacd79fb07425e8b819c749fa47b9c8b3d40256cd0c985d5ff4a191129839a9d62131c95b4309e275a26e13955c70ef85680e7e361aa8850c34d670035b93185763ccadff7f80286d69b73ecb0002ec0dd55789499b12017fb341f642d50a8b3f";
 	const char * private_key = "-----BEGIN RSA PRIVATE KEY-----\n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\n-----END RSA PRIVATE KEY-----";
 	const char * private8_key = "-----BEGIN PRIVATE KEY-----\n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\nT259sEiUQ+DsJbrTJeIZZsSEly3R\n-----END PRIVATE KEY-----\n"; 
-	const char * public_key = "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApGMpRdjgraVusaxfHYEa\nnpRfMQSd6xi2H2F224BoR8RsxQEnvbTJX+kFMEVjJkV+TfcoOhKyT0v3MMSMVdLM\njil6eDrc+H0xnwKErb2Vvu3yazGuKdWEWF8aq3yhUstyqVdtWlSIAVpbARIHbueC\nM6gS1qTZVOxEo0SHtsbBHghAo24hOwXAfczslttIFvcKg0qyP8nmCaAZYPSBFUfE\nwZdxWLOjh48lmrtZtGFWWjO4QKLfg6UDNGg2FdFfnJamx9B5BHrHJdQIsStCFlZW\nkJ6bEv498qZByf1SH4aXkC/UXTTDV5i47PTr17+QO7YIh6SJni8xSzly8FEASBKc\neRfeiWNdMDEFrjfyHhr0WUMjzT+ZuVFNNMu72owSLbfkpLwtMieB5Tr07zG3gkDv\nDEmubmBHvRy4sGklOW4arejS1w1ZHyo3FfDFEO4dfKXLF/w8OXwH/wJk5ytt1Fz6\n5J5iSDd553UJSxaJIb79610qBPLhjGtyqXIWlesRjOgkOk2si2LkCjPxG7XwklyU\nxmb8XV9DSvrDqJ+3QaD/BweD5oIlhTbjzICd8t+uFjL9f4NvWKehjZCsiM3WMbau\nRdfbremTGKAgFwEd2VAJMMjD1tQsxrJQyvruVbzdRF8c3jpKit2GlsBlbtEUYUZ4\niEOyvw1YmSFb+MIj4YMjsRcCAwEAAQ==\n-----END PUBLIC KEY-----\n";
-	const char * public_base64_key = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0NCk1JSUNJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBZzhBTUlJQ0NnS0NBZ0VBcEdNcFJkamdyYVZ1c2F4ZkhZRWENCm5wUmZNUVNkNnhpMkgyRjIyNEJvUjhSc3hRRW52YlRKWCtrRk1FVmpKa1YrVGZjb09oS3lUMHYzTU1TTVZkTE0NCmppbDZlRHJjK0gweG53S0VyYjJWdnUzeWF6R3VLZFdFV0Y4YXEzeWhVc3R5cVZkdFdsU0lBVnBiQVJJSGJ1ZUMNCk02Z1MxcVRaVk94RW8wU0h0c2JCSGdoQW8yNGhPd1hBZmN6c2x0dElGdmNLZzBxeVA4bm1DYUFaWVBTQkZVZkUNCndaZHhXTE9qaDQ4bG1ydFp0R0ZXV2pPNFFLTGZnNlVETkdnMkZkRmZuSmFteDlCNUJIckhKZFFJc1N0Q0ZsWlcNCmtKNmJFdjQ5OHFaQnlmMVNINGFYa0MvVVhUVERWNWk0N1BUcjE3K1FPN1lJaDZTSm5pOHhTemx5OEZFQVNCS2MNCmVSZmVpV05kTURFRnJqZnlIaHIwV1VNanpUK1p1VkZOTk11NzJvd1NMYmZrcEx3dE1pZUI1VHIwN3pHM2drRHYNCkRFbXVibUJIdlJ5NHNHa2xPVzRhcmVqUzF3MVpIeW8zRmZERkVPNGRmS1hMRi93OE9Yd0gvd0prNXl0dDFGejYNCjVKNWlTRGQ1NTNVSlN4YUpJYjc5NjEwcUJQTGhqR3R5cVhJV2xlc1JqT2drT2syc2kyTGtDalB4RzdYd2tseVUNCnhtYjhYVjlEU3ZyRHFKKzNRYUQvQndlRDVvSWxoVGJqeklDZDh0K3VGakw5ZjROdldLZWhqWkNzaU0zV01iYXUNClJkZmJyZW1UR0tBZ0Z3RWQyVkFKTU1qRDF0UXN4ckpReXZydVZiemRSRjhjM2pwS2l0Mkdsc0JsYnRFVVlVWjQNCmlFT3l2dzFZbVNGYitNSWo0WU1qc1JjQ0F3RUFBUT09DQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0=";
+	const char public_key[] = "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApGMpRdjgraVusaxfHYEa\nnpRfMQSd6xi2H2F224BoR8RsxQEnvbTJX+kFMEVjJkV+TfcoOhKyT0v3MMSMVdLM\njil6eDrc+H0xnwKErb2Vvu3yazGuKdWEWF8aq3yhUstyqVdtWlSIAVpbARIHbueC\nM6gS1qTZVOxEo0SHtsbBHghAo24hOwXAfczslttIFvcKg0qyP8nmCaAZYPSBFUfE\nwZdxWLOjh48lmrtZtGFWWjO4QKLfg6UDNGg2FdFfnJamx9B5BHrHJdQIsStCFlZW\nkJ6bEv498qZByf1SH4aXkC/UXTTDV5i47PTr17+QO7YIh6SJni8xSzly8FEASBKc\neRfeiWNdMDEFrjfyHhr0WUMjzT+ZuVFNNMu72owSLbfkpLwtMieB5Tr07zG3gkDv\nDEmubmBHvRy4sGklOW4arejS1w1ZHyo3FfDFEO4dfKXLF/w8OXwH/wJk5ytt1Fz6\n5J5iSDd553UJSxaJIb79610qBPLhjGtyqXIWlesRjOgkOk2si2LkCjPxG7XwklyU\nxmb8XV9DSvrDqJ+3QaD/BweD5oIlhTbjzICd8t+uFjL9f4NvWKehjZCsiM3WMbau\nRdfbremTGKAgFwEd2VAJMMjD1tQsxrJQyvruVbzdRF8c3jpKit2GlsBlbtEUYUZ4\niEOyvw1YmSFb+MIj4YMjsRcCAwEAAQ==\n-----END PUBLIC KEY-----\n";
+	const char public_base64_key[] = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0NCk1JSUNJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBZzhBTUlJQ0NnS0NBZ0VBcEdNcFJkamdyYVZ1c2F4ZkhZRWENCm5wUmZNUVNkNnhpMkgyRjIyNEJvUjhSc3hRRW52YlRKWCtrRk1FVmpKa1YrVGZjb09oS3lUMHYzTU1TTVZkTE0NCmppbDZlRHJjK0gweG53S0VyYjJWdnUzeWF6R3VLZFdFV0Y4YXEzeWhVc3R5cVZkdFdsU0lBVnBiQVJJSGJ1ZUMNCk02Z1MxcVRaVk94RW8wU0h0c2JCSGdoQW8yNGhPd1hBZmN6c2x0dElGdmNLZzBxeVA4bm1DYUFaWVBTQkZVZkUNCndaZHhXTE9qaDQ4bG1ydFp0R0ZXV2pPNFFLTGZnNlVETkdnMkZkRmZuSmFteDlCNUJIckhKZFFJc1N0Q0ZsWlcNCmtKNmJFdjQ5OHFaQnlmMVNINGFYa0MvVVhUVERWNWk0N1BUcjE3K1FPN1lJaDZTSm5pOHhTemx5OEZFQVNCS2MNCmVSZmVpV05kTURFRnJqZnlIaHIwV1VNanpUK1p1VkZOTk11NzJvd1NMYmZrcEx3dE1pZUI1VHIwN3pHM2drRHYNCkRFbXVibUJIdlJ5NHNHa2xPVzRhcmVqUzF3MVpIeW8zRmZERkVPNGRmS1hMRi93OE9Yd0gvd0prNXl0dDFGejYNCjVKNWlTRGQ1NTNVSlN4YUpJYjc5NjEwcUJQTGhqR3R5cVhJV2xlc1JqT2drT2syc2kyTGtDalB4RzdYd2tseVUNCnhtYjhYVjlEU3ZyRHFKKzNRYUQvQndlRDVvSWxoVGJqeklDZDh0K3VGakw5ZjROdldLZWhqWkNzaU0zV01iYXUNClJkZmJyZW1UR0tBZ0Z3RWQyVkFKTU1qRDF0UXN4ckpReXZydVZiemRSRjhjM2pwS2l0Mkdsc0JsYnRFVVlVWjQNCmlFT3l2dzFZbVNGYitNSWo0WU1qc1JjQ0F3RUFBUT09DQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0=";
+
+	int getBalance() {
+		int socket;
+		int balance = -1;
+		char responseBuffer[1028];
+		int sizeAnswerFromClient;
+		int find = 0;
+		int find2 = 0;
+		std::string request = "GET /api/getBalance/" + std::string(blockchain_values::public_base64_key) + "\r\nAccept: */*\r\n\r\n";
+		ocall_startClient(&socket, (char *) blockchain_values::server_addr);
+		memset(responseBuffer, 0, 1028);
+		ocall_sendToClient(socket, (char *) request.c_str(), request.size(), responseBuffer);
+		sizeAnswerFromClient = extractSize(responseBuffer);
+		char finalanswer[sizeAnswerFromClient];
+		memset(finalanswer, 0, (sizeAnswerFromClient));
+		extractBuffer(responseBuffer, sizeAnswerFromClient, finalanswer);
+		std::string responseString(finalanswer);
+		find = responseString.find("\"result\":\"") + 10;
+		if (find > 10) {
+			find2 = responseString.find('"', find + 1);
+			if (find2 > find) {
+				std::string balanceString = responseString.substr(find, find2);
+				ocall_string_to_int(balanceString.c_str(), balanceString.size(), &balance);
+			}
+		}
+		emit_debug("Coins balance:");
+		emit_debug_int(balance);
+		ocall_closesocket(socket);
+		return balance;
+	}
+	
+	int assignCoin (int coinsToAssign) {
+		int socket;
+		int coinsAssigned = -1;
+		char responseBuffer[1028];
+		int sizeAnswerFromClient;
+		int find = 0;
+		char coinsToAssignStr[1024];
+		memset(coinsToAssignStr, 0, 1024);
+		ocall_int_to_string(coinsToAssign, coinsToAssignStr);
+		std::string body = "key=\"" + std::string(blockchain_values::public_base64_key) + "\"&amount=\"" + std::string(coinsToAssignStr) + "\"";
+		char bodySizeStr[1024];
+		memset(bodySizeStr, 0, 1024);
+		ocall_int_to_string(body.size(), bodySizeStr);
+		std::string requestheader = "POST /api/assignCoin\r\nAccept: */*\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: " + std::string(bodySizeStr) + "\r\n\r\n";
+		std::string request = requestheader + body;
+		ocall_startClient(&socket, (char *) blockchain_values::server_addr);
+		memset(responseBuffer, 0, 1028);
+		ocall_sendToClient(socket, (char *) request.c_str(), request.size(), responseBuffer);
+		sizeAnswerFromClient = extractSize(responseBuffer);
+		char finalanswer[sizeAnswerFromClient];
+		memset(finalanswer, 0, (sizeAnswerFromClient));
+		extractBuffer(responseBuffer, sizeAnswerFromClient, finalanswer);
+		std::string responseString(finalanswer);
+		find = responseString.find("\"status\":\"") + 10;
+		if (find > 10) {
+			if (responseString.substr(find+1, find+2).compare("OK")) {
+				coinsAssigned = coinsToAssign;
+			}
+		}
+		emit_debug("Coins assigned:");
+		emit_debug_int(coinsAssigned);
+		ocall_closesocket(socket);
+		return coinsAssigned;
+	}
+
 }
 
 const char alpha32[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -478,20 +558,6 @@ sgx_status_t encryptMessage(char* in, size_t in_size, char* out, uint32_t counte
 		(uint8_t*) out);
 }
 
-int extractSize(char * msg) {
-	int size = ((unsigned char)msg[0] << 24) + ((unsigned char)msg [1] << 16) + ((unsigned char)msg[2] << 8) + (unsigned char)msg[3];
-	return size;
-}
-
-void extractBuffer(char * msg, int size, char * bufferOut) {
-	int sizeIntinChar = 4;
-	memset(bufferOut, '\0', size);
-
-	for(int i = 0; i< size; i++) {
-		bufferOut[i] = msg [i + sizeIntinChar];
-	}
-}
-
 int isHttp(char* msg) {
 	std::string beginning(msg, 0, 4);
 	if (beginning == "GET " || beginning == "POST" || beginning == "PUT " || beginning == "DELE" || beginning == "HTTP") {
@@ -670,7 +736,7 @@ int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
 void handleProxy(int csock, char * msg, int msgsize) {
 	//char target[1024] = "msstream.net";
 	int targetPort = 8023;
-
+	
 	bool fromSGX = true;
 	
 	uint32_t counter = 0;
@@ -692,8 +758,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersRequest;
 	headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	target2 = map_get(headersRequest, "X-Forwarded-Host");
-	emit_debug("target2 =");
-	emit_debug(target2);
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
 		std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 		char chr[1024];
@@ -704,22 +768,19 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		free(finalAnswer);
 	} else {
 		char target[strlen(target2) + 100];
-		char targetDecrypted[2*strlen(target2) + 100];
+		char targetDecrypted[strlen(target2) + 100];
 		if (encrypt_IPs) {
-			encryptMessage((char *) target2, strlen(target2), targetDecrypted, 0);
-			int encodeLength = GetEncode32Length(strlen(target2));
-			unsigned char data32[encodeLength];
-			Encode32((unsigned char *) targetDecrypted, encodeLength, data32);
-			Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
-			memcpy(targetDecrypted, data32, encodeLength);
-			targetDecrypted[encodeLength+1] = '\0';
+			Unmap32((unsigned char *) target2, strlen(target2), (unsigned char *) alpha32);
+			int decodeLength = GetDecode32Length(strlen(target2));
+			char decode256[decodeLength];
+			Decode32((unsigned char *) target2, decodeLength, (unsigned char *) decode256);
+			decryptMessage(decode256, decodeLength, targetDecrypted, 0);
+			targetDecrypted[decodeLength] = '\0';
 		} else {
 			memcpy(targetDecrypted, target2, strlen(target2) + 100 - 1);
 		}
 		memcpy(target, targetDecrypted, strlen(targetDecrypted) + 1);
 		target[strlen(targetDecrypted)] = '\0';
-		emit_debug("targetDecrypted =");
-		emit_debug(targetDecrypted);
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		ocall_startClient(&client_sock, target);
@@ -896,7 +957,16 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 					}
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-
+					// blockchain
+					numberOfTokens = blockchain_values::getBalance();
+					if (fromSGX) {
+						blockchain_values::assignCoin(+1);
+					} else {
+						if (numberOfTokens > 0) {
+							blockchain_values::assignCoin(-1);
+						}
+					}
+					numberOfTokens = blockchain_values::getBalance();
 				} else {
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 				}
@@ -918,6 +988,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	}
 }
 
+/*
 char * returnMPD(void) {
 	char mpd[] = "MPD-HERE";
 	memset(mpd, 0, (strlen(mpd))*sizeof(char));
@@ -926,6 +997,7 @@ char * returnMPD(void) {
 	encryptMessage(mpd, strlen(mpd), encryptedMPD, 0);
 	return encryptedMPD;
 }
+*/
 
 void handleTracker(int csock, char * msg, int size, int debug) {
 
@@ -978,22 +1050,26 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string  ipToChange2 = msgContent.substr(firstComa+1, secondComa-firstComa-1);
 			std::string  numberOfSegment = msgContent.substr(secondComa+1);
 			
+			/*
 			char target[ipToChange2.length()+1];
-			char targetEncrypted[2*(ipToChange2.length())+10];
+			char targetEncrypted[2*ipToChange2.length()+10];
 			memcpy(target, ipToChange2.c_str(), ipToChange2.length());
 			target[ipToChange2.length()] = '\0';
 			if (encrypt_IPs) {
-				Unmap32((unsigned char *) target, ipToChange2.length(), (unsigned char *) alpha32);
-				int decodeLength = GetDecode32Length(ipToChange2.length());
-				char decode256[decodeLength];
-				Decode32((unsigned char *) target, ipToChange2.length(), (unsigned char *) decode256);
-				decryptMessage(decode256, decodeLength + 1, targetEncrypted, 0);
-				targetEncrypted[decodeLength+1] = '\0';
+				encryptMessage((char *) target, ipToChange2.length(), targetEncrypted, 0);
+				int encodeLength = GetEncode32Length(ipToChange2.length());
+				unsigned char data32[encodeLength];
+				Encode32((unsigned char *) targetEncrypted, ipToChange2.length(), data32);
+				Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
+				memcpy(targetEncrypted, data32, encodeLength);
+				targetEncrypted[encodeLength] = '\0';
 			} else {
 				memcpy(targetEncrypted, target, ipToChange2.length());
-				targetEncrypted[ipToChange2.length()+1] = '\0';
+				targetEncrypted[ipToChange2.length()] = '\0';
 			}
-			std::string  ipToChange(targetEncrypted);
+			*/
+			
+			std::string  ipToChange(ipToChange2);
 
 			if (map_find(trackermap, videoID) == 0) {
 				map_add(trackermap, videoID, "");
@@ -1105,6 +1181,12 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 		if (type == 11) {
 			// tracker encryption test
 			handleTracker(csock, msg, size, 1);
+		}
+		if (type == 2) {
+			// blockchain test
+			blockchain_values::getBalance();
+			blockchain_values::assignCoin(-5);
+			blockchain_values::getBalance();
 		}
 	} else {
 
