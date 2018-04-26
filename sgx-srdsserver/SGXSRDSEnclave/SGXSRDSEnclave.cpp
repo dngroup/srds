@@ -704,13 +704,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		free(finalAnswer);
 	} else {
 		char target[strlen(target2) + 100];
-		char targetDecrypted[strlen(target2) + 100];
+		char targetDecrypted[2*strlen(target2) + 100];
 		if (encrypt_IPs) {
-			Unmap32((unsigned char *) target2, strlen(target2), (unsigned char *) alpha32);
-			int decodeLength = GetDecode32Length(strlen(target2));
-			char decode256[decodeLength];
-			Decode32((unsigned char *) target2, strlen(target2), (unsigned char *) decode256);
-			decryptMessage(decode256, decodeLength + 100 - 1, targetDecrypted, 0);
+			encryptMessage((char *) target2, strlen(target2), targetDecrypted, 0);
+			int encodeLength = GetEncode32Length(strlen(target2));
+			unsigned char data32[encodeLength];
+			Encode32((unsigned char *) targetDecrypted, encodeLength, data32);
+			Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
+			memcpy(targetDecrypted, data32, encodeLength);
+			targetDecrypted[encodeLength+1] = '\0';
 		} else {
 			memcpy(targetDecrypted, target2, strlen(target2) + 100 - 1);
 		}
@@ -977,19 +979,20 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string  numberOfSegment = msgContent.substr(secondComa+1);
 			
 			char target[ipToChange2.length()+1];
-			char targetEncrypted[ipToChange2.length()+1];
+			char targetEncrypted[2*(ipToChange2.length())+10];
 			memcpy(target, ipToChange2.c_str(), ipToChange2.length());
 			target[ipToChange2.length()] = '\0';
 			if (encrypt_IPs) {
-				int encodeLength = GetEncode32Length(ipToChange2.length());
-				unsigned char data32[encodeLength];
-				Encode32((unsigned char *) target, ipToChange2.length(), data32);
-				Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
-				encryptMessage((char *) data32, encodeLength, targetEncrypted, 0);
+				Unmap32((unsigned char *) target, ipToChange2.length(), (unsigned char *) alpha32);
+				int decodeLength = GetDecode32Length(ipToChange2.length());
+				char decode256[decodeLength];
+				Decode32((unsigned char *) target, ipToChange2.length(), (unsigned char *) decode256);
+				decryptMessage(decode256, decodeLength + 1, targetEncrypted, 0);
+				targetEncrypted[decodeLength+1] = '\0';
 			} else {
 				memcpy(targetEncrypted, target, ipToChange2.length());
+				targetEncrypted[ipToChange2.length()+1] = '\0';
 			}
-			targetEncrypted[ipToChange2.length()+1] = '\0';
 			std::string  ipToChange(targetEncrypted);
 
 			if (map_find(trackermap, videoID) == 0) {
