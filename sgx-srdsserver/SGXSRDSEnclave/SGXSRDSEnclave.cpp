@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = true;
+bool encrypt = false;
 
 int numberOfTokens = 4;
 
@@ -692,6 +692,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersRequest;
 	headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	target2 = map_get(headersRequest, "X-Forwarded-Host");
+	emit_debug("target2 =");
+	emit_debug(target2);
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
 		std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 		char chr[1024];
@@ -714,6 +716,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		}
 		memcpy(target, targetDecrypted, strlen(targetDecrypted) + 1);
 		target[strlen(targetDecrypted)] = '\0';
+		emit_debug("targetDecrypted =");
+		emit_debug(targetDecrypted);
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		ocall_startClient(&client_sock, target);
