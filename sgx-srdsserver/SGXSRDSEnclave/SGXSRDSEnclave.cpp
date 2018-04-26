@@ -10,7 +10,7 @@
 
 sgx_thread_mutex_t mutex;
 
-bool encrypt_IPs = false;
+bool encrypt_IPs = true;
 bool encrypt = true;
 
 int numberOfTokens = 4;
@@ -33,6 +33,159 @@ namespace blockchain_values {
 	const char * private8_key = "-----BEGIN PRIVATE KEY-----\n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\nT259sEiUQ+DsJbrTJeIZZsSEly3R\n-----END PRIVATE KEY-----\n"; 
 	const char * public_key = "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApGMpRdjgraVusaxfHYEa\nnpRfMQSd6xi2H2F224BoR8RsxQEnvbTJX+kFMEVjJkV+TfcoOhKyT0v3MMSMVdLM\njil6eDrc+H0xnwKErb2Vvu3yazGuKdWEWF8aq3yhUstyqVdtWlSIAVpbARIHbueC\nM6gS1qTZVOxEo0SHtsbBHghAo24hOwXAfczslttIFvcKg0qyP8nmCaAZYPSBFUfE\nwZdxWLOjh48lmrtZtGFWWjO4QKLfg6UDNGg2FdFfnJamx9B5BHrHJdQIsStCFlZW\nkJ6bEv498qZByf1SH4aXkC/UXTTDV5i47PTr17+QO7YIh6SJni8xSzly8FEASBKc\neRfeiWNdMDEFrjfyHhr0WUMjzT+ZuVFNNMu72owSLbfkpLwtMieB5Tr07zG3gkDv\nDEmubmBHvRy4sGklOW4arejS1w1ZHyo3FfDFEO4dfKXLF/w8OXwH/wJk5ytt1Fz6\n5J5iSDd553UJSxaJIb79610qBPLhjGtyqXIWlesRjOgkOk2si2LkCjPxG7XwklyU\nxmb8XV9DSvrDqJ+3QaD/BweD5oIlhTbjzICd8t+uFjL9f4NvWKehjZCsiM3WMbau\nRdfbremTGKAgFwEd2VAJMMjD1tQsxrJQyvruVbzdRF8c3jpKit2GlsBlbtEUYUZ4\niEOyvw1YmSFb+MIj4YMjsRcCAwEAAQ==\n-----END PUBLIC KEY-----\n";
 	const char * public_base64_key = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0NCk1JSUNJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBZzhBTUlJQ0NnS0NBZ0VBcEdNcFJkamdyYVZ1c2F4ZkhZRWENCm5wUmZNUVNkNnhpMkgyRjIyNEJvUjhSc3hRRW52YlRKWCtrRk1FVmpKa1YrVGZjb09oS3lUMHYzTU1TTVZkTE0NCmppbDZlRHJjK0gweG53S0VyYjJWdnUzeWF6R3VLZFdFV0Y4YXEzeWhVc3R5cVZkdFdsU0lBVnBiQVJJSGJ1ZUMNCk02Z1MxcVRaVk94RW8wU0h0c2JCSGdoQW8yNGhPd1hBZmN6c2x0dElGdmNLZzBxeVA4bm1DYUFaWVBTQkZVZkUNCndaZHhXTE9qaDQ4bG1ydFp0R0ZXV2pPNFFLTGZnNlVETkdnMkZkRmZuSmFteDlCNUJIckhKZFFJc1N0Q0ZsWlcNCmtKNmJFdjQ5OHFaQnlmMVNINGFYa0MvVVhUVERWNWk0N1BUcjE3K1FPN1lJaDZTSm5pOHhTemx5OEZFQVNCS2MNCmVSZmVpV05kTURFRnJqZnlIaHIwV1VNanpUK1p1VkZOTk11NzJvd1NMYmZrcEx3dE1pZUI1VHIwN3pHM2drRHYNCkRFbXVibUJIdlJ5NHNHa2xPVzRhcmVqUzF3MVpIeW8zRmZERkVPNGRmS1hMRi93OE9Yd0gvd0prNXl0dDFGejYNCjVKNWlTRGQ1NTNVSlN4YUpJYjc5NjEwcUJQTGhqR3R5cVhJV2xlc1JqT2drT2syc2kyTGtDalB4RzdYd2tseVUNCnhtYjhYVjlEU3ZyRHFKKzNRYUQvQndlRDVvSWxoVGJqeklDZDh0K3VGakw5ZjROdldLZWhqWkNzaU0zV01iYXUNClJkZmJyZW1UR0tBZ0Z3RWQyVkFKTU1qRDF0UXN4ckpReXZydVZiemRSRjhjM2pwS2l0Mkdsc0JsYnRFVVlVWjQNCmlFT3l2dzFZbVNGYitNSWo0WU1qc1JjQ0F3RUFBUT09DQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0=";
+}
+
+const char alpha32[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+int GetEncode32Length(int bytes)
+{
+   int bits = bytes * 8;
+   int length = bits / 5;
+   if((bits % 5) > 0)
+   {
+      length++;
+   }
+   return length;
+}
+
+int GetDecode32Length(int bytes)
+{
+   int bits = bytes * 5;
+   int length = bits / 8;
+   return length;
+}
+
+static bool Encode32Block(unsigned char* in5, unsigned char* out8)
+{
+      // pack 5 bytes
+      uint64_t buffer = 0;
+      for(int i = 0; i < 5; i++)
+      {
+		  if(i != 0)
+		  {
+			  buffer = (buffer << 8);
+		  }
+		  buffer = buffer | in5[i];
+      }
+      // output 8 bytes
+      for(int j = 7; j >= 0; j--)
+      {
+		  buffer = buffer << (24 + (7 - j) * 5);
+		  buffer = buffer >> (24 + (7 - j) * 5);
+		  unsigned char c = (unsigned char)(buffer >> (j * 5));
+		  // self check
+		  if(c >= 32) return false;
+		  out8[7 - j] = c;
+      }
+	  return true;
+}
+
+bool Encode32(unsigned char* in, int inLen, unsigned char* out)
+{
+   if((in == 0) || (inLen <= 0) || (out == 0)) return false;
+
+   int d = inLen / 5;
+   int r = inLen % 5;
+
+   unsigned char outBuff[8];
+
+   for(int j = 0; j < d; j++)
+   {
+      if(!Encode32Block(&in[j * 5], &outBuff[0])) return false;
+      memmove(&out[j * 8], &outBuff[0], sizeof(unsigned char) * 8);
+   }
+
+   unsigned char padd[5];
+   memset(padd, 0, sizeof(unsigned char) * 5);
+   for(int i = 0; i < r; i++)
+   {
+      padd[i] = in[inLen - r + i];
+   }
+   if(!Encode32Block(&padd[0], &outBuff[0])) return false;
+   memmove(&out[d * 8], &outBuff[0], sizeof(unsigned char) * GetEncode32Length(r));
+
+   return true;
+}
+
+static bool Decode32Block(unsigned char* in8, unsigned char* out5)
+{
+      // pack 8 bytes
+      uint64_t buffer = 0;
+      for(int i = 0; i < 8; i++)
+      {
+		  // input check
+		  if(in8[i] >= 32) return false;
+		  if(i != 0)
+		  {
+			  buffer = (buffer << 5);
+		  }
+		  buffer = buffer | in8[i];
+      }
+      // output 5 bytes
+      for(int j = 4; j >= 0; j--)
+      {
+		  out5[4 - j] = (unsigned char)(buffer >> (j * 8));
+      }
+	  return true;
+}
+
+bool Decode32(unsigned char* in, int inLen, unsigned char* out)
+{
+   if((in == 0) || (inLen <= 0) || (out == 0)) return false;
+
+   int d = inLen / 8;
+   int r = inLen % 8;
+
+   unsigned char outBuff[5];
+
+   for(int j = 0; j < d; j++)
+   {
+      if(!Decode32Block(&in[j * 8], &outBuff[0])) return false;
+      memmove(&out[j * 5], &outBuff[0], sizeof(unsigned char) * 5);
+   }
+
+   unsigned char padd[8];
+   memset(padd, 0, sizeof(unsigned char) * 8);
+   for(int i = 0; i < r; i++)
+   {
+      padd[i] = in[inLen - r + i];
+   }
+   if(!Decode32Block(&padd[0], &outBuff[0])) return false;
+   memmove(&out[d * 5], &outBuff[0], sizeof(unsigned char) * GetDecode32Length(r));
+
+   return true;
+}
+
+bool Map32(unsigned char* inout32, int inout32Len, unsigned char* alpha32)
+{
+	if((inout32 == 0) || (inout32Len <= 0) || (alpha32 == 0)) return false;
+	for(int i = 0; i < inout32Len; i++)
+	{
+		if(inout32[i] >=32) return false;
+		inout32[i] = alpha32[inout32[i]];
+	}
+	return true;
+}
+
+static void ReverseMap(unsigned char* inAlpha32, unsigned char* outMap)
+{
+	memset(outMap, 0, sizeof(unsigned char) * 256);
+	for(int i = 0; i < 32; i++)
+	{
+		outMap[(int)inAlpha32[i]] = i;
+	}
+}
+
+bool Unmap32(unsigned char* inout32, int inout32Len, unsigned char* alpha32)
+{
+	if((inout32 == 0) || (inout32Len <= 0) || (alpha32 == 0)) return false;
+	unsigned char rmap[256];
+	ReverseMap(alpha32, rmap);
+	for(int i = 0; i < inout32Len; i++)
+	{
+		inout32[i] = rmap[(int)inout32[i]];
+	}
+	return true;
 }
 
 struct map_element {
@@ -551,7 +704,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		char target[strlen(target2) + 100];
 		char targetDecrypted[strlen(target2) + 100];
 		if (encrypt_IPs) {
-			decryptMessage(target2, strlen(target2) + 100 - 1, targetDecrypted, 0);
+			Unmap32((unsigned char *) target2, strlen(target2), (unsigned char *) alpha32);
+			int decodeLength = GetDecode32Length(strlen(target2));
+			char decode256[decodeLength];
+			Decode32((unsigned char *) target2, strlen(target2), (unsigned char *) decode256);
+			decryptMessage(decode256, decodeLength + 100 - 1, targetDecrypted, 0);
 		} else {
 			memcpy(targetDecrypted, target2, strlen(target2) + 100 - 1);
 		}
@@ -820,7 +977,11 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			memcpy(target, ipToChange2.c_str(), ipToChange2.length());
 			target[ipToChange2.length()] = '\0';
 			if (encrypt_IPs) {
-				encryptMessage(target, ipToChange2.length(), targetEncrypted, 0);
+				int encodeLength = GetEncode32Length(ipToChange2.length());
+				unsigned char data32[encodeLength];
+				Encode32((unsigned char *) target, ipToChange2.length(), data32);
+				Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
+				encryptMessage((char *) data32, encodeLength, targetEncrypted, 0);
 			} else {
 				memcpy(targetEncrypted, target, ipToChange2.length());
 			}
