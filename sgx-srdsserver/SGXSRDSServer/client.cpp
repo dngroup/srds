@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string>
 #include "common_socket.h"
+#include <arpa/inet.h>
 
 #include "SGXSRDSEnclave_u.h"
 
@@ -94,6 +95,19 @@ void ocall_receiveFromClient(int sock, char * finalbuffer2) {
     memcpy(finalbuffer2,finalbuffer,size+sizeIntinChar);
 }
 
+void ocall_getSocketIP(int sock, char * clientip) {
+	struct sockaddr_in addr;
+	socklen_t addr_size = sizeof(struct sockaddr_in);
+	int res = getpeername(sock, (struct sockaddr *)&addr, &addr_size);
+	int port = ntohs(addr.sin_port);
+	char portc[6];
+	strcpy(clientip, inet_ntoa(addr.sin_addr));
+	/*
+	strcat(clientip, ":");
+	sprintf(portc, "%d", port);
+	strcat(clientip, portc);
+	*/
+}
 
 void ocall_closesocket(int sock) {
     close(sock);

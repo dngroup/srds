@@ -16,6 +16,7 @@ enclave {
         [cdecl] int ocall_sendanswer(int csock, [in,size=size] char *msg, int size);
         [cdecl] void ocall_int_to_string(int a, [out, size=1024] char* chr);
         [cdecl] void ocall_string_to_int([in,size=size] const char* a, int size, [out,size=4] int * out);
+        [cdecl] void ocall_getSocketIP(int sock, [out, size=30] char * clientip);
         [cdecl] void ocall_closesocket(int sock);
     };
 };

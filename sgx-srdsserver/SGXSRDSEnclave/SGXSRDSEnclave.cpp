@@ -370,7 +370,7 @@ struct map {
 
 
 struct map* map_init() {
-	struct map* map = (struct map*)malloc(sizeof(struct map*));
+	struct map* map = (struct map*)malloc(sizeof(struct map));
 	map->first = NULL;
 	map->last = NULL;
 	map->size = 0;
@@ -408,7 +408,7 @@ char * copystring2char(std::string string2) {
 }
 
 void map_add(struct map* map, std::string key, std::string value) {
-	struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element*));
+	struct map_element* elt = (struct map_element*)malloc(sizeof(struct map_element));
 	if (map->size == 0) {
 		map->first = elt;
 	}
@@ -465,11 +465,11 @@ void map_destroy(struct map* map) {
 		if (current_old && current_old != NULL) {
 
 			if (current_old->key && current_old->key != NULL) {
-				//free(current_old->key);
+				free(current_old->key);
 			}
 
 			if (current_old->value && current_old->value != NULL) {
-				//free(current_old->value);
+				free(current_old->value);
 			}
 
 			if (current_old->inmap && current_old->inmap != NULL) {
@@ -477,14 +477,14 @@ void map_destroy(struct map* map) {
 			}
 
 			if (current_old && current_old != NULL) {
-				//free(current_old);
+				free(current_old);
 			}
 
 		}
 	}
 
 	if (map && map != NULL) {
-		//free(map);
+		free(map);
 	}	
 
 }
@@ -731,9 +731,7 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	int endPos = 0;
 	int pos = 0;
 	int oldPos = 0;
-	char msg[headersSize];
-	memcpy(msg, msg2, headersSize);
-	std::string allmsg(msg);
+	std::string allmsg(msg2);
 	int posmiddle = 0;
 	int firstSpace = 0;
 	int secondSpace = 0;
@@ -750,17 +748,17 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	pos = allmsg.find("\r\n");
 	firstSpace = allmsg.find(" ");
 	std::string sMethod1("Method");
-	std::string sMethod2(msg, oldPos, firstSpace);
+	std::string sMethod2(msg2, oldPos, firstSpace);
 	//headers[copystring(sMethod1)] = copystring(sMethod2);
 	map_add(headers, sMethod1, sMethod2);
 	secondSpace = allmsg.find(" ", firstSpace + 1);
 	std::string sPath1("Path");
-	std::string sPath2(msg, firstSpace + 1, secondSpace - firstSpace - 1);
+	std::string sPath2(msg2, firstSpace + 1, secondSpace - firstSpace - 1);
 	//headers[copystring(sPath1)] = copystring(sPath2);
 	map_add(headers, sPath1, sPath2);
 
 	std::string sProto1("Protocol");
-	std::string sProto2(msg, secondSpace + 1, pos - secondSpace - 1);
+	std::string sProto2(msg2, secondSpace + 1, pos - secondSpace - 1);
 	//headers[copystring(sProto1)] = copystring(sProto2);
 	map_add(headers, sProto1, sProto2);
 
@@ -768,8 +766,8 @@ struct map* parse_headers(char * msg2, int headersSize) {
 		oldPos = pos;
 		pos = allmsg.find("\r\n", pos + 1);
 		posmiddle = allmsg.find(":", oldPos + 1);
-		std::string s1(msg, oldPos + 2, posmiddle - oldPos - 2);
-		std::string s2(msg, posmiddle + 2, pos - posmiddle - 2);
+		std::string s1(msg2, oldPos + 2, posmiddle - oldPos - 2);
+		std::string s2(msg2, posmiddle + 2, pos - posmiddle - 2);
 		//headers[copystring(s1)] = copystring(s2);
 		map_add(headers, s1, s2);
 
@@ -789,15 +787,17 @@ int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
 }
 
 void handleProxy(int csock, char * msg, int msgsize) {
-	//char target[1024] = "msstream.net";
-	int targetPort = 8023;
+
+	char clientip[30];
+	ocall_getSocketIP(csock, clientip);
+	emit_debug(clientip);
 	
 	bool fromSGX = true;
 	
 	uint32_t counter = 0;
 	int remainingSize = 0;
 	int remainingSize2 = 0;
-	char remainingBuffer[16];
+	char remainingBuffer[15];
 	
 	char * answer;
 	int client_sock;
@@ -806,13 +806,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	int testIsEnd = 0;
 	int sizeAnswerFromClient = 0;
 	int totalSizeAnswer = 0;
-	char * target2;
 	struct map* headersAnswer = NULL;
 	int return_send = 0;
 
-	struct map* headersRequest;
-	headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
-	target2 = map_get(headersRequest, "X-Forwarded-Host");
+	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
+	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
 		std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 		char chr[1024];
@@ -824,7 +822,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	} else {
 		char target[strlen(target2)];
 		B322T(target2, target);
-		emit_debug(target);
 		printT2B32(target);
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
@@ -870,7 +867,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			char messageToDecrypt[msgSizeCnt];
 			memset(messageToDecrypt, 0, (msgSizeCnt) * sizeof(char));
 			memcpy(messageToDecrypt, finalanswer + endPos, msgSizeCnt);
-			memset(remainingBuffer, 0, 16);
+			memset(remainingBuffer, 0, 15);
 			remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
 			if (encrypt) {
 				if (fromSGX) {
@@ -886,6 +883,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memset(fullDecryptedMessage, 0, sizeAnswerFromClient * sizeof(char));
 			memcpy(fullDecryptedMessage, finalanswer, endPos);
 			memcpy(fullDecryptedMessage + endPos, decryptedMessage, msgSizeCnt);
+			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			memcpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 		}
 
@@ -916,7 +914,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							remainingSize = 0;
 					}
 					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
-						emit_debug(remainingBuffer);
 						
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
@@ -924,25 +921,25 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
-						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
 						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
-						memset(remainingBuffer, 0, 16);
+						memset(remainingBuffer, 0, 15);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
-						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						char decryptedMessage[sizeAnswerFromClient + remainingSize + 15];
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
 						
 						if (encrypt) {
 							if (fromSGX) {
-								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							} else {
-								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
-							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16));
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
@@ -951,7 +948,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 						totalSizeAnswer += sizeAnswerFromClient;
 					}
-					emit_debug(remainingBuffer);
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 
 				} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
@@ -975,25 +971,25 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_receiveFromClient(client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
-						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
-						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
+						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
 						
 						extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
 						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
-						memset(remainingBuffer, 0, 16);
+						memset(remainingBuffer, 0, 15);
 						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
-						char decryptedMessage[sizeAnswerFromClient + remainingSize + 16];
-						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 16) * sizeof(char));
+						char decryptedMessage[sizeAnswerFromClient + remainingSize + 15];
+						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
 						
 						if (encrypt) {
 							if (fromSGX) {
-								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							} else {
-								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
-							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 16 - ((sizeAnswerFromClient + remainingSize)%16));
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
@@ -1095,7 +1091,9 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string ipToChange2 = msgContent.substr(firstComa+1, secondComa-firstComa-1);
 			std::string numberOfSegment = msgContent.substr(secondComa+1);
 			
-			std::string ipToChange(ipToChange2);
+			char clientip[30];
+			ocall_getSocketIP(csock, clientip); // TODO: add port
+			std::string ipToChange(clientip);
 
 			if (map_find(trackermap, videoID) == 0) {
 				map_add(trackermap, videoID, "");
@@ -1229,6 +1227,7 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			printT2B32((char *) "tracker");
 			printT2B32((char *) "mpdserver");
 			printT2B32((char *) "defaultserver");
+			printT2B32((char *) "147.210.128.146:8080");
 		}
 	} else {
 		int option = isOption(msg);

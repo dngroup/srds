@@ -11,6 +11,8 @@ void ocall_sendToClient(int sock, char * request, int size, char * finalbuffer);
 
 void ocall_receiveFromClient(int sock, char * finalbuffer);
 
+void ocall_getSocketIP(int sock, char * clientip);
+
 void ocall_closesocket(int sock);
 
 #endif //SRDSSERVER_CLIENT_H
