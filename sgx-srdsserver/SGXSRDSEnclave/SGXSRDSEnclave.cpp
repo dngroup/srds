@@ -767,7 +767,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		ocall_sendanswer(&return_send, csock, finalAnswer, strlen(finalAnswer));
 		free(finalAnswer);
 	} else {
+	
 		char target[strlen(target2) + 100];
+		memcpy(target, target2, strlen(target2));
+		/*
 		char targetDecrypted[strlen(target2) + 100];
 		if (encrypt_IPs) {
 			Unmap32((unsigned char *) target2, strlen(target2), (unsigned char *) alpha32);
@@ -781,6 +784,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		}
 		memcpy(target, targetDecrypted, strlen(targetDecrypted) + 1);
 		target[strlen(targetDecrypted)] = '\0';
+		*/
+		
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		ocall_startClient(&client_sock, target);
