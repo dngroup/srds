@@ -10,7 +10,7 @@
 
 sgx_thread_mutex_t mutex;
 
-bool encrypt_IPs = false;
+bool encrypt_IPs = true;
 bool encrypt = false;
 
 int numberOfTokens = 4;
@@ -113,6 +113,38 @@ namespace blockchain_values {
 		return coinsAssigned;
 	}
 
+}
+
+// assume that there exist a 128 bits symmetric key priorly provisioned to the enclaves
+char* sgx_provisioned_key = (char*)"1234567890123456";
+
+void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
+{
+	// within our simulation counters do not exceed 2^32 values, meaning that they can
+	// be represented on 4 bytes.
+	ctr[ctr_size - 4] = (val & 0xff000000) >> 24;
+	ctr[ctr_size - 3] = (val & 0x00ff0000) >> 16;
+	ctr[ctr_size - 2] = (val & 0x0000ff00) >>  8;
+	ctr[ctr_size - 1] = (val & 0x000000ff);
+}
+
+sgx_status_t decryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
+{
+	uint8_t ctr_bytes[16] = {0};
+	set_ctr_bytes(counter, ctr_bytes, 16);
+	return sgx_aes_ctr_decrypt((sgx_aes_ctr_128bit_key_t*) sgx_provisioned_key,
+		(uint8_t*) in, in_size, ctr_bytes, 128,
+		(uint8_t*) out);
+}
+
+sgx_status_t encryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
+{
+	uint8_t ctr_bytes[16] = {0};
+	set_ctr_bytes(counter, ctr_bytes, 16);
+	return sgx_aes_ctr_encrypt(
+		(sgx_aes_ctr_128bit_key_t*) sgx_provisioned_key,
+		(uint8_t*) in, in_size, ctr_bytes, 128,
+		(uint8_t*) out);
 }
 
 const char alpha32[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -266,6 +298,61 @@ bool Unmap32(unsigned char* inout32, int inout32Len, unsigned char* alpha32)
 		inout32[i] = rmap[(int)inout32[i]];
 	}
 	return true;
+}
+
+void T2B32 (std::string ipToChange2, char * targetEncrypted) {
+	char target0[ipToChange2.size()];
+	memcpy(target0, ipToChange2.c_str(), ipToChange2.size());
+	target0[ipToChange2.size()] = '\0';
+	if (encrypt_IPs) {
+		encryptMessage(target0, ipToChange2.size(), targetEncrypted, 0);
+	} else {
+		memcpy(targetEncrypted, target0, ipToChange2.length());
+	}
+	targetEncrypted[ipToChange2.size()] = '\0';
+	int encodeLength = GetEncode32Length(ipToChange2.size());
+	char data32[encodeLength];
+	Encode32((unsigned char *) targetEncrypted, ipToChange2.size(), (unsigned char *) data32);
+	Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
+	memcpy(targetEncrypted, data32, encodeLength);
+	targetEncrypted[encodeLength] = '\0';
+}
+
+void B322T (char * targetEncrypted, char * target) {
+	char targetDecrypted[strlen(targetEncrypted)];
+	int decodeLength = GetDecode32Length(strlen(targetEncrypted));
+	int encodeLength = GetEncode32Length(decodeLength);
+	Unmap32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) alpha32);
+	char decode256[decodeLength];
+	Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
+	decode256[decodeLength] = '\0';
+	if (encrypt_IPs) {
+		decryptMessage(decode256, decodeLength, targetDecrypted, 0);
+	} else {
+		memcpy(targetDecrypted, decode256, decodeLength);
+	}
+	targetDecrypted[decodeLength] = '\0';
+	memcpy(target, targetDecrypted, strlen(targetDecrypted));
+	target[strlen(targetDecrypted)] = '\0';
+}
+
+void printT2B32(char * str2) {
+	std::string str(str2);
+	emit_debug(str.c_str());
+	char targetEncrypted[GetEncode32Length(str.size())];
+	T2B32(str, targetEncrypted);
+	emit_debug(targetEncrypted);
+	char target[strlen(targetEncrypted)];
+	B322T(targetEncrypted, target);
+	if (strcmp(str.c_str(),target) != 0) {
+		emit_debug("STRINGS DO NOT MATCH!");
+		emit_debug("v v v");
+		emit_debug(str.c_str());
+		emit_debug("^ ^ ^");
+		emit_debug("v v v");
+		emit_debug(target);
+		emit_debug("^ ^ ^");
+	}
 }
 
 struct map_element {
@@ -526,38 +613,6 @@ std::string map_findKeysByValueBiggerThan(struct map* map, std::string value) {
 	return output;
 }
 
-// assume that there exist a 128 bits symmetric key priorly provisioned to the enclaves
-char* sgx_provisioned_key = (char*)"1234567890123456";
-
-void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
-{
-	// within our simulation counters do not exceed 2^32 values, meaning that they can
-	// be represented on 4 bytes.
-	ctr[ctr_size - 4] = (val & 0xff000000) >> 24;
-	ctr[ctr_size - 3] = (val & 0x00ff0000) >> 16;
-	ctr[ctr_size - 2] = (val & 0x0000ff00) >>  8;
-	ctr[ctr_size - 1] = (val & 0x000000ff);
-}
-
-sgx_status_t decryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
-{
-	uint8_t ctr_bytes[16] = {0};
-	set_ctr_bytes(counter, ctr_bytes, 16);
-	return sgx_aes_ctr_decrypt((sgx_aes_ctr_128bit_key_t*) sgx_provisioned_key,
-		(uint8_t*) in, in_size, ctr_bytes, 128,
-		(uint8_t*) out);
-}
-
-sgx_status_t encryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
-{
-	uint8_t ctr_bytes[16] = {0};
-	set_ctr_bytes(counter, ctr_bytes, 16);
-	return sgx_aes_ctr_encrypt(
-		(sgx_aes_ctr_128bit_key_t*) sgx_provisioned_key,
-		(uint8_t*) in, in_size, ctr_bytes, 128,
-		(uint8_t*) out);
-}
-
 int isHttp(char* msg) {
 	std::string beginning(msg, 0, 4);
 	if (beginning == "GET " || beginning == "POST" || beginning == "PUT " || beginning == "DELE" || beginning == "HTTP") {
@@ -767,25 +822,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		ocall_sendanswer(&return_send, csock, finalAnswer, strlen(finalAnswer));
 		free(finalAnswer);
 	} else {
-	
-		char target[strlen(target2) + 100];
-		memcpy(target, target2, strlen(target2));
-		/*
-		char targetDecrypted[strlen(target2) + 100];
-		if (encrypt_IPs) {
-			Unmap32((unsigned char *) target2, strlen(target2), (unsigned char *) alpha32);
-			int decodeLength = GetDecode32Length(strlen(target2));
-			char decode256[decodeLength];
-			Decode32((unsigned char *) target2, decodeLength, (unsigned char *) decode256);
-			decryptMessage(decode256, decodeLength, targetDecrypted, 0);
-			targetDecrypted[decodeLength] = '\0';
-		} else {
-			memcpy(targetDecrypted, target2, strlen(target2) + 100 - 1);
-		}
-		memcpy(target, targetDecrypted, strlen(targetDecrypted) + 1);
-		target[strlen(targetDecrypted)] = '\0';
-		*/
-		
+		char target[strlen(target2)];
+		B322T(target2, target);
+		emit_debug(target);
+		printT2B32(target);
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		ocall_startClient(&client_sock, target);
@@ -1051,30 +1091,11 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string msgContent(decryptedMessage);
 			int firstComa = msgContent.find(",");
 			int secondComa = msgContent.find(",", firstComa + 1);
-			std::string  videoID = msgContent.substr(0, firstComa);
-			std::string  ipToChange2 = msgContent.substr(firstComa+1, secondComa-firstComa-1);
-			std::string  numberOfSegment = msgContent.substr(secondComa+1);
+			std::string videoID = msgContent.substr(0, firstComa);
+			std::string ipToChange2 = msgContent.substr(firstComa+1, secondComa-firstComa-1);
+			std::string numberOfSegment = msgContent.substr(secondComa+1);
 			
-			/*
-			char target[ipToChange2.length()+1];
-			char targetEncrypted[2*ipToChange2.length()+10];
-			memcpy(target, ipToChange2.c_str(), ipToChange2.length());
-			target[ipToChange2.length()] = '\0';
-			if (encrypt_IPs) {
-				encryptMessage((char *) target, ipToChange2.length(), targetEncrypted, 0);
-				int encodeLength = GetEncode32Length(ipToChange2.length());
-				unsigned char data32[encodeLength];
-				Encode32((unsigned char *) targetEncrypted, ipToChange2.length(), data32);
-				Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
-				memcpy(targetEncrypted, data32, encodeLength);
-				targetEncrypted[encodeLength] = '\0';
-			} else {
-				memcpy(targetEncrypted, target, ipToChange2.length());
-				targetEncrypted[ipToChange2.length()] = '\0';
-			}
-			*/
-			
-			std::string  ipToChange(ipToChange2);
+			std::string ipToChange(ipToChange2);
 
 			if (map_find(trackermap, videoID) == 0) {
 				map_add(trackermap, videoID, "");
@@ -1193,8 +1214,23 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			blockchain_values::assignCoin(-5);
 			blockchain_values::getBalance();
 		}
+		if (type == 32) {
+			// base32 test
+			std::string str("tracker");
+			emit_debug(str.c_str());
+			char targetEncrypted[GetEncode32Length(str.size())];
+			T2B32(str, targetEncrypted);
+			emit_debug(targetEncrypted);
+			char target[strlen(targetEncrypted)];
+			B322T(targetEncrypted, target);
+			emit_debug(target);
+		}
+		if (type == 22) {
+			printT2B32((char *) "tracker");
+			printT2B32((char *) "mpdserver");
+			printT2B32((char *) "defaultserver");
+		}
 	} else {
-
 		int option = isOption(msg);
 		if (option == 0) {
 			handleOption(csock);
