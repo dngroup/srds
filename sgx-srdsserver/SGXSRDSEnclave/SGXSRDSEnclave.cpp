@@ -13,6 +13,12 @@ sgx_thread_mutex_t mutex;
 bool encrypt_IPs = true;
 bool encrypt = false;
 
+const std::string proxyPort("8081");
+const std::string proxyAddr = "localhost:" + proxyPort;
+const std::string serverAddr("localhost:8080");
+const std::string mpdAddr("147.210.128.146:8082");
+const std::string mpdURL = "http://" + mpdAddr + "/api/mpd/srds";
+
 int numberOfTokens = 4;
 
 int extractSize(char * msg) {
@@ -786,6 +792,37 @@ int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
 	return remainingSize;
 }
 
+void sendTokensToPlayer(int * return_send, int csock) {
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+	char chr[1024];
+	ocall_int_to_string(numberOfTokens, chr);
+	std::string content(chr);
+	char * finalAnswer = addContentToAnswer(answer, content);
+	ocall_sendanswer(return_send, csock, finalAnswer, strlen(finalAnswer));
+	free(finalAnswer);
+}
+
+void sendAddressesToPlayer(int * return_send, int csock) {
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+	std::string content;
+	char address[50];
+	memset(address, 0, 50);
+	T2B32(proxyAddr, address);
+	content += std::string(address) + ",";
+	memset(address, 0, 50);
+	T2B32(serverAddr, address);
+	content += std::string(address) + ",";
+	memset(address, 0, 50);
+	T2B32(mpdAddr, address);
+	content += std::string(address) + ",";
+	memset(address, 0, 50);
+	T2B32(mpdURL, address);
+	content += std::string(address);
+	char * finalAnswer = addContentToAnswer(answer, content);
+	ocall_sendanswer(return_send, csock, finalAnswer, strlen(finalAnswer));
+	free(finalAnswer);
+}
+
 void handleProxy(int csock, char * msg, int msgsize) {
 
 	char clientip[30];
@@ -812,13 +849,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
-		std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
-		char chr[1024];
-		ocall_int_to_string(numberOfTokens, chr);
-		std::string content(chr);
-		char * finalAnswer = addContentToAnswer(answer, content);
-		ocall_sendanswer(&return_send, csock, finalAnswer, strlen(finalAnswer));
-		free(finalAnswer);
+		sendTokensToPlayer(&return_send, csock);
+	} else if (strcmp(target2, "addr")) { // get addresses
+		sendAddressesToPlayer(&return_send, csock); // proxyAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
 		B322T(target2, target);
@@ -1094,6 +1127,10 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			char clientip[30];
 			ocall_getSocketIP(csock, clientip); // TODO: add port
 			std::string ipToChange(clientip);
+			ipToChange += ":" + proxyPort;
+			memset(clientip, 0, 30);
+			T2B32(ipToChange, clientip);
+			ipToChange = std::string(clientip);
 
 			if (map_find(trackermap, videoID) == 0) {
 				map_add(trackermap, videoID, "");
