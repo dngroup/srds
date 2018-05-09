@@ -18,6 +18,9 @@ void ocall_startClient(int * csock, char * address) {
     struct sockaddr_in sin = { 0 };
     struct hostent *hostinfo;
     std::string addr(address);
+    if (addr.find(":") < 0) {
+    	return;
+    }
     std::string stringaddress = addr.substr(0, addr.find(":"));
     int port = std::stoi(addr.substr(addr.find(":") + 1));
 

@@ -15,9 +15,10 @@ bool encrypt = false;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
+const std::string trackerAddr("147.210.129.241:8888");
 const std::string serverAddr("localhost:8080");
-const std::string mpdAddr("147.210.128.146:8082");
-const std::string mpdURL = "http://" + mpdAddr + "/api/mpd/srds";
+const std::string mpdAddr("147.210.128.146:8080");
+const std::string mpdRes = "/api/mpd/srds";
 
 int numberOfTokens = 4;
 
@@ -805,19 +806,17 @@ void sendTokensToPlayer(int * return_send, int csock) {
 void sendAddressesToPlayer(int * return_send, int csock) {
 	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 	std::string content;
-	char address[50];
-	memset(address, 0, 50);
-	T2B32(proxyAddr, address);
+	char address[500];
+	memset(address, 0, 500);
+	T2B32(trackerAddr, address);
 	content += std::string(address) + ",";
-	memset(address, 0, 50);
+	memset(address, 0, 500);
 	T2B32(serverAddr, address);
 	content += std::string(address) + ",";
-	memset(address, 0, 50);
+	memset(address, 0, 500);
 	T2B32(mpdAddr, address);
 	content += std::string(address) + ",";
-	memset(address, 0, 50);
-	T2B32(mpdURL, address);
-	content += std::string(address);
+	content += std::string("http://") + std::string(address) + mpdRes;
 	char * finalAnswer = addContentToAnswer(answer, content);
 	ocall_sendanswer(return_send, csock, finalAnswer, strlen(finalAnswer));
 	free(finalAnswer);
@@ -847,10 +846,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
+	
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
 		sendTokensToPlayer(&return_send, csock);
-	} else if (strcmp(target2, "addr")) { // get addresses
-		sendAddressesToPlayer(&return_send, csock); // proxyAddr,serverAddr,mpdAddr,mpdURL
+	} else if (strcmp(target2, "addr") == 0) { // get addresses
+		sendAddressesToPlayer(&return_send, csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
 		B322T(target2, target);
@@ -919,6 +919,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
 		}
 		
+		/*
 		std::string str(finalanswer);
 		size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		if (pos > 0) {
@@ -928,6 +929,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			str.replace(pos, 32, std::string(baseURLEnc));
 			memcpy(finalanswer, str.c_str(), str.size());
 		}
+		*/
 		
 		// finalanswer -> if fromSGX: encrypt / else: decrypt
 
@@ -988,6 +990,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 						
+						/*
 						std::string str(finalanswer);
 						size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 						if (pos > 0) {
@@ -997,6 +1000,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							str.replace(pos, 32, std::string(baseURLEnc));
 							memcpy(finalanswer, str.c_str(), str.size());
 						}
+						*/
 
 						totalSizeAnswer += sizeAnswerFromClient;
 					}
@@ -1144,7 +1148,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string numberOfSegment = msgContent.substr(secondComa+1);
 			
 			char clientip[30];
-			ocall_getSocketIP(csock, clientip); // TODO: add port
+			ocall_getSocketIP(csock, clientip);
 			std::string ipToChange(clientip);
 			ipToChange += ":" + proxyPort;
 			memset(clientip, 0, 30);
@@ -1250,6 +1254,7 @@ void handleOption(int csock) {
 }
 
 void ecall_handlemessage(int csock, int type, char * msg, int size){
+	emit_debug("Handling request");
 	int http = isHttp(msg);
 	if (http == 0) {
 		if (type == 0) {
@@ -1265,7 +1270,7 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 		if (type == 2) {
 			// blockchain test
 			blockchain_values::getBalance();
-			blockchain_values::assignCoin(-5);
+			blockchain_values::assignCoin(999999999);
 			blockchain_values::getBalance();
 		}
 		if (type == 32) {
@@ -1282,10 +1287,11 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 		if (type == 22) {
 			printT2B32((char *) "tracker");
 			printT2B32((char *) "mpdserver");
-			printT2B32((char *) "defaultserver");
+			printT2B32((char *) "localhost:8080");
 			printT2B32((char *) "147.210.128.146:8080");
 		}
 	} else {
+		emit_debug("Options request");
 		int option = isOption(msg);
 		if (option == 0) {
 			handleOption(csock);

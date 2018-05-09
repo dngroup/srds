@@ -7,5 +7,4 @@ git pull
 cd sgx-srdsserver
 make clean
 make
-./SGXSRDSServerApp 8081 0
 
