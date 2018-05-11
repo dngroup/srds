@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 killall firefox
 killall SGXSRDSServerApp
 killall node

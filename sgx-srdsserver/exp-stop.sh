@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 ssh nuc@147.210.129.172 '~/srds/sgx-srdsserver/stop-client.sh &'
 ssh nuc@147.210.129.119 '~/srds/sgx-srdsserver/stop-client.sh &'
 ssh nuc@147.210.128.61 '~/srds/sgx-srdsserver/stop-client.sh &'

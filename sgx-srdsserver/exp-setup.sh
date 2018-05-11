@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 source exp-stop.sh
 
 sleep 30

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 git config --global credential.helper store
 
 sudo apt update

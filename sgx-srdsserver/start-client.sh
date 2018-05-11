@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 source stop-client.sh
 
 sleep 1
