@@ -7,7 +7,7 @@ source stop-client.sh
 cd ~/content
 docker stop $(docker ps -a -q)
 docker rm $(docker ps -a -q)
-sudo docker run -d -p 8080:8080 -v $(pwd):/src/main/ressources msstream/server_srds
+docker run -d -p 8080:8080 -v $(pwd):/src/main/ressources msstream/server_srds
 
 sleep 1
 
@@ -22,7 +22,7 @@ http-server --cors -p 8082 &
 sleep 1
 
 cd ~/srds/sgx-srdsserver
-${SGX_SDK:="/home/nuc/linux-sgx/linux/installer/bin/sgxsdk"}
+${SGX_SDK:="/opt/intel/sgxsdk"}
 source $SGX_SDK/environment
 make clean
 git pull
