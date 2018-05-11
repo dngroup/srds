@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git config --global credential.helper store
+
 cd ~
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt update
@@ -26,6 +28,8 @@ grunt
 cd ~
 git clone https://github.com/dngroup/srds.git srds
 cd ~/srds/sgx-srdsserver
+${SGX_SDK:="/home/nuc/linux-sgx/linux/installer/bin/sgxsdk"}
+source $SGX_SDK/environment
 make clean
 make
 
