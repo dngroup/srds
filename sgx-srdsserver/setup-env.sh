@@ -3,7 +3,11 @@
 git config --global credential.helper store
 
 sudo apt update
-sudo apt install -y git firefox nodejs curl
+sudo apt install -y git
+sudo apt install -y firefox 
+sudo apt install -y nodejs
+sudo apt install -y nodejs
+sudo apt install -y curl
 
 cd ~
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
