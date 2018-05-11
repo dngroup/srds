@@ -1,7 +1,5 @@
 #!/bin/bash
 
-git config --global credential.helper store
-
 source stop-client.sh
 
 cd ~/content
