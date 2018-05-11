@@ -2,10 +2,11 @@
 
 git config --global credential.helper store
 
-cd ~
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt update
 sudo apt install -y git firefox nodejs curl
+
+cd ~
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo npm -g install grunt
 sudo npm -g install grunt-cli
 sudo npm -g install http-server
@@ -28,7 +29,7 @@ grunt
 cd ~
 git clone https://github.com/dngroup/srds.git srds
 cd ~/srds/sgx-srdsserver
-${SGX_SDK:="/home/nuc/linux-sgx/linux/installer/bin/sgxsdk"}
+${SGX_SDK:="/opt/intel/sgxsdk"}
 source $SGX_SDK/environment
 make clean
 make
