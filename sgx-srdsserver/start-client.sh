@@ -26,5 +26,5 @@ nohup ./SGXSRDSServerApp 8081 0 &
 
 sleep 1
 
-nohup firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html &
+firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html
 
