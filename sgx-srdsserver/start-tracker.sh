@@ -3,7 +3,7 @@
 set -x
 
 cd ~/srds/sgx-srdsserver
-source stop-client.sh
+source ~/srds/sgx-srdsserver/stop-client.sh
 
 sleep 1
 
