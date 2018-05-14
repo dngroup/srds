@@ -25,5 +25,6 @@ make
 
 sleep 1
 
+export DISPLAY=localhost:0.0
 firefox http://localhost:8082/samples/dash-if-reference-player/index.html &
 
