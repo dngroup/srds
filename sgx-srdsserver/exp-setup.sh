@@ -6,7 +6,7 @@ source exp-stop.sh
 
 sleep 10
 
-docker run -d -p 8080:8080 -v /home/simon/Downloads/srds:/src/main/ressources msstream/server_srds
+docker run -d -p 8080:8080 -v /home/simon/Downloads:/src/main/ressources msstream/server_srds
 
 sleep 1
 
