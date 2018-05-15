@@ -1293,7 +1293,7 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			printT2B32((char *) "tracker");
 			printT2B32((char *) "mpdserver");
 			printT2B32((char *) "localhost:8080");
-			printT2B32((char *) "147.210.128.146:8080");
+			printT2B32((char *) "147.210.128.146:8081");
 		}
 	} else {
 		emit_debug("Options request");
