@@ -19,13 +19,13 @@ make
 
 sleep 1
 
-ssh nuc@147.210.129.241 'screen -d -m ~/srds/sgx-srdsserver/start-tracker.sh'
+ssh -f nuc@147.210.129.241 '~/srds/sgx-srdsserver/start-tracker.sh'
 
 sleep 1
 
-ssh nuc@147.210.129.172 'screen -d -m ~/srds/sgx-srdsserver/start-client.sh'
-ssh nuc@147.210.129.119 'screen -d -m ~/srds/sgx-srdsserver/start-client.sh'
-ssh nuc@147.210.128.61 'screen -d -m ~/srds/sgx-srdsserver/start-client.sh'
-ssh nuc@147.210.129.156 'screen -d -m ~/srds/sgx-srdsserver/start-client.sh'
-ssh nuc@147.210.128.135 'screen -d -m ~/srds/sgx-srdsserver/start-client.sh'
+ssh -f nuc@147.210.129.172 '~/srds/sgx-srdsserver/start-client.sh'
+ssh -f nuc@147.210.129.119 '~/srds/sgx-srdsserver/start-client.sh'
+ssh -f nuc@147.210.128.61 '~/srds/sgx-srdsserver/start-client.sh'
+ssh -f nuc@147.210.129.156 '~/srds/sgx-srdsserver/start-client.sh'
+ssh -f nuc@147.210.128.135 '~/srds/sgx-srdsserver/start-client.sh'
 
