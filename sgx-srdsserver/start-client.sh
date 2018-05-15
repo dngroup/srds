@@ -13,7 +13,7 @@ docker run -d -p 8080:8080 -v $(pwd):/src/main/ressources msstream/server_srds
 sleep 1
 
 cd ~/player
-nohup http-server --cors -p 8082 &
+http-server --cors -p 8082 &
 
 sleep 1
 
@@ -22,7 +22,7 @@ ${SGX_SDK:="/opt/intel/sgxsdk"}
 source $SGX_SDK/environment
 make clean
 make
-nohup ./SGXSRDSServerApp 8081 0 &
+./SGXSRDSServerApp 8081 0 &
 
 sleep 1
 
