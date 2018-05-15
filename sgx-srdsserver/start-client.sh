@@ -13,6 +13,7 @@ docker run -d -p 8080:8080 -v ~/content:/src/main/ressources msstream/server_srd
 sleep 1
 
 cd ~/player
+git checkout dev_srds
 http-server --cors -p 8082 &
 
 sleep 1
