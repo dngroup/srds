@@ -16,7 +16,7 @@ bool encrypt = false;
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
 const std::string trackerAddr("147.210.129.241:8888");
-const std::string serverAddr("147.210.128.146:8080");
+const std::string serverAddr("localhost:8080");
 const std::string mpdAddr("147.210.128.146:8080");
 const std::string mpdRes = "/api/mpd/srds";
 
