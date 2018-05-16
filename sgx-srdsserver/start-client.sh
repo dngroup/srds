@@ -19,8 +19,7 @@ http-server --cors -p 8082 &
 sleep 1
 
 cd ~/srds/sgx-srdsserver
-${SGX_SDK:="/opt/intel/sgxsdk"}
-source $SGX_SDK/environment
+source /opt/intel/sgxsdk/environment
 make clean
 make
 ./SGXSRDSServerApp 8081 0 &
