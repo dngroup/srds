@@ -914,7 +914,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 				}
 			} else {
 				memcpy(decryptedMessage, messageToDecrypt, msgSizeCnt);
-				remainingSize = 0;
 			}
 			counter = msgSizeCnt / 16;
 			char fullDecryptedMessage[sizeAnswerFromClient];
@@ -989,8 +988,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
-							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
-							remainingSize = 0;
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
@@ -1052,8 +1050,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
-							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
-							remainingSize = 0;
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16));
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
