@@ -782,6 +782,82 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	return headers;
 }
 
+void send_by_socket(unsigned char* data, size_t size)
+{
+    // ...
+}
+
+void test_encrypt()
+{
+    // simulate a large video segment
+    int segment_size = 300;
+    unsigned char segment[segment_size];
+    sgx_read_rand(segment, segment_size);
+
+    unsigned char* previous_subpacket_tail;
+    int previous_subpacket_tail_size = 0;
+
+    // split the segment in arbitrary size sub-packets
+    int segment_offset = 0;
+    int counter_16bytes = 0;
+    while(segment_offset < segment_size)
+    {
+        // --- simulate the recv of random size sub-packet
+        unsigned char sub_packet_size;
+        sgx_read_rand(&sub_packet_size, 1);
+        // make sure we don't overflow the segment size
+        if (segment_offset + sub_packet_size > segment_size)
+        {
+            sub_packet_size = segment_size - segment_offset;
+        }
+        // see here that we allocate space for the subpacket and the tail of the previous sub-packet
+        unsigned char * sub_packet = (unsigned char *) malloc(previous_subpacket_tail_size + sub_packet_size);
+        emit_debug("Received sub-packet size :");
+        emit_debug_int(sub_packet_size);
+        memcpy(sub_packet + previous_subpacket_tail_size, segment + segment_offset, sub_packet_size);
+
+        // pre-pend to the sub-packet the tail of previous sub-packet
+        memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
+        sub_packet_size += previous_subpacket_tail_size;
+        emit_debug("  * prepended previous tail. new sub-packet size :");
+        emit_debug_int(sub_packet_size);
+
+        // trim the tail of sub-packet (e.g. tail = whatever overflows from the last multiple of 16)
+        int valid_packet_size = 16 * (sub_packet_size / 16);
+        emit_debug("  * packet is trimmed to multiple of 16. new size :");
+        emit_debug_int(valid_packet_size);
+
+        // encrypt and send data
+        unsigned char out[valid_packet_size];
+        encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+        send_by_socket(out, valid_packet_size);
+
+        // increment counter
+        counter_16bytes += valid_packet_size / 16;
+        emit_debug("  * aes-ctr counter incremented to value :");
+        emit_debug_int(counter_16bytes);
+
+        // retain tail for the next iteration
+        previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
+        previous_subpacket_tail = (unsigned char*) malloc(previous_subpacket_tail_size);
+        memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
+        emit_debug("  * the new tail has size :");
+        emit_debug_int(previous_subpacket_tail_size);
+
+        // move the offset in the video segment
+        segment_offset += sub_packet_size;
+    }
+
+    // if there is any tail leftover :
+    if (previous_subpacket_tail_size > 0)
+    {
+        unsigned char out[previous_subpacket_tail_size];
+        encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size,
+            (char*) out, counter_16bytes);
+        send_by_socket(out, previous_subpacket_tail_size);
+    }
+}
+
 int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
 	int remainingSize;
 	if (totalSize % 16 == 0) {
