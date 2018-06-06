@@ -2,6 +2,7 @@
 
 set -x
 
+source exp-nucs-addr.sh
 source exp-stop.sh
 
 sleep 10
@@ -19,13 +20,15 @@ make
 
 sleep 1
 
-ssh -f nuc@147.210.129.241 '~/srds/sgx-srdsserver/start-tracker.sh'
+ssh -f nuc@"$nuc6" '~/srds/sgx-srdsserver/start-tracker.sh'
 
 sleep 1
 
-ssh -f nuc@147.210.129.172 '~/srds/sgx-srdsserver/start-client.sh'
-ssh -f nuc@147.210.129.119 '~/srds/sgx-srdsserver/start-client.sh'
-ssh -f nuc@147.210.128.61 '~/srds/sgx-srdsserver/start-client.sh'
-ssh -f nuc@147.210.129.156 '~/srds/sgx-srdsserver/start-client.sh'
-ssh -f nuc@147.210.128.135 '~/srds/sgx-srdsserver/start-client.sh'
+command="'~/srds/sgx-srdsserver/start-client.sh'"
+
+ssh -f nuc@"$nuc1" $command
+ssh -f nuc@"$nuc2" $command
+ssh -f nuc@"$nuc3" $command
+ssh -f nuc@"$nuc4" $command
+ssh -f nuc@"$nuc5" $command
 

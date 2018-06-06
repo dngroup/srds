@@ -2,15 +2,19 @@
 
 set -x
 
-ssh -f nuc@147.210.129.172 '~/srds/sgx-srdsserver/stop-client.sh'
-ssh -f nuc@147.210.129.119 '~/srds/sgx-srdsserver/stop-client.sh'
-ssh -f nuc@147.210.128.61 '~/srds/sgx-srdsserver/stop-client.sh'
-ssh -f nuc@147.210.129.156 '~/srds/sgx-srdsserver/stop-client.sh'
-ssh -f nuc@147.210.128.135 '~/srds/sgx-srdsserver/stop-client.sh'
+source exp-nucs-addr.sh
+
+command="'~/srds/sgx-srdsserver/stop-client.sh'"
+
+ssh -f nuc@"$nuc1" $command
+ssh -f nuc@"$nuc2" $command
+ssh -f nuc@"$nuc3" $command
+ssh -f nuc@"$nuc4" $command
+ssh -f nuc@"$nuc5" $command
 
 sleep 1
 
-ssh -f nuc@147.210.129.241 '~/srds/sgx-srdsserver/stop-client.sh'
+ssh -f nuc@"$nuc6" $command
 
 sleep 1
 
