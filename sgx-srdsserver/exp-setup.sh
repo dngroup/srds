@@ -24,11 +24,11 @@ ssh -f nuc@"$nuc6" '~/srds/sgx-srdsserver/start-tracker.sh'
 
 sleep 1
 
-command="'~/srds/sgx-srdsserver/start-client.sh'"
+command="~/srds/sgx-srdsserver/start-client.sh"
 
-ssh -f nuc@"$nuc1" $command
-ssh -f nuc@"$nuc2" $command
-ssh -f nuc@"$nuc3" $command
-ssh -f nuc@"$nuc4" $command
-ssh -f nuc@"$nuc5" $command
+ssh -f nuc@"$nuc1" "$command"
+ssh -f nuc@"$nuc2" "$command"
+ssh -f nuc@"$nuc3" "$command"
+ssh -f nuc@"$nuc4" "$command"
+ssh -f nuc@"$nuc5" "$command"
 
