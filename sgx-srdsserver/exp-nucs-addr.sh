@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 export raspi=$(curl 'http://msstream.net:3000' | jq --raw-output '."pi"."ip"')
 
 #http://192.168.1.100:3000
