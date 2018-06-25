@@ -24,7 +24,7 @@ make clean
 make
 ./SGXSRDSServerApp 8081 0 &
 
-sleep 1
+sleep 10
 
 firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html
 
