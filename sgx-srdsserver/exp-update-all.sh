@@ -9,6 +9,18 @@ sleep 10
 
 #ssh -t <nuc>@<IP> 'sudo bash -c "echo \"*/10 * * * * <nuc> curl -X POST http://msstream.net:3000/nucX\" >> /etc/crontab"'
 
+python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1"
+
+sleep 1
+
+git commit SGXSRDSEnclave/SGXSRDSEnclave.cpp -m "auto-addr"
+
+sleep 1
+
+git push
+
+sleep 1
+
 command="cd ~/srds/sgx-srdsserver/ && git pull && cd ~/player && git pull && git checkout dev_srds && grunt"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" "$command"

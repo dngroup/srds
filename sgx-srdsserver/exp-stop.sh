@@ -19,7 +19,3 @@ sleep 1
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" "$command"
 
-sleep 1
-
-source stop-client.sh
-
