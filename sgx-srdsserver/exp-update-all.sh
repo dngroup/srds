@@ -30,7 +30,7 @@ ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc6" "$command"
 
-sleep 30
+sleep 60
 
 command2="cd ~/Downloads/linux-sgx-driver/ && make clean && make && sudo mkdir -p \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo cp isgx.ko \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo sh -c \"cat /etc/modules | grep -Fxq isgx || echo isgx >> /etc/modules\" && sudo /sbin/depmod && sudo /sbin/modprobe isgx && sudo service aesmd restart"
 command3="cd ~/linux-sgx-driver/ && make clean && make && sudo mkdir -p \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo cp isgx.ko \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo sh -c \"cat /etc/modules | grep -Fxq isgx || echo isgx >> /etc/modules\" && sudo /sbin/depmod && sudo /sbin/modprobe isgx && sudo service aesmd restart"
