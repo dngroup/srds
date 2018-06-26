@@ -1,0 +1,888 @@
++ source exp-nucs-addr.sh
++++ curl http://msstream.net:3000
++++ jq --raw-output '."pi"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1327  100  1327    0     0  23364      0 --:--:-- --:--:-- --:--:-- 23696
+++ export raspi=147.210.128.168
+++ raspi=147.210.128.168
++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
++++ jq --raw-output '."nuc1"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   378k      0 --:--:-- --:--:-- --:--:--  488k
+++ export nuc1=192.168.1.109
+++ nuc1=192.168.1.109
++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
++++ jq --raw-output '."nuc2"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   376k      0 --:--:-- --:--:-- --:--:--  488k
+++ export nuc2=192.168.1.104
+++ nuc2=192.168.1.104
++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
++++ jq --raw-output '."nuc3"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   398k      0 --:--:-- --:--:-- --:--:--  976k
+++ export nuc3=192.168.1.107
+++ nuc3=192.168.1.107
++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
++++ jq --raw-output '."nuc4"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   374k      0 --:--:-- --:--:-- --:--:--  488k
+++ export nuc4=192.168.1.108
+++ nuc4=192.168.1.108
++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
++++ jq --raw-output '."nuc5"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   228k      0 --:--:-- --:--:-- --:--:--  325k
+++ export nuc5=192.168.1.110
+++ nuc5=192.168.1.110
++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
++++ jq --raw-output '."nuc6"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   401k      0 --:--:-- --:--:-- --:--:--  976k
+++ export nuc6=192.168.1.120
+++ nuc6=192.168.1.120
++ source exp-stop.sh
+++ set -x
+++ source exp-nucs-addr.sh
+++++ curl http://msstream.net:3000
+++++ jq --raw-output '."pi"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1327  100  1327    0     0  22749      0 --:--:-- --:--:-- --:--:-- 22491100  1327  100  1327    0     0  22614      0 --:--:-- --:--:-- --:--:-- 22491
++++ export raspi=147.210.128.168
++++ raspi=147.210.128.168
+++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
+++++ jq --raw-output '."nuc1"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   153k      0 --:--:-- --:--:-- --:--:--  195k
++++ export nuc1=192.168.1.109
++++ nuc1=192.168.1.109
+++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
+++++ jq --raw-output '."nuc2"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   289k      0 --:--:-- --:--:-- --:--:--  488k
++++ export nuc2=192.168.1.104
++++ nuc2=192.168.1.104
+++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
+++++ jq --raw-output '."nuc3"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   380k      0 --:--:-- --:--:-- --:--:--  488k
++++ export nuc3=192.168.1.107
++++ nuc3=192.168.1.107
+++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
+++++ jq --raw-output '."nuc4"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   366k      0 --:--:-- --:--:-- --:--:--  488k
++++ export nuc4=192.168.1.108
++++ nuc4=192.168.1.108
+++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
+++++ jq --raw-output '."nuc5"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   389k      0 --:--:-- --:--:-- --:--:--  488k
++++ export nuc5=192.168.1.110
++++ nuc5=192.168.1.110
+++++ ssh pi@147.210.128.168 curl http://192.168.1.100:3000
+++++ jq --raw-output '."nuc6"."ip"'
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1000  100  1000    0     0   387k      0 --:--:-- --:--:-- --:--:--  488k
++++ export nuc6=192.168.1.120
++++ nuc6=192.168.1.120
+++ command='~/srds/sgx-srdsserver/stop-client.sh'
+++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.104 '~/srds/sgx-srdsserver/stop-client.sh'
+++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.107 '~/srds/sgx-srdsserver/stop-client.sh'
++ killall firefox
+firefox: no process found
++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
++ killall node
+node: no process found
++ killall http-server
+http-server: no process found
+++ docker ps -a -q
++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
+++ docker ps -a -q
++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
+++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.108 '~/srds/sgx-srdsserver/stop-client.sh'
++ killall firefox
+firefox: no process found
++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
++ killall node
+node: no process found
++ killall http-server
+http-server: no process found
+++ docker ps -a -q
++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
+++ docker ps -a -q
++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
+++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.110 '~/srds/sgx-srdsserver/stop-client.sh'
++ killall firefox
+firefox: no process found
++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
++ killall node
+node: no process found
++ killall http-server
+http-server: no process found
+++ docker ps -a -q
++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
+++ docker ps -a -q
++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
+++ sleep 1
++ killall firefox
+firefox: no process found
++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
++ killall node
+node: no process found
++ killall http-server
+http-server: no process found
+++ docker ps -a -q
++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
+++ docker ps -a -q
++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
+++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.120 '~/srds/sgx-srdsserver/stop-client.sh'
+++ sleep 1
++ killall firefox
+firefox: no process found
++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
++ killall node
+node: no process found
++ killall http-server
+http-server: no process found
+++ docker ps -a -q
++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
+++ docker ps -a -q
++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
+++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.109 '~/srds/sgx-srdsserver/stop-client.sh'
++ sleep 10
++ killall firefox
+firefox: no process found
++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
++ killall node
+node: no process found
++ killall http-server
+http-server: no process found
+++ docker ps -a -q
++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
+++ docker ps -a -q
++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.109 '~/srds/sgx-srdsserver/start-content-server.sh'
++ sleep 1
++ cd /home/nuc/srds/sgx-srdsserver
++ source /home/nuc/srds/sgx-srdsserver/stop-client.sh
+++ set -x
+++ killall firefox
+firefox: no process found
+++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
+++ killall node
+node: no process found
+++ killall http-server
+http-server: no process found
++++ docker ps -a -q
+++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
++++ docker ps -a -q
+++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ sleep 1
++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.120 '~/srds/sgx-srdsserver/start-tracker.sh'
++ cd /home/nuc/content
++ docker run -d -p 8080:8080 -v /home/nuc/content:/src/main/ressources msstream/server_srds
++ sleep 1
+a61773cc085e1b8365a017e446d1c6d40cbb0bba97e2c0c2bb7eff105adb2a29
++ cd /home/nuc/srds/sgx-srdsserver
++ source /home/nuc/srds/sgx-srdsserver/stop-client.sh
+++ set -x
+++ killall firefox
+firefox: no process found
+++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
+++ killall node
+node: no process found
+++ killall http-server
+http-server: no process found
++++ docker ps -a -q
+++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
++++ docker ps -a -q
+++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ sleep 1
++ sleep 1
++ command='~/srds/sgx-srdsserver/start-client.sh'
++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.104 '~/srds/sgx-srdsserver/start-client.sh'
++ cd /home/nuc/srds/sgx-srdsserver
++ source /opt/intel/sgxsdk/environment
+++ export SGX_SDK=/home/nuc/linux-sgx/linux/installer/bin/sgxsdk
+++ SGX_SDK=/home/nuc/linux-sgx/linux/installer/bin/sgxsdk
+++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/bin:/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/bin/x64
+++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/bin:/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/bin/x64
+++ export PKG_CONFIG_PATH=:/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/pkgconfig
+++ PKG_CONFIG_PATH=:/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/pkgconfig
+++ '[' -z '' ']'
+++ export LD_LIBRARY_PATH=/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/sdk_libs
+++ LD_LIBRARY_PATH=/home/nuc/linux-sgx/linux/installer/bin/sgxsdk/sdk_libs
++ make clean
++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.107 '~/srds/sgx-srdsserver/start-client.sh'
++ make
++ cd /home/nuc/srds/sgx-srdsserver
++ source /opt/intel/sgxsdk/environment
+++ export SGX_SDK=/opt/intel/sgxsdk
+++ SGX_SDK=/opt/intel/sgxsdk
+++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ export PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ '[' -z '' ']'
+++ export LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
+++ LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
++ make clean
++ make
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
++ cd /home/nuc/srds/sgx-srdsserver
++ source /home/nuc/srds/sgx-srdsserver/stop-client.sh
+++ set -x
+++ killall firefox
+firefox: no process found
+++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
+++ killall node
+node: no process found
+++ killall http-server
+http-server: no process found
++++ docker ps -a -q
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
+++ docker stop
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
++++ docker ps -a -q
+++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ sleep 1
++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.108 '~/srds/sgx-srdsserver/start-client.sh'
+CXX  <=  SGXSRDSServer/trackerdb.cpp
+CXX  <=  SGXSRDSServer/trackerdb.cpp
++ cd /home/nuc/srds/sgx-srdsserver
++ source /home/nuc/srds/sgx-srdsserver/stop-client.sh
+++ set -x
+++ killall firefox
+firefox: no process found
+++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
+++ killall node
+node: no process found
+++ killall http-server
+http-server: no process found
++++ docker ps -a -q
+++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
++++ docker ps -a -q
+++ docker rm
+CXX  <=  SGXSRDSServer/server.cpp
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ sleep 1
+CXX  <=  SGXSRDSServer/server.cpp
++ ssh -o 'ProxyCommand=ssh -W %h:%p pi@147.210.128.168' -f nuc@192.168.1.110 '~/srds/sgx-srdsserver/start-client.sh'
+CXX  <=  SGXSRDSServer/common_socket.cpp
+CXX  <=  SGXSRDSServer/common_socket.cpp
+CXX  <=  SGXSRDSServer/client.cpp
++ cd /home/nuc/srds/sgx-srdsserver
++ source /home/nuc/srds/sgx-srdsserver/stop-client.sh
+++ set -x
+++ killall firefox
+CXX  <=  SGXSRDSServer/client.cpp
+LINK =>  SGXSRDSServerApp
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+firefox: no process found
+++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
+++ killall node
+node: no process found
+++ killall http-server
+http-server: no process found
++++ docker ps -a -q
+LINK =>  SGXSRDSServerApp
+++ docker stop
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
++++ docker ps -a -q
+++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ sleep 1
+CXX  <=  SGXSRDSEnclave/SGXSRDSEnclave.cpp
+CXX  <=  SGXSRDSEnclave/SGXSRDSEnclave.cpp
+LINK =>  SGXSRDSEnclave.so
+tcs_num 8, tcs_max_num 8, tcs_min_pool 1
+LINK =>  SGXSRDSEnclave.so
+tcs_num 8, tcs_max_num 8, tcs_min_pool 1
+The required memory is 19390464B.
+Succeed.
+<EnclaveConfiguration>
+    <ProdID>0</ProdID>
+    <ISVSVN>0</ISVSVN>
+    <StackMaxSize>0x200000</StackMaxSize>
+    <HeapMaxSize>0x200000</HeapMaxSize>
+    <TCSNum>8</TCSNum>
+    <TCSPolicy>1</TCSPolicy>
+    <DisableDebug>0</DisableDebug>
+    <MiscSelect>0</MiscSelect>
+    <MiscMask>0xFFFFFFFF</MiscMask>
+</EnclaveConfiguration>
++ cd /home/nuc/srds/sgx-srdsserver
++ source /home/nuc/srds/sgx-srdsserver/stop-client.sh
+++ set -x
+++ killall firefox
+SIGN =>  SGXSRDSEnclave.signed.so
++ ./SGXSRDSServerApp 8081 0
+The required memory is 19390464B.
+Succeed.
+<EnclaveConfiguration>
+    <ProdID>0</ProdID>
+    <ISVSVN>0</ISVSVN>
+    <StackMaxSize>0x200000</StackMaxSize>
+    <HeapMaxSize>0x200000</HeapMaxSize>
+    <TCSNum>8</TCSNum>
+    <TCSPolicy>1</TCSPolicy>
+    <DisableDebug>0</DisableDebug>
+    <MiscSelect>0</MiscSelect>
+    <MiscMask>0xFFFFFFFF</MiscMask>
+</EnclaveConfiguration>
+SIGN =>  SGXSRDSEnclave.signed.so
+firefox: no process found
+++ killall SGXSRDSServerApp
+SGXSRDSServerApp: no process found
+++ killall node
+node: no process found
+++ killall http-server
+http-server: no process found
++++ docker ps -a -q
+++ docker stop
+"docker stop" requires at least 1 argument.
+See 'docker stop --help'.
+
+Usage:  docker stop [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Stop one or more running containers
++++ docker ps -a -q
++ cd /home/nuc/content
++ docker run -d -p 8080:8080 -v /home/nuc/content:/src/main/ressources msstream/server_srds
+++ docker rm
+"docker rm" requires at least 1 argument.
+See 'docker rm --help'.
+
+Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER...] [flags]
+
+Remove one or more containers
++ sleep 1
+51bcbb8d37667dee4a65bcfdb96a2d3d849ca0643ab14754be649f5afadb3d9e
++ cd /home/nuc/content
++ docker run -d -p 8080:8080 -v /home/nuc/content:/src/main/ressources msstream/server_srds
+2827d369a12d594cb7d92d45740662203f2d56c67a91dc694ab7749f164f1ee4
++ sleep 1
++ cd /home/nuc/content
++ docker run -d -p 8080:8080 -v /home/nuc/content:/src/main/ressources msstream/server_srds
++ sleep 1
+3de812ea8cd231f06edec03fa8eb30af8bdd7a960b9132381f71f0f69ea6a407
++ cd /home/nuc/content
++ docker run -d -p 8080:8080 -v /home/nuc/content:/src/main/ressources msstream/server_srds
++ sleep 1
+5334933b7b2c01ee93ffac9cd81358269a546eb01a2252401e513ffb304e1859
++ cd /home/nuc/player
++ git checkout dev_srds
+Already on 'dev_srds'
+Your branch is up-to-date with 'origin/dev_srds'.
++ sleep 1
++ http-server --cors -p 8082
++ sleep 1
+Starting up http-server, serving ./
+Available on:
+  http://127.0.0.1:8082
+  http://192.168.1.104:8082
+  http://172.17.0.1:8082
+Hit CTRL-C to stop the server
++ cd /home/nuc/player
++ git checkout dev_srds
+Already on 'dev_srds'
+Your branch is up-to-date with 'origin/dev_srds'.
++ sleep 1
++ http-server --cors -p 8082
+Starting up http-server, serving ./
+Available on:
+  http://127.0.0.1:8082
+  http://192.168.1.107:8082
+  http://172.17.0.1:8082
+Hit CTRL-C to stop the server
++ cd /home/nuc/player
++ git checkout dev_srds
+Already on 'dev_srds'
+Your branch is up-to-date with 'origin/dev_srds'.
++ sleep 1
++ http-server --cors -p 8082
+Starting up http-server, serving ./
+Available on:
+  http://127.0.0.1:8082
+  http://192.168.1.108:8082
+  http://172.17.0.1:8082
+Hit CTRL-C to stop the server
++ cd /home/nuc/srds/sgx-srdsserver
++ source /opt/intel/sgxsdk/environment
+++ export SGX_SDK=/opt/intel/sgxsdk
+++ SGX_SDK=/opt/intel/sgxsdk
+++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ export PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ '[' -z '' ']'
+++ export LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
+++ LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
++ make clean
++ make
++ cd /home/nuc/player
++ git checkout dev_srds
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+Already on 'dev_srds'
+Your branch is up-to-date with 'origin/dev_srds'.
++ sleep 1
++ http-server --cors -p 8082
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
+Starting up http-server, serving ./
+Available on:
+  http://127.0.0.1:8082
+  http://192.168.1.110:8082
+  http://172.17.0.1:8082
+Hit CTRL-C to stop the server
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
++ cd /home/nuc/srds/sgx-srdsserver
++ source /opt/intel/sgxsdk/environment
+++ export SGX_SDK=/opt/intel/sgxsdk
+++ SGX_SDK=/opt/intel/sgxsdk
+++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ export PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ '[' -z '' ']'
+++ export LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
+++ LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
++ make clean
++ make
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
+CXX  <=  SGXSRDSServer/trackerdb.cpp
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
+CXX  <=  SGXSRDSServer/server.cpp
+CXX  <=  SGXSRDSServer/trackerdb.cpp
++ cd /home/nuc/srds/sgx-srdsserver
++ source /opt/intel/sgxsdk/environment
+++ export SGX_SDK=/opt/intel/sgxsdk
+++ SGX_SDK=/opt/intel/sgxsdk
+++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ export PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ '[' -z '' ']'
+++ export LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
+++ LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
++ make clean
++ make
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
+CXX  <=  SGXSRDSServer/common_socket.cpp
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
+CXX  <=  SGXSRDSServer/client.cpp
+LINK =>  SGXSRDSServerApp
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CXX  <=  SGXSRDSServer/server.cpp
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CXX  <=  SGXSRDSServer/trackerdb.cpp
+CXX  <=  SGXSRDSServer/common_socket.cpp
++ cd /home/nuc/srds/sgx-srdsserver
++ source /opt/intel/sgxsdk/environment
+++ export SGX_SDK=/opt/intel/sgxsdk
+++ SGX_SDK=/opt/intel/sgxsdk
+++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/intel/sgxsdk/bin:/opt/intel/sgxsdk/bin/x64
+++ export PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ PKG_CONFIG_PATH=:/opt/intel/sgxsdk/pkgconfig
+++ '[' -z '' ']'
+++ export LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
+++ LD_LIBRARY_PATH=/opt/intel/sgxsdk/sdk_libs
++ make clean
++ make
+GEN  =>  SGXSRDSServer/SGXSRDSEnclave_u.c
+CXX  <=  SGXSRDSServer/client.cpp
+CXX  <=  SGXSRDSEnclave/SGXSRDSEnclave.cpp
+CC   <=  SGXSRDSServer/SGXSRDSEnclave_u.c
+LINK =>  SGXSRDSServerApp
+LINK =>  SGXSRDSEnclave.so
+tcs_num 8, tcs_max_num 8, tcs_min_pool 1
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+The required memory is 19390464B.
+Succeed.
+<EnclaveConfiguration>
+    <ProdID>0</ProdID>
+    <ISVSVN>0</ISVSVN>
+    <StackMaxSize>0x200000</StackMaxSize>
+    <HeapMaxSize>0x200000</HeapMaxSize>
+    <TCSNum>8</TCSNum>
+    <TCSPolicy>1</TCSPolicy>
+    <DisableDebug>0</DisableDebug>
+    <MiscSelect>0</MiscSelect>
+    <MiscMask>0xFFFFFFFF</MiscMask>
+</EnclaveConfiguration>
+SIGN =>  SGXSRDSEnclave.signed.so
++ sleep 10
++ ./SGXSRDSServerApp 8081 0
+CXX  <=  SGXSRDSServer/server.cpp
+CXX  <=  SGXSRDSServer/SGXSRDSServer.cpp
+CXX  <=  SGXSRDSServer/common_socket.cpp
+CXX  <=  SGXSRDSEnclave/SGXSRDSEnclave.cpp
+CXX  <=  SGXSRDSServer/trackerdb.cpp
+LINK =>  SGXSRDSEnclave.so
+CXX  <=  SGXSRDSServer/client.cpp
+tcs_num 8, tcs_max_num 8, tcs_min_pool 1
+The required memory is 19390464B.
+LINK =>  SGXSRDSServerApp
+Succeed.
+<EnclaveConfiguration>
+    <ProdID>0</ProdID>
+    <ISVSVN>0</ISVSVN>
+    <StackMaxSize>0x200000</StackMaxSize>
+    <HeapMaxSize>0x200000</HeapMaxSize>
+    <TCSNum>8</TCSNum>
+    <TCSPolicy>1</TCSPolicy>
+    <DisableDebug>0</DisableDebug>
+    <MiscSelect>0</MiscSelect>
+    <MiscMask>0xFFFFFFFF</MiscMask>
+</EnclaveConfiguration>
+SIGN =>  SGXSRDSEnclave.signed.so
++ sleep 10
++ ./SGXSRDSServerApp 8081 0
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CXX  <=  SGXSRDSServer/server.cpp
+CXX  <=  SGXSRDSEnclave/SGXSRDSEnclave.cpp
+LINK =>  SGXSRDSEnclave.so
+tcs_num 8, tcs_max_num 8, tcs_min_pool 1
+CXX  <=  SGXSRDSServer/common_socket.cpp
+The required memory is 19390464B.
+Succeed.
+<EnclaveConfiguration>
+    <ProdID>0</ProdID>
+    <ISVSVN>0</ISVSVN>
+    <StackMaxSize>0x200000</StackMaxSize>
+    <HeapMaxSize>0x200000</HeapMaxSize>
+    <TCSNum>8</TCSNum>
+    <TCSPolicy>1</TCSPolicy>
+    <DisableDebug>0</DisableDebug>
+    <MiscSelect>0</MiscSelect>
+    <MiscMask>0xFFFFFFFF</MiscMask>
+</EnclaveConfiguration>
+SIGN =>  SGXSRDSEnclave.signed.so
++ sleep 10
++ ./SGXSRDSServerApp 8081 0
+Starting app...
+sgx_create_enclave failed: 0x4001
+CXX  <=  SGXSRDSServer/client.cpp
+LINK =>  SGXSRDSServerApp
+GEN  =>  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CC   <=  SGXSRDSEnclave/SGXSRDSEnclave_t.c
+CXX  <=  SGXSRDSEnclave/SGXSRDSEnclave.cpp
+LINK =>  SGXSRDSEnclave.so
+tcs_num 8, tcs_max_num 8, tcs_min_pool 1
+The required memory is 19390464B.
+Succeed.
+<EnclaveConfiguration>
+    <ProdID>0</ProdID>
+    <ISVSVN>0</ISVSVN>
+    <StackMaxSize>0x200000</StackMaxSize>
+    <HeapMaxSize>0x200000</HeapMaxSize>
+    <TCSNum>8</TCSNum>
+    <TCSPolicy>1</TCSPolicy>
+    <DisableDebug>0</DisableDebug>
+    <MiscSelect>0</MiscSelect>
+    <MiscMask>0xFFFFFFFF</MiscMask>
+</EnclaveConfiguration>
+SIGN =>  SGXSRDSEnclave.signed.so
++ sleep 10
++ ./SGXSRDSServerApp 8081 0
++ firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html
+*** You are running in headless mode.
++ firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html
+*** You are running in headless mode.
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/index.html" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
++ firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html
+*** You are running in headless mode.
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap.min.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-theme.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-glyphicons.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/css/main.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/controlbar.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/jquery/jquery-3.1.1.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/js/bootstrap.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-resource.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-flot.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.resize.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.axislabels.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /extensions/p2p/MSP2PComBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /extensions/p2p/MSStorageBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /extensions/p2p/MSTrackerClientBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/ControlBar.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/main.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /dist/msstream.all.debug.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:20 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/index.html" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/if.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap.min.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-theme.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-glyphicons.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/css/main.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/controlbar.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/jquery/jquery-3.1.1.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-resource.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-flot.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/js/bootstrap.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.resize.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.axislabels.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /extensions/p2p/MSP2PComBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /extensions/p2p/MSStorageBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /extensions/p2p/MSTrackerClientBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /dist/msstream.all.debug.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/ControlBar.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/main.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/sources.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/contributors.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/icomoon.ttf" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/if.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/index.html" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
++ firefox -headless http://localhost:8082/samples/dash-if-reference-player/index.html
+*** You are running in headless mode.
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/sources.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/contributors.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/dp.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/akamai.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/MSOpenTech.jpg" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/fh_fokus.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/cablelabs.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/youtube.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/icomoon.ttf" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/brightcove.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/edgeware.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap.min.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-theme.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-glyphicons.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/css/main.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/controlbar.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/jquery/jquery-3.1.1.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-resource.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-flot.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/js/bootstrap.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.resize.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.axislabels.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /extensions/p2p/MSP2PComBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /extensions/p2p/MSStorageBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /extensions/p2p/MSTrackerClientBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /dist/msstream.all.debug.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/ControlBar.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/main.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/if.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/dp.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/akamai.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/MSOpenTech.jpg" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/fh_fokus.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/cablelabs.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/youtube.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/brightcove.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/edgeware.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/sources.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/contributors.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/icomoon.ttf" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:21 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/index.html" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap.min.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-theme.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/css/bootstrap-glyphicons.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/css/main.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/controlbar.css" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/jquery/jquery-3.1.1.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-resource.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/angular/angular-flot.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/bootstrap/js/bootstrap.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.resize.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/ControlBar.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/main.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/lib/flot/jquery.flot.axislabels.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /extensions/p2p/MSP2PComBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /extensions/p2p/MSStorageBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /extensions/p2p/MSTrackerClientBundle.min.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /dist/msstream.all.debug.js" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/if.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/dp.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/akamai.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/MSOpenTech.jpg" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/fh_fokus.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/cablelabs.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/youtube.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/brightcove.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/edgeware.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/sources.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/contributors.json" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /contrib/akamai/controlbar/icomoon.ttf" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/dp.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/akamai.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/MSOpenTech.jpg" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/fh_fokus.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/cablelabs.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/youtube.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/brightcove.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+[Tue Jun 26 2018 18:32:22 GMT+0200 (CEST)] "GET /samples/dash-if-reference-player/app/img/edgeware.png" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
