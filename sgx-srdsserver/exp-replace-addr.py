@@ -13,6 +13,11 @@ def main(args):
 			line = 'const std::string mpdAddr("' + args.mpd + ':8081");\n'
 		sys.stdout.write(line)
 
+	for line in fileinput.input('/home/simon/Downloads/srds/mpd.mpd', inplace=True):
+		if line.strip().startswith('<BaseURL>http://') and line.strip().endswith('/api/description/srds/</BaseURL>'):
+			line = '<BaseURL>http://' + args.mpd + '/api/description/srds/</BaseURL>\n'
+		sys.stdout.write(line)
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Passing adresses')
 	parser.add_argument('--tracker', type=str, help='Tracker address', required=True)

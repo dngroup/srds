@@ -11,6 +11,17 @@ sleep 10
 
 python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1"
 
+scp /home/simon/Downloads/srds/mpd.mpd pi@"$raspi":~/content/srds/mpd.mpd
+
+sleep 2
+
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc1":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc2":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc3":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc4":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc5":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc6":~/content/srds/mpd.mpd
+
 sleep 1
 
 git commit SGXSRDSEnclave/SGXSRDSEnclave.cpp -m "auto-addr"
