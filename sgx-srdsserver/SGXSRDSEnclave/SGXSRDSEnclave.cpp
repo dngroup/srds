@@ -1040,7 +1040,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
 						
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
+						if (encrypt) {
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
+						} else {
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+						}
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
@@ -1064,12 +1068,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
-							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16));
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						
+						if (encrypt) {
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						} else {
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
+						}
 						
 						/*
 						std::string str(finalanswer);
@@ -1085,7 +1094,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 						totalSizeAnswer += sizeAnswerFromClient;
 					}
-					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					
+					if (encrypt) {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					} else {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+					}
 
 				} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
 					//TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
@@ -1102,7 +1116,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							break;
 						}
 						
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
+						if (encrypt) {
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
+						} else {
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+						}
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
@@ -1131,10 +1149,21 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						
+						if (encrypt) {
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+						} else {
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
+						}
 
 					}
-					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					
+					if (encrypt) {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					} else {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+					}
+					
 					// blockchain
 					numberOfTokens = blockchain_values::getBalance();
 					if (fromSGX) {
@@ -1146,10 +1175,18 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					numberOfTokens = blockchain_values::getBalance();
 				} else {
-					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					if (encrypt) {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					} else {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+					}
 				}
 			} else {
-				ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					if (encrypt) {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					} else {
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+					}
 			}
 		}
 		ocall_closesocket(client_sock);
