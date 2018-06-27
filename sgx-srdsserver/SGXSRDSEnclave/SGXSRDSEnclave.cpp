@@ -981,7 +981,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memset(messageToDecrypt, 0, (msgSizeCnt) * sizeof(char));
 			memcpy(messageToDecrypt, finalanswer + endPos, msgSizeCnt);
 			memset(remainingBuffer, 0, 15);
-			remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+			if (encrypt) {
+				remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
+			} else {
+				remainingSize = 0;
+			}
 			if (encrypt) {
 				if (fromSGX) {
 					encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
@@ -1040,11 +1044,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
 						
-						if (encrypt) {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
-						} else {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-						}
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
@@ -1057,7 +1057,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 15);
-						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
+						if (encrypt) {
+							remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
+						} else {
+							remainingSize = 0;
+						}
 						char decryptedMessage[sizeAnswerFromClient + remainingSize + 15];
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
 						
@@ -1073,12 +1077,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-						
-						if (encrypt) {
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
-						} else {
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
-						}
+						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 						
 						/*
 						std::string str(finalanswer);
@@ -1116,11 +1115,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							break;
 						}
 						
-						if (encrypt) {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
-						} else {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-						}
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(client_sock, answerFromClient);
@@ -1133,7 +1128,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
 						memcpy(finalanswer, remainingBuffer, remainingSize);
 						memset(remainingBuffer, 0, 15);
-						remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
+						
+						if (encrypt) {
+							remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
+						} else {
+							remainingSize = 0;
+						}
+
 						char decryptedMessage[sizeAnswerFromClient + remainingSize + 15];
 						memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
 						
@@ -1144,25 +1145,16 @@ void handleProxy(int csock, char * msg, int msgsize) {
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							}
 						} else {
-							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16));
+							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
 						
-						if (encrypt) {
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
-						} else {
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
-						}
+						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 
 					}
-					
-					if (encrypt) {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-					} else {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-					}
+					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
 					// blockchain
 					numberOfTokens = blockchain_values::getBalance();
@@ -1175,18 +1167,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					numberOfTokens = blockchain_values::getBalance();
 				} else {
-					if (encrypt) {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-					} else {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-					}
+					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 				}
 			} else {
-					if (encrypt) {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
-					} else {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-					}
+				ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 			}
 		}
 		ocall_closesocket(client_sock);
