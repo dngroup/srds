@@ -9,7 +9,7 @@ sleep 10
 
 #ssh -t <nuc>@<IP> 'sudo bash -c "echo \"*/10 * * * * <nuc> curl -X POST http://msstream.net:3000/nucX\" >> /etc/crontab"'
 
-python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1"
+python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1" --content "5GGKUZXWKE2LVA5VMXRA4"
 
 scp /home/simon/Downloads/srds/mpd.mpd pi@"$raspi":~/content/srds/mpd.mpd
 

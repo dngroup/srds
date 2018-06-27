@@ -15,13 +15,14 @@ def main(args):
 
 	for line in fileinput.input('/home/simon/Downloads/srds/mpd.mpd', inplace=True):
 		if line.strip().startswith('<BaseURL>http://') and line.strip().endswith('/api/description/srds/</BaseURL>'):
-			line = '<BaseURL>http://' + args.mpd + '/api/description/srds/</BaseURL>\n'
+			line = '  <BaseURL>http://' + args.content + '/api/description/srds/</BaseURL>\n'
 		sys.stdout.write(line)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Passing adresses')
 	parser.add_argument('--tracker', type=str, help='Tracker address', required=True)
 	parser.add_argument('--mpd', type=str, help='MPD address', required=True)
+	parser.add_argument('--content', type=str, help='Content address', required=True)
 	args = parser.parse_args() 
 	main(args)
 
