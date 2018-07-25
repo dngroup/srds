@@ -49,7 +49,7 @@ int do_accept(int sock) {
 
     if(csock < 0)
     {
-        std::cout << "Error with accept" << std::endl;
+        perror("Error with accept");
     }
 
     return csock;
@@ -63,7 +63,7 @@ int do_send(int sock, char * buffer, int size) {
     size_t n = 0;
     if((n = send(sock, buffer, size, 0)) <= 0)
     {
-       std::cout << "Can not send to server" << std::endl;
+    	perror("Can not send to server");
     }
 
     return n;
@@ -73,7 +73,8 @@ int do_recv(int sock, char * buffer) {
     ssize_t n = 0;
     if((n = recv(sock, buffer, 1024, 0)) < 0)
     {
-        std::cout << "Error while receiving: " << n << std::endl;
+    	
+        perror("Error while receiving");
     }
 
     return n;
