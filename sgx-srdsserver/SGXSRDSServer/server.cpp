@@ -96,7 +96,8 @@ void * connection_handler(int csock)
         //fflush(stdout);
         //close(sock);
     //}
-    else if(read_size == -1)
+    //else 
+    if(read_size == -1)
     {
         perror("recv failed\n");
         close(sock);
