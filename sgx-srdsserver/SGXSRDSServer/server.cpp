@@ -90,12 +90,12 @@ void * connection_handler(int csock)
         break;
     }
 
-    if(read_size == 0)
-    {
-        printf("Client disconnected\n");
-        fflush(stdout);
-        close(sock);
-    }
+    //if(read_size == 0)
+    //{
+        //printf("Client disconnected\n");
+        //fflush(stdout);
+        //close(sock);
+    //}
     else if(read_size == -1)
     {
         perror("recv failed\n");
