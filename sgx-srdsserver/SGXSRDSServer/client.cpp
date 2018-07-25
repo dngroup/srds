@@ -33,7 +33,7 @@ void ocall_startClient(int * csock, char * address) {
     hostinfo = gethostbyname(stringaddress.c_str());
     if (hostinfo == NULL)
     {
-        fprintf (stderr, "Unknown host %s.\n", address);
+        perror("Unknown host");
         return;
     }
 
@@ -43,7 +43,7 @@ void ocall_startClient(int * csock, char * address) {
 
     if(do_connect(sock, &sin) < 0)
     {
-        fprintf (stderr, "fail to connect\n");
+        perror("fail to connect");
         return;
     }
 
