@@ -939,7 +939,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		ocall_startClient(&client_sock, target);
-		answer = createNewHeader(msg, target, msgsize);
+		
 
 		int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg) + 4;
 		int msgSizeCnt = msgsize - endPos;
@@ -965,6 +965,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(fullDecryptedMessage + endPos, decryptedMessage, msgSizeCnt);
 			memcpy(msg, fullDecryptedMessage, msgsize);
 		}
+		
+		answer = createNewHeader(msg, target, msgsize);
 
 		ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 		sizeAnswerFromClient = extractSize(answerFromClient);
