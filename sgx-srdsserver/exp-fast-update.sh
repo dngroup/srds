@@ -3,9 +3,6 @@
 set -x
 
 source exp-nucs-addr.sh
-source exp-stop.sh
-
-sleep 10
 
 command="cd ~/srds/sgx-srdsserver/ && git pull"
 
