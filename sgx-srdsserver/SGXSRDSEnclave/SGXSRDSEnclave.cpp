@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = false;
+bool encrypt = true;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -943,6 +943,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 		int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg) + 4;
 		int msgSizeCnt = msgsize - endPos;
+		answer = createNewHeader(msg, target, msgsize);
 		
 		if (msgSizeCnt > 0) {
 			char fullDecryptedMessage[msgsize];
@@ -966,7 +967,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(msg, fullDecryptedMessage, msgsize);
 		}
 		
-		answer = createNewHeader(msg, target, msgsize);
+		
 
 		ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 		sizeAnswerFromClient = extractSize(answerFromClient);
