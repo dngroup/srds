@@ -1114,7 +1114,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						over = true;
 						remainingSize = 0;
 					}
-					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
+					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0 && return_send != 0) {
 						
 						//if (return_send == 0) {
 							//emit_debug("return_send:");
