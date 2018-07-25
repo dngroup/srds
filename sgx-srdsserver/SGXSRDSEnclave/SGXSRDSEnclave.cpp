@@ -1118,6 +1118,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						   sizeAnswerFromClient != 0) {
 						
 						if (return_send == 0) {
+							emit_debug("return_send:");
+							emit_debug_int(return_send);
 							break;
 						}
 						
