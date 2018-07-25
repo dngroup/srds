@@ -74,7 +74,7 @@ void * connection_handler(int csock)
     char client_message[1024] = "";
 
     //Receive a message from client
-    while( (read_size = do_recv(sock , client_message)) > 0 )
+    if ((read_size = do_recv(sock, client_message)) > 0 )
     {
         pthread_mutex_lock(&lock);
         sem_wait(&mutex);
@@ -86,8 +86,6 @@ void * connection_handler(int csock)
 
         //clear the message buffer
         memset(client_message, 0, 1024);
-        close(sock);
-        break;
     }
 
     //if(read_size == 0)
