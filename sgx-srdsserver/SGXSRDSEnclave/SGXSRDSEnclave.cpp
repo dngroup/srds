@@ -1116,11 +1116,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
 						
-						//if (return_send == 0) {
-							//emit_debug("return_send:");
-							//emit_debug_int(return_send);
-							//break;
-						//}
+						if (return_send == 0) {
+							emit_debug("return_send:");
+							emit_debug_int(return_send);
+							break;
+						}
 						
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
