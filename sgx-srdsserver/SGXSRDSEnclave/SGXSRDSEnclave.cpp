@@ -919,6 +919,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	int totalSizeAnswer = 0;
 	struct map* headersAnswer = NULL;
 	int return_send = 0;
+	int return_recv = 0;
 
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
@@ -1053,7 +1054,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
 						memset(answerFromClient, 0, 1028);
-						ocall_receiveFromClient(client_sock, answerFromClient);
+						ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
@@ -1125,7 +1126,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 
 						memset(answerFromClient, 0, 1028);
-						ocall_receiveFromClient(client_sock, answerFromClient);
+						ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
+						if (return_recv == 0) {
+							emit_debug("return_recv:");
+							emit_debug_int(return_recv);
+							break;
+						}
 						sizeAnswerFromClient = extractSize(answerFromClient);
 						
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));

@@ -12,7 +12,7 @@ enclave {
         [cdecl] void emit_debug_int(int a);
         [cdecl] void ocall_startClient([out,size=4] int * csock, [in,string] char *address);
         [cdecl] void ocall_sendToClient(int sock, [in,size=size] char *request, int size, [out,size=1028] char * finalbuffer);
-        [cdecl] void ocall_receiveFromClient(int sock, [out,size=1028] char * finalbuffer);
+        [cdecl] int ocall_receiveFromClient(int sock, [out,size=1028] char * finalbuffer);
         [cdecl] int ocall_sendanswer(int csock, [in,size=size] char *msg, int size);
         [cdecl] void ocall_int_to_string(int a, [out, size=1024] char* chr);
         [cdecl] void ocall_string_to_int([in,size=size] const char* a, int size, [out,size=4] int * out);

@@ -80,7 +80,7 @@ void ocall_sendToClient(int sock2, char * request, int size2, char * finalbuffer
     memcpy(finalbuffer2,finalbuffer,sizeAnswer+sizeIntinChar);
 }
 
-void ocall_receiveFromClient(int sock, char * finalbuffer2) {
+int ocall_receiveFromClient(int sock, char * finalbuffer2) {
     int size = 0;
     int sizeIntinChar = 4;
     char * finalbuffer = (char*)malloc(sizeof(char) * (1024 + sizeIntinChar));
@@ -96,6 +96,7 @@ void ocall_receiveFromClient(int sock, char * finalbuffer2) {
         finalbuffer[i + sizeIntinChar] = buffer[i];
     }
     memcpy(finalbuffer2,finalbuffer,size+sizeIntinChar);
+    return size;
 }
 
 void ocall_getSocketIP(int sock, char * clientip) {
