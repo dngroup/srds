@@ -933,15 +933,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		emit_debug(target2);
 		if (strcmp(target2, "localhost:8080") == 0) {
 			memcpy(target, target2, strlen(target2));
+			emit_debug(target);
 		} else {
 			B322T(target2, target);
 			printT2B32(target);
 		}
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
+		
+		emit_debug("Starting client...");
 		ocall_startClient(&client_sock, target);
 		
-
 		int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg) + 4;
 		int msgSizeCnt = msgsize - endPos;
 		answer = createNewHeader(msg, target, msgsize);
@@ -969,7 +971,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		}
 		
 		
-
+		emit_debug("Sending to client...");
 		ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 		sizeAnswerFromClient = extractSize(answerFromClient);
 		char * finalanswer = (char *) malloc(1056*sizeof(char));

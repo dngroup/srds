@@ -27,12 +27,12 @@ void ocall_startClient(int * csock, char * address) {
     sock = do_socket();
 
     if (sock < 0) {
+    	perror("Socket creation failed");
         return;
     }
 
     hostinfo = gethostbyname(stringaddress.c_str());
-    if (hostinfo == NULL)
-    {
+    if (hostinfo == NULL) {
         perror("Unknown host");
         return;
     }
@@ -41,8 +41,7 @@ void ocall_startClient(int * csock, char * address) {
     sin.sin_port = htons(port);
     sin.sin_family = AF_INET;
 
-    if(do_connect(sock, &sin) < 0)
-    {
+    if(do_connect(sock, &sin) < 0) {
         perror("fail to connect");
         return;
     }
