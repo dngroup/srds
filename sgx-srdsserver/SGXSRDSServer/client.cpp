@@ -42,7 +42,7 @@ void ocall_startClient(int * csock, char * address) {
     sin.sin_family = AF_INET;
 
     if(do_connect(sock, &sin) < 0) {
-        perror("fail to connect");
+        perror("Failed to connect");
         return;
     }
 
