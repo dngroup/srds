@@ -86,7 +86,7 @@ void * connection_handler(int csock)
 
         //clear the message buffer
         memset(client_message, 0, 1024);
-        close(sock);
+        //close(sock);
         break;
     }
 
