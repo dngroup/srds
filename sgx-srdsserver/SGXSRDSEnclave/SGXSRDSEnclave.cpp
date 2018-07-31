@@ -900,6 +900,8 @@ void sendAddressesToPlayer(int * return_send, int csock) {
 
 void handleProxy(int csock, char * msg, int msgsize) {
 
+	emit_debug("Entering proxy");
+
 	char clientip[30];
 	ocall_getSocketIP(csock, clientip);
 	
@@ -943,6 +945,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		
 		emit_debug("Starting client...");
 		ocall_startClient(&client_sock, target);
+		
+		if (client_sock == 0) {
+			emit_debug("Start client failed!");
+		}
 		
 		int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg) + 4;
 		int msgSizeCnt = msgsize - endPos;
