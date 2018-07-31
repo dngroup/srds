@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = false;
+bool encrypt = true;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -1184,7 +1184,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("Exiting Transfer-Encoding with loops:");
 					emit_debug_int(loops);
 					emit_debug("kB sent:");
-					emit_debug_int(data_sent);
+					emit_debug_int(data_sent/1000);
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
 					// blockchain
