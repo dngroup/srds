@@ -1116,6 +1116,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 
 				} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
+					emit_debug("Entering Transfer-Encoding...");
 					//TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
 					//TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 					
@@ -1124,6 +1125,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						remainingSize = 0;
 					}
 					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
+						emit_debug("Looping for Transfer-Encoding...");
 						
 						if (return_send <= 0) {
 							emit_debug("return_send:");
