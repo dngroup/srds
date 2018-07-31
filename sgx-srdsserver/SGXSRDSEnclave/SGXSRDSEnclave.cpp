@@ -1200,17 +1200,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
 				ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 			}
 		}
-		ocall_closesocket(client_sock);
-		if (finalanswer != NULL) {
-			free(finalanswer);
-		}
-		if (headersRequest != NULL) {
-			map_destroy(headersRequest);
-		}
-		if (headersAnswer != NULL) {
-			map_destroy(headersAnswer);
-		}
 		emit_debug("proxy forwarding (probably) successful!");
+	}
+	ocall_closesocket(client_sock);
+	if (finalanswer != NULL) {
+		free(finalanswer);
+	}
+	if (headersRequest != NULL) {
+		map_destroy(headersRequest);
+	}
+	if (headersAnswer != NULL) {
+		map_destroy(headersAnswer);
 	}
 	emit_debug("proxy reply (probably) successful!");
 }

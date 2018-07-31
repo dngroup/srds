@@ -86,16 +86,15 @@ void * connection_handler(int csock)
 
         //clear the message buffer
         memset(client_message, 0, 1024);
-        //close(sock);
+        close(sock);
         break;
     }
 
-    //if(read_size == 0)
-    //{
-        //perror("Client disconnected\n");
-        //fflush(stdout);
-        //close(sock);
-    //}
+    if(read_size == 0) {
+        perror("Client disconnected\n");
+        fflush(stdout);
+        close(sock);
+    }
     if(read_size == -1)
     {
         perror("recv failed\n");
