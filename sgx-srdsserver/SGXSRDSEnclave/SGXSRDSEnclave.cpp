@@ -1201,11 +1201,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			}
 		}
 		emit_debug("proxy forwarding (probably) successful!");
+		if (finalanswer != NULL) {
+			free(finalanswer);
+		}
 	}
 	ocall_closesocket(client_sock);
-	if (finalanswer != NULL) {
-		free(finalanswer);
-	}
 	if (headersRequest != NULL) {
 		map_destroy(headersRequest);
 	}
