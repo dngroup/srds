@@ -1126,6 +1126,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 					emit_debug("Looping for Transfer-Encoding...");
 					int loops = 0;
+					int data_sent = 0;
 					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
 						
 						//if (return_send <= 0) {
@@ -1178,9 +1179,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 
 					loops++;
+					data_sent += sizeAnswerFromClient;
 					}
 					emit_debug("Exiting Transfer-Encoding with loops:");
 					emit_debug_int(loops);
+					emit_debug("kB sent:");
+					emit_debug_int(sizeAnswerFromClient);
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
 					// blockchain
@@ -1200,7 +1204,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 				ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 			}
 		}
-		emit_debug("proxy forwarding (probably) successful!");
 		if (finalanswer != NULL) {
 			free(finalanswer);
 		}
@@ -1212,7 +1215,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	if (headersAnswer != NULL) {
 		map_destroy(headersAnswer);
 	}
-	emit_debug("proxy reply (probably) successful!");
+	emit_debug("proxy (probably) successful!");
 }
 
 /*
