@@ -1184,7 +1184,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("Exiting Transfer-Encoding with loops:");
 					emit_debug_int(loops);
 					emit_debug("kB sent:");
-					emit_debug_int(sizeAnswerFromClient);
+					emit_debug_int(data_sent);
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
 					// blockchain
