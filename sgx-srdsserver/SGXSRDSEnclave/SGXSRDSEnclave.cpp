@@ -1127,7 +1127,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					emit_debug("Looping for Transfer-Encoding...");
 					int loops = 0;
 					int data_sent = 0;
-					while (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) != 0) {
+					int testEndTransfer = 1;
+					while (testEndTransfer != 0) {
 						
 						//if (return_send <= 0) {
 							//emit_debug("return_send:");
@@ -1166,11 +1167,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						if (encrypt) {
 							if (fromSGX) {
 								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
 							} else {
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+								testEndTransfer = testEndTransferEncoding(decryptedMessage, sizeAnswerFromClient);
 							}
 						} else {
 							memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
+							testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
 						}
 						counter += (sizeAnswerFromClient + remainingSize) / 16;
 						finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
@@ -1178,8 +1182,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						
 						memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 
-					loops++;
-					data_sent += sizeAnswerFromClient;
+						loops++;
+						data_sent += sizeAnswerFromClient;
 					}
 					emit_debug("Exiting Transfer-Encoding with loops:");
 					emit_debug_int(loops);
