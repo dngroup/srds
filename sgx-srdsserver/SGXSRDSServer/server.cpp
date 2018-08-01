@@ -93,7 +93,7 @@ void * connection_handler(int csock)
     if(read_size == 0) {
         perror("Client disconnected\n");
         fflush(stdout);
-        close(sock);
+        //close(sock);
     }
     if(read_size == -1)
     {
