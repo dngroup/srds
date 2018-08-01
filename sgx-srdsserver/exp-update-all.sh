@@ -43,8 +43,8 @@ ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc6" "$command"
 
 sleep 60
 
-command2="cd ~/Downloads/linux-sgx-driver/ && make clean && make && sudo mkdir -p \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo cp isgx.ko \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo sh -c \"cat /etc/modules | grep -Fxq isgx || echo isgx >> /etc/modules\" && sudo /sbin/depmod && sudo /sbin/modprobe isgx && sudo service aesmd restart"
-command3="cd ~/linux-sgx-driver/ && make clean && make && sudo mkdir -p \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo cp isgx.ko \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo sh -c \"cat /etc/modules | grep -Fxq isgx || echo isgx >> /etc/modules\" && sudo /sbin/depmod && sudo /sbin/modprobe isgx && sudo service aesmd restart"
+command2="git config user.email \"toto\" && git config user.name \"toto\" && cd ~/Downloads/linux-sgx-driver/ && git stash && git pull && make clean && make && sudo mkdir -p \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo cp isgx.ko \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo sh -c \"cat /etc/modules | grep -Fxq isgx || echo isgx >> /etc/modules\" && sudo /sbin/depmod && sudo /sbin/modprobe isgx && sudo service aesmd restart"
+command3="git config user.email \"toto\" && git config user.name \"toto\" && cd ~/linux-sgx-driver/ && git stash && git pull && make clean && make && sudo mkdir -p \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo cp isgx.ko \"/lib/modules/\"`uname -r`\"/kernel/drivers/intel/sgx\" && sudo sh -c \"cat /etc/modules | grep -Fxq isgx || echo isgx >> /etc/modules\" && sudo /sbin/depmod && sudo /sbin/modprobe isgx && sudo service aesmd restart"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc1" "$command2"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc1" "$command3"
