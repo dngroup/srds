@@ -35,7 +35,7 @@ void startServer(int port, int inputtype){
     std::list<int> client_sockets;
     int enable = 1;
     pthread_mutex_init(&lock, NULL);
-    sem_init(&mutex, 0, 4);
+    sem_init(&mutex, 0, 8);
     type = inputtype;
 
     signal(SIGINT || SIGKILL, int_handler);
@@ -93,7 +93,7 @@ void * connection_handler(int csock)
     if(read_size == 0) {
         perror("Client disconnected\n");
         fflush(stdout);
-        //close(sock);
+        close(sock);
     }
     if(read_size == -1)
     {
