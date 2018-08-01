@@ -1130,7 +1130,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					int testEndTransfer = 1;
 					while (testEndTransfer != 0) {
 						
-						if (return_send <= 0) {
+						if (return_send < 0) {
 							emit_debug("return_send:");
 							emit_debug_int(return_send);
 							break;
@@ -1140,7 +1140,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 						memset(answerFromClient, 0, 1028);
 						ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
-						if (return_recv <= 0) {
+						if (return_recv < 0) {
 							emit_debug("return_recv:");
 							emit_debug_int(return_recv);
 							break;
