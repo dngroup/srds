@@ -3,6 +3,7 @@
 set -x
 
 killall firefox
+killall chromium-browser
 killall SGXSRDSServerApp
 killall node
 killall http-server

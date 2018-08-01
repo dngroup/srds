@@ -7,6 +7,7 @@ git config --global credential.helper store
 sudo apt update
 sudo apt install -y git
 sudo apt install -y firefox 
+sudo apt install -y chromium-browser 
 sudo apt install -y nodejs
 sudo apt install -y curl
 
