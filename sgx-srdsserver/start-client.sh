@@ -26,7 +26,7 @@ make
 
 sleep 10
 
-Xvfb :99
+Xvfb :99 &
 
 sleep 2
 
