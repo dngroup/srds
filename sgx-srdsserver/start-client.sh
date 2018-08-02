@@ -26,5 +26,9 @@ make
 
 sleep 10
 
-chromium-browser --headless http://localhost:8082/samples/dash-if-reference-player/index.html
+Xvfb :99
+
+sleep 2
+
+chromium-browser --new-window --no-sandbox http://localhost:8082/samples/dash-if-reference-player/index.html
 
