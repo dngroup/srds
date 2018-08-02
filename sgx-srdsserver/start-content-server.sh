@@ -16,5 +16,5 @@ cd ~/srds/sgx-srdsserver
 source /opt/intel/sgxsdk/environment
 make clean
 make
-./SGXSRDSServerApp 8081 0 &
+gdb -ex run -ex stop --args ./SGXSRDSServerApp 8081 0
 
