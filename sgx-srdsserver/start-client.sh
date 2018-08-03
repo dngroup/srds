@@ -26,13 +26,13 @@ make
 
 sleep 10
 
-Xvfb :99 &
+#Xvfb :99 &
 
-sleep 2
+#sleep 2
 
-DISPLAY=:99.0
+#DISPLAY=:99.0
 
-sleep 2
+#sleep 2
 
-chromium-browser --new-window --no-sandbox http://localhost:8082/samples/dash-if-reference-player/index.html
+chromium-browser --headless http://localhost:8082/samples/dash-if-reference-player/index.html
 
