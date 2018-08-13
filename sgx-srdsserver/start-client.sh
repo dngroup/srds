@@ -34,5 +34,5 @@ sleep 10
 
 #sleep 2
 
-firefox --headless http://localhost:8082/samples/dash-if-reference-player/index.html
+chromium-browser --headless http://localhost:8082/samples/dash-if-reference-player/index.html
 
