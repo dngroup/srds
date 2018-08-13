@@ -75,7 +75,6 @@ void * connection_handler(int csock)
 
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 ) {
-    	read_size = do_recv(sock , client_message);
         pthread_mutex_lock(&lock);
         sem_wait(&mutex);
         pthread_mutex_unlock(&lock);
