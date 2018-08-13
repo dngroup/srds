@@ -1387,13 +1387,11 @@ void handleOption(int csock) {
 	//char test[1024] = "GET / HTTP/1.1\r\nHost: lacaud.fr\r\nUser-Agent: curl/7.55.1\r\nConnection: close\r\nAccept: */*\r\n\r\n";
 	int return_send = 0;
 	emit_debug("Options: sending");
-	fflush(stdout);
 	ocall_sendanswer(&return_send, csock, answer, strlen(answer));
 }
 
 void ecall_handlemessage(int csock, int type, char * msg, int size){
 	emit_debug("Handling request");
-	fflush(stdout);
 	int http = isHttp(msg);
 	if (http == 0) {
 		if (type == 0) {
@@ -1431,13 +1429,11 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 		}
 	} else {
 		emit_debug("Options request");
-		fflush(stdout);
 		int option = isOption(msg);
 		if (option == 0) {
 			handleOption(csock);
 		} else {
 			emit_debug("Options: not detected");
-			fflush(stdout);
 		}
 	}
 }

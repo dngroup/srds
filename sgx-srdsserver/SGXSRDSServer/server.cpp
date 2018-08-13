@@ -83,12 +83,16 @@ void * connection_handler(int csock)
         pthread_mutex_lock(&lock);
         sem_post(&mutex);
         pthread_mutex_unlock(&lock);
-
+        
+		fflush(stdout);
+		
         //clear the message buffer
         memset(client_message, 0, 1024);
         close(sock);
         break;
     }
+    
+    fflush(stdout);
 
     if(read_size == 0) {
         perror("Client disconnected\n");
