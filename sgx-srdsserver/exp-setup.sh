@@ -9,11 +9,11 @@ sleep 20
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" '~/srds/sgx-srdsserver/start-content-server.sh'
 
-sleep 3
+sleep 2
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc6" '~/srds/sgx-srdsserver/start-tracker.sh'
 
-sleep 3
+sleep 5
 
 command="~/srds/sgx-srdsserver/start-client.sh"
 
