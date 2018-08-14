@@ -913,7 +913,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	char remainingBuffer[15];
 	
 	char * answer;
-	int client_sock;
+	int client_sock = -1;
 	char answerFromClient[1028];
 	int httpanswer;
 	int testIsEnd = 0;
@@ -946,8 +946,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		emit_debug("Starting client...");
 		ocall_startClient(&client_sock, target);
 		
-		if (client_sock == 0) {
-			emit_debug("Start client failed!");
+		if (client_sock < 1) {
+			emit_debug("Start client failed! Dropping packet.");
+			if (headersRequest != NULL) {
+				map_destroy(headersRequest);
+			}
+			if (headersAnswer != NULL) {
+				map_destroy(headersAnswer);
+			}
+			return;
 		}
 		
 		int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg) + 4;
