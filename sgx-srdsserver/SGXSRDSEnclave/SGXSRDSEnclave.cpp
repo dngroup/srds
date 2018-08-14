@@ -79,7 +79,7 @@ namespace blockchain_values {
 				ocall_string_to_int(balanceString.c_str(), balanceString.size(), &balance);
 			}
 		}
-		emit_debug("Coins balance:");
+		emit_debug("Tokens balance:");
 		emit_debug_int(balance);
 		ocall_closesocket(socket);
 		return balance;
@@ -114,7 +114,7 @@ namespace blockchain_values {
 				coinsAssigned = coinsToAssign;
 			}
 		}
-		emit_debug("Coins assigned:");
+		emit_debug("Tokens assigned:");
 		emit_debug_int(coinsAssigned);
 		ocall_closesocket(socket);
 		return coinsAssigned;
@@ -352,7 +352,7 @@ void printT2B32(char * str2) {
 	char target[strlen(targetEncrypted)];
 	B322T(targetEncrypted, target);
 	if (strcmp(str.c_str(),target) != 0) {
-		emit_debug("STRINGS DO NOT MATCH!");
+		emit_debug("WARNING - STRINGS DO NOT MATCH!");
 		emit_debug("v v v");
 		emit_debug(str.c_str());
 		emit_debug("^ ^ ^");
@@ -900,8 +900,6 @@ void sendAddressesToPlayer(int * return_send, int csock) {
 
 void handleProxy(int csock, char * msg, int msgsize) {
 
-	emit_debug("Entering proxy");
-
 	char clientip[30];
 	ocall_getSocketIP(csock, clientip);
 	
@@ -932,7 +930,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		sendAddressesToPlayer(&return_send, csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
-		emit_debug(target2);
 		if (strcmp(target2, "localhost:8080") == 0) {
 			memcpy(target, target2, strlen(target2));
 			emit_debug(target);
@@ -943,7 +940,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		
-		emit_debug("Starting client...");
 		ocall_startClient(&client_sock, target);
 		
 		if (client_sock < 1) {
@@ -983,8 +979,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(msg, fullDecryptedMessage, msgsize);
 		}
 		
-		
-		emit_debug("Sending to client...");
 		ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 		sizeAnswerFromClient = extractSize(answerFromClient);
 		char * finalanswer = (char *) malloc(1056*sizeof(char));
@@ -1123,7 +1117,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					}
 
 				} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
-					emit_debug("Entering Transfer-Encoding...");
+					emit_debug("Transfer-Encoding...");
 					//TODO Transfer-Encoding: chunked then look for the 0\r\n\r\n at the end of every packet. When found, close the socket
 					//TODO Other idea: add a "Connection: close" header, so the connexion will be closed by the server
 					
@@ -1131,7 +1125,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						over = true;
 						remainingSize = 0;
 					}
-					emit_debug("Looping for Transfer-Encoding...");
 					int loops = 0;
 					int data_sent = 0;
 					int testEndTransfer = 1;
@@ -1194,9 +1187,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						loops++;
 						data_sent += sizeAnswerFromClient;
 					}
-					emit_debug("Exiting Transfer-Encoding with loops:");
+					emit_debug("Transfer-Encoding - loops / kB:");
 					emit_debug_int(loops);
-					emit_debug("kB sent:");
 					emit_debug_int(data_sent/1000);
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
@@ -1228,7 +1220,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	if (headersAnswer != NULL) {
 		map_destroy(headersAnswer);
 	}
-	emit_debug("proxy (probably) successful!");
 }
 
 /*
@@ -1399,27 +1390,29 @@ void handleOption(int csock) {
 }
 
 void ecall_handlemessage(int csock, int type, char * msg, int size){
-	emit_debug("Handling request");
 	int http = isHttp(msg);
 	if (http == 0) {
 		if (type == 0) {
+			emit_debug("Forwarding (proxy) request...");
 			handleProxy(csock, msg, size);
 		}
 		if (type == 1) {
+			emit_debug("Tracker request...");
 			handleTracker(csock, msg, size, 0);
 		}
 		if (type == 11) {
-			// tracker encryption test
+			emit_debug("Tracker encryption test...");
 			handleTracker(csock, msg, size, 1);
 		}
 		if (type == 2) {
-			// blockchain test
+			emit_debug("Blockchain test...");
 			blockchain_values::getBalance();
 			blockchain_values::assignCoin(999999999);
 			blockchain_values::getBalance();
 		}
 		if (type == 32) {
 			// base32 test
+			emit_debug("Base32 translation test...");
 			std::string str("tracker");
 			emit_debug(str.c_str());
 			char targetEncrypted[GetEncode32Length(str.size())];
@@ -1430,19 +1423,21 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			emit_debug(target);
 		}
 		if (type == 22) {
+			emit_debug("Addresses translation...");
 			printT2B32((char *) "tracker");
 			printT2B32((char *) "mpdserver");
 			printT2B32((char *) "localhost:8080");
 			printT2B32((char *) "147.210.128.146:8081");
 		}
 	} else {
-		emit_debug("Options request");
 		int option = isOption(msg);
 		if (option == 0) {
+			emit_debug("Options request...");
 			handleOption(csock);
 		} else {
-			emit_debug("Options: not detected");
+			emit_debug("Request type not detected!");
 		}
 	}
+	emit_debug("Request handled! Exiting.");
 }
 
