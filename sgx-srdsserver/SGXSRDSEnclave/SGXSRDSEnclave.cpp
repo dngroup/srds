@@ -1167,8 +1167,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						
 						if (encrypt) {
 							if (fromSGX) {
-								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
+								encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 							} else {
 								decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
 								testEndTransfer = testEndTransferEncoding(decryptedMessage, sizeAnswerFromClient);
