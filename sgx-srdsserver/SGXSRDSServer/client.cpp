@@ -43,6 +43,7 @@ void ocall_startClient(int * csock, char * address) {
 
     if(do_connect(sock, &sin) < 0) {
         perror("Failed to connect");
+        printf("Address: %s", address);
         return;
     }
 
