@@ -954,6 +954,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			if (headersAnswer != NULL) {
 				map_destroy(headersAnswer);
 			}
+			ocall_closesocket(csock);
 			return;
 		}
 		
