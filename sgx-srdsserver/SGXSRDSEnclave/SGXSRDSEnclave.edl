@@ -8,6 +8,8 @@ enclave {
     };
 
     untrusted {
+        [cdecl] void display_msg(int socket, [string,in] const char *msg);
+        [cdecl] void display_TE(int socket, int l, int k);
         [cdecl] void emit_debug([string,in] const char *str);
         [cdecl] void emit_debug_int(int a);
         [cdecl] void ocall_startClient([out,size=4] int * csock, [in,string] char *address);

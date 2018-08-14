@@ -35,11 +35,19 @@ void ocall_string_to_int(const char* a, int size, int * out) {
 }
 
 void emit_debug(const char *buf){
-    printf("DEBUG: %s\n", buf);
+    printf("%s\n", buf);
 }
 
 void emit_debug_int(int a){
-    printf("DEBUG_INT: %i\n", a);
+    printf("%i\n", a);
+}
+
+void display_msg(int socket, const char *msg) {
+	printf("[%i] %s\n", socket, msg);
+}
+
+void display_TE(int socket, int l, int k) {
+	printf("[%i] Transfer-Encoding - Loops: %i - kB sent: %i\n", socket, l, k);
 }
 
 int main(int argc, char ** argv) {
