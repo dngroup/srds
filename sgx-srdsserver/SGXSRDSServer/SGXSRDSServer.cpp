@@ -47,7 +47,7 @@ void display_msg(int socket, const char *msg) {
 }
 
 void display_TE(int socket, int l, int k) {
-	printf("[%i] Transfer-Encoding - Loops: %i - kB sent: %i\n", socket, l, k);
+	printf("[%i] Transfer-Encoding: %i kB (%i loops)\n", socket, k, l);
 }
 
 int main(int argc, char ** argv) {

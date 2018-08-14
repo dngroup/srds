@@ -932,7 +932,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		char target[strlen(target2)];
 		if (strcmp(target2, "localhost:8080") == 0) {
 			memcpy(target, target2, strlen(target2));
-			display_msg(csock,target);
+			emit_debug(target);
 		} else {
 			B322T(target2, target);
 			printT2B32(target);
