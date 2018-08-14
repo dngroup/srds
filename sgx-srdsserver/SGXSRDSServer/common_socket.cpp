@@ -61,7 +61,7 @@ int do_connect(int sock, struct sockaddr_in * sin) {
 
 int do_send(int sock, char * buffer, int size) {
     size_t n = 0;
-    if((n = send(sock, buffer, size, 0)) <= 0)
+    if((n = send(sock, buffer, size, MSG_NOSIGNAL)) <= 0)
     {
     	perror("Can not send to server");
     }
