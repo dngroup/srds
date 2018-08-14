@@ -1379,7 +1379,6 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	
 	ocall_sendanswer(&return_send, csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
 	map_destroy(headersRequest);
-	emit_debug("tracker handling (probably) successful!");
 }
 
 void handleOption(int csock) {
@@ -1390,6 +1389,7 @@ void handleOption(int csock) {
 }
 
 void ecall_handlemessage(int csock, int type, char * msg, int size){
+	emit_debug_int(csock);
 	int http = isHttp(msg);
 	if (http == 0) {
 		if (type == 0) {
@@ -1438,6 +1438,7 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			emit_debug("Request type not detected!");
 		}
 	}
+	emit_debug_int(csock);
 	emit_debug("Request handled! Exiting.");
 }
 
