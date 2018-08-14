@@ -34,5 +34,5 @@ sleep 10
 
 #sleep 2
 
-chromium-browser --headless --ignore-autoplay-restrictions --no-user-gesture-required --disable-default-apps --no-first-run --disk-cache-dir=/dev/null --disk-cache-size=1 http://localhost:8082/samples/dash-if-reference-player/index.html
+chromium-browser --headless --remote-debugging-port=7777 --ignore-autoplay-restrictions --no-user-gesture-required --disable-default-apps --no-first-run --disk-cache-dir=/dev/null --disk-cache-size=1 http://localhost:8082/samples/dash-if-reference-player/index.html
 
