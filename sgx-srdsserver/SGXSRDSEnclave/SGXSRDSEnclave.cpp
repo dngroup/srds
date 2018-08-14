@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = true;
+bool encrypt = false;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
