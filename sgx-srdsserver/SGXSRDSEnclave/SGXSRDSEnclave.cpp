@@ -1190,7 +1190,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 					
 					// blockchain
-					/*
+					///*
 					numberOfTokens = blockchain_values::getBalance();
 					if (fromSGX) {
 						blockchain_values::assignCoin(+1);
@@ -1200,7 +1200,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						}
 					}
 					numberOfTokens = blockchain_values::getBalance();
-					*/
+					//*/
 				} else {
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 				}
