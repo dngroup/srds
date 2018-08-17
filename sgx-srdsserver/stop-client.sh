@@ -2,6 +2,8 @@
 
 set -x
 
+killall start-tracker.sh
+killall start-content-server.sh
 killall firefox
 killall chromium-browser
 killall chrome
