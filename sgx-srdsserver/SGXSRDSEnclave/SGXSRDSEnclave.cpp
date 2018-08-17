@@ -1212,7 +1212,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			free(finalanswer);
 		}
 	}
-	//ocall_closesocket(client_sock);
+	ocall_closesocket(client_sock);
 	if (headersRequest != NULL) {
 		map_destroy(headersRequest);
 	}
