@@ -903,16 +903,14 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
 	if (payloadSize > 0) {
-		char buff[buffSize];
-		memset(buff, 0, buffSize * sizeof(char));
 		char fullBuff[buffSize];
 		memset(fullBuff, 0, buffSize * sizeof(char));
 		char codedBuff[payloadSize];
 		memset(codedBuff, 0, (payloadSize) * sizeof(char));
-		memcpy(fullBuff, buff, offset);
+		memcpy(fullBuff, finalBuff, offset);
 		char payload[payloadSize];
 		memset(payload, 0, (payloadSize) * sizeof(char));
-		memcpy(payload, buff + offset, payloadSize);
+		memcpy(payload, finalBuff + offset, payloadSize);
 		if (encrypt) {
 			if (fromSGX) {
 				decryptMessage(payload, payloadSize, codedBuff, 0);
@@ -923,9 +921,8 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 			memcpy(codedBuff, payload, payloadSize);
 		}
 		memcpy(fullBuff + offset, codedBuff, payloadSize);
-		memcpy(buff, fullBuff, buffSize);
 		memset(finalBuff, 0, buffSize * sizeof(char));
-		memcpy(finalBuff, buff, buffSize);
+		memcpy(finalBuff, fullBuff, buffSize);
 	}
 
 }
