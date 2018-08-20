@@ -898,10 +898,40 @@ void sendAddressesToPlayer(int * return_send, int csock) {
 	free(finalAnswer);
 }
 
+void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
+
+	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
+	int payloadSize = buffSize - offset;
+	if (payloadSize > 0) {
+		char buff[buffSize];
+		char fullBuff[buffSize];
+		memset(fullBuff, 0, buffSize * sizeof(char));
+		char codedBuff[payloadSize];
+		memset(codedBuff, 0, (payloadSize) * sizeof(char));
+		memcpy(fullBuff, buff, offset);
+		char payload[payloadSize];
+		memset(payload, 0, (payloadSize) * sizeof(char));
+		memcpy(payload, buff + offset, payloadSize);
+		if (encrypt) {
+			if (fromSGX) {
+				decryptMessage(payload, payloadSize, codedBuff, 0);
+			} else {
+				encryptMessage(payload, payloadSize, codedBuff, 0);
+			}
+		} else {
+			memcpy(codedBuff, payload, payloadSize);
+		}
+		memcpy(fullBuff + offset, codedBuff, payloadSize);
+		memcpy(buff, fullBuff, buffSize);
+		finalBuff = (char *) realloc(finalBuff, buffSize * sizeof(char));
+		memcpy(finalBuff, buff, buffSize);
+	}
+
+}
+
 void handleProxy(int csock, char * msg, int msgsize) {
 
 	char clientip[30];
-	ocall_getSocketIP(csock, clientip);
 	bool fromSGX = true;
 	uint32_t counter = 0;
 	int remainingSize = 0;
@@ -912,12 +942,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	int httpanswer = -1;
 	int sizeAnswerFromClient = 0;
 	int totalSizeAnswer = 0;
-	struct map* headersAnswer = NULL;
 	int return_send = 0;
 	int return_recv = 0;
-
+	char * finalanswer = (char *) malloc(1056*sizeof(char));
+	struct map* headersAnswer = NULL;
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
+	ocall_getSocketIP(csock, clientip);
 	
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
 		sendTokensToPlayer(&return_send, csock);
@@ -925,7 +956,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		sendAddressesToPlayer(&return_send, csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
-		if (strcmp(target2, "localhost:8080") == 0) {
+		if (strcmp(target2, serverAddr.c_str()) == 0) {
 			memcpy(target, target2, strlen(target2));
 			emit_debug(target);
 		} else {
@@ -937,72 +968,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		if (client_sock < 1) {
 			display_msg(csock,"Start client failed! Dropping packet.");
 		} else {
-			int endPos = getPosEndOfHeader(msg) < 0 ? 0 : getPosEndOfHeader(msg) + 4;
-			int msgSizeCnt = msgsize - endPos;
 			answer = createNewHeader(msg, target, msgsize);
-			
-			if (msgSizeCnt > 0) {
-				char fullDecryptedMessage[msgsize];
-				memset(fullDecryptedMessage, 0, msgsize * sizeof(char));
-				char decryptedMessage[msgSizeCnt];
-				memset(decryptedMessage, 0, (msgSizeCnt) * sizeof(char));
-				memcpy(fullDecryptedMessage, msg, endPos);
-				char messageToDecrypt[msgSizeCnt];
-				memset(messageToDecrypt, 0, (msgSizeCnt) * sizeof(char));
-				memcpy(messageToDecrypt, msg + endPos, msgSizeCnt);
-				if (encrypt) {
-					if (fromSGX) {
-						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
-					} else {
-						encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, 0);
-					}
-				} else {
-					memcpy(decryptedMessage, messageToDecrypt, msgSizeCnt);
-				}
-				memcpy(fullDecryptedMessage + endPos, decryptedMessage, msgSizeCnt);
-				memcpy(msg, fullDecryptedMessage, msgsize);
-			}
-		
+			memcpy(finalanswer, msg, msgsize);
+			handle_encryption(fromSGX, finalanswer, msgsize);
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			sizeAnswerFromClient = extractSize(answerFromClient);
-			char * finalanswer = (char *) malloc(1056*sizeof(char));
 			memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
-			endPos = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
-			msgSizeCnt = sizeAnswerFromClient - endPos;
-		
-		
-
-			if (msgSizeCnt > 0) {
-				char decryptedMessage[msgSizeCnt];
-				memset(decryptedMessage, 0, (msgSizeCnt) * sizeof(char));
-				char messageToDecrypt[msgSizeCnt];
-				memset(messageToDecrypt, 0, (msgSizeCnt) * sizeof(char));
-				memcpy(messageToDecrypt, finalanswer + endPos, msgSizeCnt);
-				memset(remainingBuffer, 0, 15);
-				if (encrypt) {
-					remainingSize = cutInto16BytesMultiple(messageToDecrypt, remainingBuffer, msgSizeCnt);
-				} else {
-					remainingSize = 0;
-				}
-				if (encrypt) {
-					if (fromSGX) {
-						encryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
-					} else {
-						decryptMessage(messageToDecrypt, msgSizeCnt, decryptedMessage, counter);
-					}
-				} else {
-					memcpy(decryptedMessage, messageToDecrypt, msgSizeCnt);
-				}
-				counter = msgSizeCnt / 16;
-				char fullDecryptedMessage[sizeAnswerFromClient];
-				memset(fullDecryptedMessage, 0, sizeAnswerFromClient * sizeof(char));
-				memcpy(fullDecryptedMessage, finalanswer, endPos);
-				memcpy(fullDecryptedMessage + endPos, decryptedMessage, msgSizeCnt);
-				finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-				memcpy(finalanswer, fullDecryptedMessage, sizeAnswerFromClient);
-			}
-		
+			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 			/*
 			std::string str(finalanswer);
 			size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
@@ -1014,9 +987,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 				memcpy(finalanswer, str.c_str(), str.size());
 			}
 			*/
-		
 			// finalanswer -> if fromSGX: encrypt / else: decrypt
-
 			if (sizeAnswerFromClient > 0) {
 				httpanswer = isHttp(finalanswer);
 				if (httpanswer == 0) {
@@ -1027,9 +998,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						ocall_string_to_int(map_get(headersAnswer, "HeaderSize"), (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
 						totalSizeAnswer += sizeAnswerFromClient - out;
 						ocall_string_to_int(map_get(headersAnswer, contentLength), (int) strlen(map_get(headersAnswer, contentLength)), &out);
-						if (msgSizeCnt + (getPosEndOfHeader(finalanswer) + 4 - sizeAnswerFromClient) == out) {
-								remainingSize = 0;
-						}
 						while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
 							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
 							memset(answerFromClient, 0, 1028);
@@ -1063,13 +1031,11 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
 							totalSizeAnswer += sizeAnswerFromClient;
 						}
-					
 						if (encrypt) {
 							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 						} else {
 							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 						}
-
 					} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
 						if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
 							remainingSize = 0;
@@ -1135,9 +1101,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
 				}
 			}
-			if (finalanswer != NULL) {
-				free(finalanswer);
-			}
 		}
 	}
 	// cleaning up
@@ -1150,11 +1113,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	if (headersAnswer != NULL) {
 		map_destroy(headersAnswer);
 	}
-	if (target2 != NULL) {
-		//free(target2);
-	}
-	if (answer != NULL) {
-		//free(answer);
+	if (finalanswer != NULL) {
+		free(finalanswer);
 	}
 }
 
