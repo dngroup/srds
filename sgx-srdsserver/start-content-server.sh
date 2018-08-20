@@ -18,4 +18,8 @@ make clean
 make
 
 #gdb -ex run -ex stop --args ./SGXSRDSServerApp 8081 0
+
+./SGXSRDSServerApp 8081 0
+
 while sleep 0.1; do ./SGXSRDSServerApp 8081 0; done
+
