@@ -904,6 +904,7 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	int payloadSize = buffSize - offset;
 	if (payloadSize > 0) {
 		char buff[buffSize];
+		memset(buff, 0, buffSize * sizeof(char));
 		char fullBuff[buffSize];
 		memset(fullBuff, 0, buffSize * sizeof(char));
 		char codedBuff[payloadSize];
@@ -923,7 +924,7 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 		}
 		memcpy(fullBuff + offset, codedBuff, payloadSize);
 		memcpy(buff, fullBuff, buffSize);
-		finalBuff = (char *) realloc(finalBuff, buffSize * sizeof(char));
+		memset(finalBuff, 0, buffSize * sizeof(char));
 		memcpy(finalBuff, buff, buffSize);
 	}
 
@@ -969,12 +970,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			display_msg(csock,"Start client failed! Dropping packet.");
 		} else {
 			answer = createNewHeader(msg, target, msgsize);
+			finalanswer = (char *) realloc(finalanswer, msgsize * sizeof(char));
 			memcpy(finalanswer, msg, msgsize);
 			handle_encryption(fromSGX, finalanswer, msgsize);
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			sizeAnswerFromClient = extractSize(answerFromClient);
 			memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
+			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 			/*
 			std::string str(finalanswer);
