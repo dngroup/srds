@@ -21,5 +21,5 @@ make
 
 ./SGXSRDSServerApp 8081 0
 
-while sleep 0.1; do ./SGXSRDSServerApp 8081 0; done
+while sleep 1; do ./SGXSRDSServerApp 8081 0; done
 
