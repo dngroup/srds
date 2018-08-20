@@ -905,11 +905,11 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	if (payloadSize > 0) {
 		char fullBuff[buffSize];
 		memset(fullBuff, 0, buffSize * sizeof(char));
+		char payload[payloadSize];
+		memset(payload, 0, (payloadSize) * sizeof(char));
 		char codedBuff[payloadSize];
 		memset(codedBuff, 0, (payloadSize) * sizeof(char));
 		memcpy(fullBuff, finalBuff, offset);
-		char payload[payloadSize];
-		memset(payload, 0, (payloadSize) * sizeof(char));
 		memcpy(payload, finalBuff + offset, payloadSize);
 		if (encrypt) {
 			if (fromSGX) {
@@ -973,7 +973,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			sizeAnswerFromClient = extractSize(answerFromClient);
 			memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
-			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // finalanswer -> first (last?) subpacket
+			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // first (last?) subpacket
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 			/*
