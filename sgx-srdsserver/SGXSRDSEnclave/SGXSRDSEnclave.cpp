@@ -927,13 +927,16 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			handle_encryption(fromSGX, finalanswer, msgsize);
 			emit_debug("Up to 5");
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
+			emit_debug("Up to 6");
 			sizeAnswerFromClient = extractSize(answerFromClient);
+			emit_debug("Up to 7");
 			memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // first (last?) subpacket
+			emit_debug("Up to 8");
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-			emit_debug("Up to 6");
+			emit_debug("Up to 9");
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-			emit_debug("Up to 7");
+			emit_debug("Up to 10");
 			/*
 			std::string str(finalanswer);
 			size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
