@@ -883,8 +883,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	char clientip[30];
 	bool fromSGX = true;
 	uint32_t counter = 0;
-	int remainingSize = 0;
-	char remainingBuffer[15];
 	char * answer;
 	int client_sock = -1;
 	char answerFromClient[1028];
@@ -950,89 +948,72 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						totalSizeAnswer += sizeAnswerFromClient - out;
 						ocall_string_to_int(map_get(headersAnswer, contentLength), (int) strlen(map_get(headersAnswer, contentLength)), &out);
 						while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 							memset(answerFromClient, 0, 1028);
 							ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
 							sizeAnswerFromClient = extractSize(answerFromClient);
-							finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
-							memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
-							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
-							sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
-							memcpy(finalanswer, remainingBuffer, remainingSize);
-							memset(remainingBuffer, 0, 15);
-							if (encrypt) {
-								remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
-							} else {
-								remainingSize = 0;
-							}
-							char decryptedMessage[sizeAnswerFromClient + remainingSize + 15];
-							memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
+							finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient) * sizeof(char));
+							memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
+							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+							sizeAnswerFromClient = sizeAnswerFromClient;
+							char decryptedMessage[sizeAnswerFromClient];
+							memset(decryptedMessage, 0, (sizeAnswerFromClient) * sizeof(char));
 							if (encrypt) {
 								if (fromSGX) {
-									encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+									encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 								} else {
-									decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+									decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 								}
 							} else {
 								memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
 							}
-							counter += (sizeAnswerFromClient + remainingSize) / 16;
-							finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-							memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+							counter += sizeAnswerFromClient / 16;
+							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
 							totalSizeAnswer += sizeAnswerFromClient;
 						}
 						if (encrypt) {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 						} else {
 							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 						}
 					} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
-						if (testEndTransferEncoding(finalanswer, sizeAnswerFromClient) == 0) {
-							remainingSize = 0;
-						}
 						int loops = 0;
 						int data_sent = 0;
 						int testEndTransfer = 1;
 						while (testEndTransfer != 0) {
-							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient - remainingSize);
+							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 							memset(answerFromClient, 0, 1028);
 							ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
 							sizeAnswerFromClient = extractSize(answerFromClient);
-							finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
-							memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
-							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer + remainingSize);
-							sizeAnswerFromClient = sizeAnswerFromClient + remainingSize;
-							memcpy(finalanswer, remainingBuffer, remainingSize);
-							memset(remainingBuffer, 0, 15);
-							if (encrypt) {
-								remainingSize = cutInto16BytesMultiple(finalanswer, remainingBuffer, sizeAnswerFromClient);
-							} else {
-								remainingSize = 0;
-							}
-							char decryptedMessage[sizeAnswerFromClient + remainingSize + 15];
-							memset(decryptedMessage, 0, (sizeAnswerFromClient + remainingSize + 15) * sizeof(char));
+							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+							sizeAnswerFromClient = sizeAnswerFromClient;
+							char decryptedMessage[sizeAnswerFromClient];
+							memset(decryptedMessage, 0, (sizeAnswerFromClient) * sizeof(char));
 							if (encrypt) {
 								if (fromSGX) {
 									testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
-									encryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+									encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 								} else {
-									decryptMessage(finalanswer, sizeAnswerFromClient + remainingSize + 15 - ((sizeAnswerFromClient + remainingSize)%16), decryptedMessage, counter);
+									decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
 									testEndTransfer = testEndTransferEncoding(decryptedMessage, sizeAnswerFromClient);
 								}
 							} else {
 								memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
 								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
 							}
-							counter += (sizeAnswerFromClient + remainingSize) / 16;
-							finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-							memset(finalanswer, 0, (sizeAnswerFromClient + remainingSize) * sizeof(char));
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient + remainingSize);
+							counter += sizeAnswerFromClient / 16;
+							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
 							loops++;
 							data_sent += sizeAnswerFromClient;
 						}
 						display_TE(csock,loops,data_sent/1000);
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 						// blockchain
 						/*
 						numberOfTokens = blockchain_values::getBalance();
@@ -1046,10 +1027,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						numberOfTokens = blockchain_values::getBalance();
 						*/
 					} else {
-						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 					}
 				} else {
-					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient + remainingSize);
+					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 				}
 			}
 		}
