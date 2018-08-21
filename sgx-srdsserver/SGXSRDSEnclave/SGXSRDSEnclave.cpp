@@ -952,12 +952,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							memset(answerFromClient, 0, 1028);
 							ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
 							sizeAnswerFromClient = extractSize(answerFromClient);
-							finalanswer = (char *) realloc(finalanswer, (sizeAnswerFromClient) * sizeof(char));
-							memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
+							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 							sizeAnswerFromClient = sizeAnswerFromClient;
 							char decryptedMessage[sizeAnswerFromClient];
-							memset(decryptedMessage, 0, (sizeAnswerFromClient) * sizeof(char));
+							memset(decryptedMessage, 0, sizeAnswerFromClient * sizeof(char));
 							if (encrypt) {
 								if (fromSGX) {
 									encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, counter);
