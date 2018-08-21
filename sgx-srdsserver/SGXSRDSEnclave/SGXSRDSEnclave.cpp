@@ -973,9 +973,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-							testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
+							if (fromSGX) {
+								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
+							}
 							handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-							testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
+							if (!fromSGX) {
+								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
+							}
 							loops++;
 							data_sent += sizeAnswerFromClient;
 						}
