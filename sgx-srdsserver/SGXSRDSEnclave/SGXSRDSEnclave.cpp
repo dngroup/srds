@@ -965,6 +965,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						}
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 					} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
+						emit_debug("Transfer-Encoding");
 						while (testEndTransfer != 0) {
 							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 							memset(answerFromClient, 0, 1028);
