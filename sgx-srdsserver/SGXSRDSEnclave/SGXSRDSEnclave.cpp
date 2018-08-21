@@ -923,8 +923,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			answer = createNewHeader(msg, target, sizeAnswerFromClient);
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-			memcpy(finalanswer, msg, sizeAnswerFromClient);
-			emit_debug(finalanswer);
+			//memcpy(finalanswer, msg, sizeAnswerFromClient);
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			sizeAnswerFromClient = extractSize(answerFromClient);
