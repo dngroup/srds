@@ -974,6 +974,27 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+							
+							
+							char decryptedMessage[sizeAnswerFromClient];
+							memset(decryptedMessage, 0, (sizeAnswerFromClient) * sizeof(char));
+							if (encrypt) {
+								if (fromSGX) {
+									testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
+									encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, 0);
+								} else {
+									decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, 0);
+									testEndTransfer = testEndTransferEncoding(decryptedMessage, sizeAnswerFromClient);
+								}
+							} else {
+								memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
+								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
+							}
+							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
+							
+							/*
 							if (fromSGX) {
 								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
 							}
@@ -981,6 +1002,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							if (!fromSGX) {
 								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
 							}
+							*/
 							loops++;
 							data_sent += sizeAnswerFromClient;
 						}
