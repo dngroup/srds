@@ -912,21 +912,28 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			B322T(target2, target);
 			printT2B32(target);
 		}
+		emit_debug("Up to 1");
 		fromSGX = (map_find(headersRequest, "From-SGX") > 0);
 		ocall_startClient(&client_sock, target);
+		emit_debug("Up to 2");
 		if (client_sock < 1) {
 			display_msg(csock,"Start client failed! Dropping packet.");
 		} else {
+			emit_debug("Up to 3");
 			answer = createNewHeader(msg, target, msgsize);
 			finalanswer = (char *) realloc(finalanswer, msgsize * sizeof(char));
 			memcpy(finalanswer, msg, msgsize);
+			emit_debug("Up to 4");
 			handle_encryption(fromSGX, finalanswer, msgsize);
+			emit_debug("Up to 5");
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			sizeAnswerFromClient = extractSize(answerFromClient);
 			memset(finalanswer, 0, (sizeAnswerFromClient) * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // first (last?) subpacket
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+			emit_debug("Up to 6");
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+			emit_debug("Up to 7");
 			/*
 			std::string str(finalanswer);
 			size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
