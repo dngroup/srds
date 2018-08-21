@@ -855,6 +855,7 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	uint32_t counter = 0;
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
+	emit_debug_int(payloadSize);
 	if (payloadSize > 0) {
 		char fullBuff[buffSize];
 		memset(fullBuff, 0, buffSize * sizeof(char));
