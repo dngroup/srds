@@ -855,7 +855,6 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	uint32_t counter = 0;
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
-	emit_debug_int(payloadSize);
 	if (payloadSize > 0) {
 		char fullBuff[buffSize];
 		memset(fullBuff, 0, buffSize * sizeof(char));
@@ -974,35 +973,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-							
-							
-							char decryptedMessage[sizeAnswerFromClient];
-							memset(decryptedMessage, 0, (sizeAnswerFromClient) * sizeof(char));
-							if (encrypt) {
-								if (fromSGX) {
-									testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
-									encryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, 0);
-								} else {
-									decryptMessage(finalanswer, sizeAnswerFromClient, decryptedMessage, 0);
-									testEndTransfer = testEndTransferEncoding(decryptedMessage, sizeAnswerFromClient);
-								}
-							} else {
-								memcpy(decryptedMessage, finalanswer, sizeAnswerFromClient);
-								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
-							}
-							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-							memcpy(finalanswer, decryptedMessage, sizeAnswerFromClient);
-							
-							/*
-							if (fromSGX) {
-								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
-							}
+							testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
 							handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-							if (!fromSGX) {
-								testEndTransfer = testEndTransferEncoding(finalanswer, sizeAnswerFromClient);
-							}
-							*/
+							testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
 							loops++;
 							data_sent += sizeAnswerFromClient;
 						}
