@@ -884,12 +884,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	bool fromSGX = true;
 	int client_sock = -1;
 	int httpanswer = -1;
-	int return_send = -1;
-	int return_recv = -1;
-	int sizeAnswerFromClient = -1;
-	int totalSizeAnswer = -1;
+	int return_send = 0;
+	int return_recv = 0;
+	int sizeAnswerFromClient = 0;
+	int totalSizeAnswer = 0;
 	int testEndTransfer = -1;
-	int out = -1;
+	int out;
 	int loops = 0;
 	int data_sent = 0;
 	char clientip[30];
