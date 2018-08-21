@@ -855,28 +855,26 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	uint32_t counter = 0;
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
-	if (payloadSize > 0) {
-		char fullBuff[buffSize];
-		memset(fullBuff, 0, buffSize * sizeof(char));
-		char payload[payloadSize];
-		memset(payload, 0, (payloadSize) * sizeof(char));
-		char codedBuff[payloadSize];
-		memset(codedBuff, 0, (payloadSize) * sizeof(char));
-		memcpy(fullBuff, finalBuff, offset);
-		memcpy(payload, finalBuff + offset, payloadSize);
-		if (encrypt) {
-			if (fromSGX) {
-				decryptMessage(payload, payloadSize, codedBuff, counter);
-			} else {
-				encryptMessage(payload, payloadSize, codedBuff, counter);
-			}
+	char fullBuff[buffSize];
+	memset(fullBuff, 0, buffSize * sizeof(char));
+	char payload[payloadSize];
+	memset(payload, 0, (payloadSize) * sizeof(char));
+	char codedBuff[payloadSize];
+	memset(codedBuff, 0, (payloadSize) * sizeof(char));
+	memcpy(fullBuff, finalBuff, offset);
+	memcpy(payload, finalBuff + offset, payloadSize);
+	if (encrypt) {
+		if (fromSGX) {
+			decryptMessage(payload, payloadSize, codedBuff, counter);
 		} else {
-			memcpy(codedBuff, payload, payloadSize);
+			encryptMessage(payload, payloadSize, codedBuff, counter);
 		}
-		memcpy(fullBuff + offset, codedBuff, payloadSize);
-		memset(finalBuff, 0, buffSize * sizeof(char));
-		memcpy(finalBuff, fullBuff, buffSize);
+	} else {
+		memcpy(codedBuff, payload, payloadSize);
 	}
+	memcpy(fullBuff + offset, codedBuff, payloadSize);
+	memset(finalBuff, 0, buffSize * sizeof(char));
+	memcpy(finalBuff, fullBuff, buffSize);
 }
 
 void handleProxy(int csock, char * msg, int msgsize) {
