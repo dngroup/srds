@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = true;
+bool encrypt = false;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -454,68 +454,49 @@ void map_replace(struct map* map, std::string key, std::string newvalue) {
 void map_destroy(struct map* map) {
 	struct map_element * current;
 	struct map_element * current_old;
-
 	if (map && map->first && map->first != NULL) {
-
 		current = map->first;
 	} else {
-
 		current = NULL;
 	}
-
 	while(current && current != NULL) {
-
-		current_old=current;
-
+		current_old = current;
 		current = map_get_next(current_old);
-
 		if (current_old && current_old != NULL) {
-
 			if (current_old->key && current_old->key != NULL) {
 				free(current_old->key);
 			}
-
 			if (current_old->value && current_old->value != NULL) {
 				free(current_old->value);
 			}
-
 			if (current_old->inmap && current_old->inmap != NULL) {
 				map_destroy(current_old->inmap);
 			}
-
 			if (current_old && current_old != NULL) {
 				free(current_old);
 			}
-
 		}
 	}
-
 	if (map && map != NULL) {
 		free(map);
 	}	
-
 }
 
 int map_find(struct map* map, std::string key) {
-
 	char * key2 = copystring2char(key);
 	struct map_element * current = map->first;
 	if (current != NULL && strcmp(current->key,key2) == 0){
 		free(key2);
 		return 1;
 	}
-
 	while(current != NULL) {
-
 		if (current->key != NULL) {
 			if (strcmp(current->key, key2) == 0) {
 				free(key2);
 				return 1;
 			}
 		}
-
 		current = map_get_next(current);
-
 	}
 	free(key2);
 	return 0;
@@ -528,7 +509,6 @@ char * map_get(struct map* map, std::string key) {
 		free(key2);
 		return current->value;
 	}
-
 	while(current != NULL && current->key != NULL){
 		if(strcmp(current->key,key2) == 0){
 			free(key2);
@@ -547,7 +527,6 @@ struct map * map_get_map(struct map* map, std::string key) {
 		free(key2);
 		return current->inmap;
 	}
-
 	while(current != NULL && current->key != NULL){
 		if(strcmp(current->key,key2) == 0){
 			free(key2);
@@ -566,7 +545,6 @@ struct map_element * map_get_elem(struct map* map, std::string key) {
 		free(key2);
 		return current;
 	}
-
 	while(current != NULL && current->key != NULL){
 		if(strcmp(current->key,key2) == 0){
 			free(key2);
@@ -583,7 +561,6 @@ int isBiggerThan(std::string value, char* valueInMem) {
 	int sizeValue = strlen(value2);
 	int sizeValueInMem = strlen(valueInMem);
 	int returnvalue = 1;
-
 	if (sizeValue > sizeValueInMem) {
 		returnvalue = 0;
 	} else if (sizeValue == sizeValueInMem) {
@@ -597,16 +574,13 @@ int isBiggerThan(std::string value, char* valueInMem) {
 			}
 		}
 	}
-
 	return returnvalue;
 }
 
 std::string map_findKeysByValueBiggerThan(struct map* map, std::string value) {
 	std:: string output = "";
 	struct map_element * current = map->first;
-
 	while(current != NULL && current->key != NULL){
-
 		if (isBiggerThan(value, current->value) > 0) {
 			std::string topush(current->key);
 			if (output.length() > 0 && output[output.length()-1] != ',') {
@@ -616,7 +590,6 @@ std::string map_findKeysByValueBiggerThan(struct map* map, std::string value) {
 		}
 		current=map_get_next(current);
 	}
-
 	return output;
 }
 
@@ -637,8 +610,7 @@ int isOption(char* msg) {
 	}
 }
 
-char* substr(char* arr, int begin, int len)
-{
+char* substr(char* arr, int begin, int len) {
 	char* res = new char[len];
 	for (int i = 0; i < len; i++)
 		res[i] = *(arr + begin + i);
@@ -689,13 +661,10 @@ char* createNewHeader(char* msg, std::string address, int size) {
 	} else {
 		header.insert(posEnd + 2, "Connection: Close\r\n");
 	}
-
 	header.replace(posHost, posEnd-posHost, address);
-
 	posForward = header.find("X-Forwarded-Host: ") + 18;
 	posEndForward = header.find("\r\n", posForward);
 	header.replace(posForward, posEndForward-posForward, "localhost:8080");
-
 	if (header.find("From-SGX") == -1) {
 		posHost = header.find("Host: ") + 6;
 		posEnd = header.find("\r\n", posHost);
@@ -705,7 +674,6 @@ char* createNewHeader(char* msg, std::string address, int size) {
 		posEnd = header.find("\r\n", posHost);
 		header.replace(posHost, posEnd+2-posHost, "");
 	}
-
 	char *y = new char[header.length() + 1];
 	std::memcpy(y, header.c_str(), header.length());
 	y[header.length()] = '\0';
@@ -717,18 +685,14 @@ char * addContentToAnswer(std::string header, std::string content) {
 	int pos = header.find("Content-Length: ") + 16;
 	int posEnd = header.find("\r\n", pos);
 	int size = content.length();
-
 	char * chr = (char*) malloc(1024);
 	ocall_int_to_string(size, chr);
 	std::string s2(chr);
-
-
 	header.replace(pos, posEnd-pos, s2);
 	header += content;
 	char *y = new char[header.length()];
 	std::memcpy(y, header.c_str(), header.length());
 	y[header.length()] = '\0';
-
 	free(chr);
 	return y;
 }
@@ -743,7 +707,6 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	int firstSpace = 0;
 	int secondSpace = 0;
 	//std::map<std::string, std::string> headers;
-
 	endPos = allmsg.find("\r\n\r\n");
 	std::string sSize1("HeaderSize");
 	char chr[1024];
@@ -751,7 +714,6 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	std::string sSize2(chr);
 	//headers[copystring(sSize1)] = copystring(sSize2);
 	map_add(headers, sSize1, sSize2);
-
 	pos = allmsg.find("\r\n");
 	firstSpace = allmsg.find(" ");
 	std::string sMethod1("Method");
@@ -763,12 +725,10 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	std::string sPath2(msg2, firstSpace + 1, secondSpace - firstSpace - 1);
 	//headers[copystring(sPath1)] = copystring(sPath2);
 	map_add(headers, sPath1, sPath2);
-
 	std::string sProto1("Protocol");
 	std::string sProto2(msg2, secondSpace + 1, pos - secondSpace - 1);
 	//headers[copystring(sProto1)] = copystring(sProto2);
 	map_add(headers, sProto1, sProto2);
-
 	while (pos < endPos && pos > 0) {
 		oldPos = pos;
 		pos = allmsg.find("\r\n", pos + 1);
@@ -782,13 +742,9 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	return headers;
 }
 
-void send_by_socket(unsigned char* data, size_t size)
-{
-    // ...
-}
+void send_by_socket(unsigned char* data, size_t size) {}
 
-void test_encrypt()
-{
+void test_encrypt() {
     // simulate a large video segment
     int segment_size = 300;
     unsigned char segment[segment_size];
@@ -800,14 +756,12 @@ void test_encrypt()
     // split the segment in arbitrary size sub-packets
     int segment_offset = 0;
     int counter_16bytes = 0;
-    while(segment_offset < segment_size)
-    {
+    while(segment_offset < segment_size) {
         // --- simulate the recv of random size sub-packet
         unsigned char sub_packet_size;
         sgx_read_rand(&sub_packet_size, 1);
         // make sure we don't overflow the segment size
-        if (segment_offset + sub_packet_size > segment_size)
-        {
+        if (segment_offset + sub_packet_size > segment_size) {
             sub_packet_size = segment_size - segment_offset;
         }
         // see here that we allocate space for the subpacket and the tail of the previous sub-packet
@@ -849,8 +803,7 @@ void test_encrypt()
     }
 
     // if there is any tail leftover :
-    if (previous_subpacket_tail_size > 0)
-    {
+    if (previous_subpacket_tail_size > 0) {
         unsigned char out[previous_subpacket_tail_size];
         encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size,
             (char*) out, counter_16bytes);
@@ -899,7 +852,6 @@ void sendAddressesToPlayer(int * return_send, int csock) {
 }
 
 void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
-
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
 	if (payloadSize > 0) {
@@ -924,7 +876,6 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 		memset(finalBuff, 0, buffSize * sizeof(char));
 		memcpy(finalBuff, fullBuff, buffSize);
 	}
-
 }
 
 void handleProxy(int csock, char * msg, int msgsize) {
