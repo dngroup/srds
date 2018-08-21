@@ -894,7 +894,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	int data_sent = 0;
 	char clientip[30];
 	char answerFromClient[1028];
-	char * answer;
+	char * answer = (char *) malloc(1028 * sizeof(char));
 	char * finalanswer = (char *) malloc(1028 * sizeof(char));
 	struct map* headersAnswer = NULL;
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
