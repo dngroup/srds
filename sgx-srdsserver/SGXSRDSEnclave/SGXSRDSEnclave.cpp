@@ -882,19 +882,19 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 void handleProxy(int csock, char * msg, int msgsize) {
 
 	bool fromSGX = true;
-	int client_sock = -1;
-	int httpanswer = -1;
-	int return_send = 0;
-	int return_recv = 0;
-	int sizeAnswerFromClient = 0;
-	int totalSizeAnswer = 0;
-	int testEndTransfer = -1;
 	int out;
+	int httpanswer;
+	int client_sock;
+	int return_send;
+	int return_recv;
+	int sizeAnswerFromClient;
 	int loops = 0;
 	int data_sent = 0;
+	int totalSizeAnswer = 0;
+	int testEndTransfer = -1;
 	char clientip[30];
 	char answerFromClient[1028];
-	char * answer = (char *) malloc(1028 * sizeof(char));
+	char * answer;
 	char * finalanswer = (char *) malloc(1028 * sizeof(char));
 	struct map* headersAnswer = NULL;
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
