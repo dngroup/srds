@@ -858,9 +858,9 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	char fullBuff[buffSize];
 	memset(fullBuff, 0, buffSize * sizeof(char));
 	char payload[payloadSize];
-	memset(payload, 0, (payloadSize) * sizeof(char));
+	memset(payload, 0, payloadSize * sizeof(char));
 	char codedBuff[payloadSize];
-	memset(codedBuff, 0, (payloadSize) * sizeof(char));
+	memset(codedBuff, 0, payloadSize * sizeof(char));
 	memcpy(fullBuff, finalBuff, offset);
 	memcpy(payload, finalBuff + offset, payloadSize);
 	if (encrypt) {
@@ -1033,6 +1033,12 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	}
 	if (finalanswer != NULL) {
 		free(finalanswer);
+	}
+	if (answer != NULL) {
+		free(answer);
+	}
+	if (target2 != NULL) {
+		free(target2);
 	}
 }
 
