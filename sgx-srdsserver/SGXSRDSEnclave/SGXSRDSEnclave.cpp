@@ -844,21 +844,18 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
     previous_subpacket_tail = (char*) malloc(payloadSize);
     memcpy(previous_subpacket_tail, finalanswer+offset, payloadSize);
     
-    while (testEndTransfer != 0 && sub_packet_size > 0) {
+    while (testEndTransfer != 0 || sub_packet_size > 0) {
         memset(answerFromClient, 0, 1028);
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
 		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-        // see here that we allocate space for the subpacket and the tail of the previous sub-packet
         char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
         memcpy(sub_packet + previous_subpacket_tail_size, finalanswer, sub_packet_size);
         memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
         sub_packet_size += previous_subpacket_tail_size;
-        // trim the tail of sub-packet (e.g. tail = whatever overflows from the last multiple of 16)
         int valid_packet_size = 16 * (sub_packet_size / 16);
-        // encrypt and send data
         char out[valid_packet_size];
         if (encrypt) {
 			if (fromSGX) {
@@ -873,16 +870,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
 		}
         ocall_sendanswer(csock, out, valid_packet_size);
-        // increment counter
         counter_16bytes += valid_packet_size / 16;
-        // retain tail for the next iteration
         previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
         previous_subpacket_tail = (char*) malloc(previous_subpacket_tail_size);
         memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
         data_sent += sub_packet_size;
         loops++;
     }
-    // if there is any tail leftover :
     if (previous_subpacket_tail_size > 0) {
         char out[previous_subpacket_tail_size];
         if (encrypt) {
