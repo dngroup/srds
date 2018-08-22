@@ -917,6 +917,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		if (client_sock < 1) {
 			display_msg(csock,"Start client failed! Dropping packet.");
 		} else {
+			emit_debug("DBG1");
 			sizeAnswerFromClient = msgsize;
 			answer = createNewHeader(msg, target, sizeAnswerFromClient);
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
@@ -924,11 +925,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memcpy(finalanswer, msg, sizeAnswerFromClient);
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
+			emit_debug("DBG2");
 			sizeAnswerFromClient = extractSize(answerFromClient);
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // first (last?) subpacket
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+			emit_debug("DBG3");
 			/*
 			std::string str(finalanswer);
 			size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
@@ -942,11 +945,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			*/
 			// finalanswer -> if fromSGX: encrypt / else: decrypt
 			if (sizeAnswerFromClient > 0) {
+				emit_debug("DBG4");
 				httpanswer = isHttp(finalanswer);
 				if (httpanswer == 0) {
+					emit_debug("DBG5");
 					headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer) + 4);
 					std::string contentLength = map_find(headersAnswer, "Content-Length") > 0 ? "Content-Length" : "content-length";
 					if (map_find(headersAnswer, contentLength) > 0) {
+						emit_debug("DBG6");
 						ocall_string_to_int(map_get(headersAnswer, "HeaderSize"), (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
 						totalSizeAnswer += sizeAnswerFromClient - out;
 						ocall_string_to_int(map_get(headersAnswer, contentLength), (int) strlen(map_get(headersAnswer, contentLength)), &out);
@@ -961,10 +967,13 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 							totalSizeAnswer += sizeAnswerFromClient;
 						}
+						emit_debug("DBG7");
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+						emit_debug("DBG8");
 					} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
-						emit_debug("Transfer-Encoding");
+						emit_debug("DBG9");
 						while (testEndTransfer != 0) {
+							emit_debug("DBG10");
 							ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 							memset(answerFromClient, 0, 1028);
 							ocall_receiveFromClient(&return_recv, client_sock, answerFromClient);
@@ -978,8 +987,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 							loops++;
 							data_sent += sizeAnswerFromClient;
 						}
+						emit_debug("DBG11");
 						display_TE(csock,loops,data_sent/1000);
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+						emit_debug("DBG12");
 						// blockchain
 						/*
 						numberOfTokens = blockchain_values::getBalance();
@@ -994,13 +1005,16 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						*/
 					} else {
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+						emit_debug("DBG13");
 					}
 				} else {
 					ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
+					emit_debug("DBG14");
 				}
 			}
 		}
 	}
+	emit_debug("DBG15");
 	// cleaning up
 	if (client_sock > 0) {
 		ocall_closesocket(client_sock);
