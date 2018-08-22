@@ -853,26 +853,18 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	}
 	emit_debug("DBG3");
 	while (testEndTransfer != 0) {
-		emit_debug("DBG11");
 		memset(answerFromClient, 0, 1028 * sizeof(char));
-		emit_debug("DBG111");
 		ocall_receiveFromClient(client_sock, answerFromClient);
-		emit_debug("DBG112");
 		sub_packet_size = extractSize(answerFromClient);
-		emit_debug("DBG113");
 		char buff[sub_packet_size];
-		emit_debug("DBG114");
 		memset(buff, 0, sub_packet_size * sizeof(char));
-		emit_debug("DBG115");
 		extractBuffer(answerFromClient, sub_packet_size, buff);
-		emit_debug("DBG12");
 		char sub_packet[(previous_subpacket_tail_size + sub_packet_size)];
 		memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
 		memcpy(sub_packet + previous_subpacket_tail_size, buff, sub_packet_size);
 		sub_packet_size += previous_subpacket_tail_size;
 		int valid_packet_size = 16 * (sub_packet_size / 16);
 		char out[valid_packet_size];
-		emit_debug("DBG13");
 		if (encrypt) {
 			if (fromSGX) {
 				decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
@@ -885,7 +877,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memcpy(out, sub_packet, valid_packet_size);
 			testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
 		}
-		emit_debug("DBG14");
 		ocall_sendanswer(csock, out, valid_packet_size);
 		counter_16bytes += valid_packet_size / 16;
 		previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
@@ -893,7 +884,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
 		data_sent += sub_packet_size;
 		loops++;
-		emit_debug("DBG15");
 		if (previous_subpacket_tail_size > 0) {
 			char out[previous_subpacket_tail_size];
 			if (encrypt) {
