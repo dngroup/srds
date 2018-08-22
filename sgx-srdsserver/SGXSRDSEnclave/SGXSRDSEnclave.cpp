@@ -855,10 +855,15 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	while (testEndTransfer != 0) {
 		emit_debug("DBG11");
 		memset(answerFromClient, 0, 1028);
+		emit_debug("DBG111");
 		ocall_receiveFromClient(client_sock, answerFromClient);
+		emit_debug("DBG112");
 		sub_packet_size = extractSize(answerFromClient);
+		emit_debug("DBG113");
 		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+		emit_debug("DBG114");
 		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+		emit_debug("DBG115");
 		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 		emit_debug("DBG12");
 		char * sub_packet = (char *) malloc((previous_subpacket_tail_size + sub_packet_size) * sizeof(char));
