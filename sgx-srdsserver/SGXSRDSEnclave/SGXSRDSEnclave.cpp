@@ -827,78 +827,77 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 
 void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
-    char segment[1024];
-    
     char* previous_subpacket_tail;
     int previous_subpacket_tail_size = 0;
-
-    // split the segment in arbitrary size sub-packets
-    int segment_offset = 0;
+    int sub_packet_size = 0;
+    int data_sent = 0;
+    int loops = 0;
+    int testEndTransfer = -1;
     uint32_t counter_16bytes = 0;
     
-    while(1) {
-        // --- simulate the recv of random size sub-packet
-        char sub_packet_size;
+    int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
+	int payloadSize = sizeAnswerFromClient - offset;
+	char headers[offset];
+	memcpy(headers, finalanswer, offset);
+	ocall_sendanswer(csock, headers, offset);
+    previous_subpacket_tail_size = payloadSize;
+    previous_subpacket_tail = (char*) malloc(payloadSize);
+    memcpy(previous_subpacket_tail, finalanswer+offset, payloadSize);
+    
+    while (testEndTransfer != 0 && sub_packet_size > 0) {
+        memset(answerFromClient, 0, 1028);
+		ocall_receiveFromClient(client_sock, answerFromClient);
+		sub_packet_size = extractSize(answerFromClient);
+		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
         // see here that we allocate space for the subpacket and the tail of the previous sub-packet
         char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
-        memcpy(sub_packet + previous_subpacket_tail_size, segment + segment_offset, sub_packet_size);
-
-        // pre-pend to the sub-packet the tail of previous sub-packet
+        memcpy(sub_packet + previous_subpacket_tail_size, finalanswer, sub_packet_size);
         memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
         sub_packet_size += previous_subpacket_tail_size;
-
         // trim the tail of sub-packet (e.g. tail = whatever overflows from the last multiple of 16)
         int valid_packet_size = 16 * (sub_packet_size / 16);
-
         // encrypt and send data
         char out[valid_packet_size];
-        encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+        if (encrypt) {
+			if (fromSGX) {
+				decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+				testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+			} else {
+				testEndTransfer = testEndTransferEncoding(sub_packet, valid_packet_size);
+				encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+			}
+		} else {
+			memcpy(out, sub_packet, valid_packet_size);
+			testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+		}
         ocall_sendanswer(csock, out, valid_packet_size);
-
         // increment counter
         counter_16bytes += valid_packet_size / 16;
-
         // retain tail for the next iteration
         previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
         previous_subpacket_tail = (char*) malloc(previous_subpacket_tail_size);
         memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
-
-        // move the offset in the video segment
-        segment_offset += sub_packet_size;
+        data_sent += sub_packet_size;
+        loops++;
     }
-
     // if there is any tail leftover :
     if (previous_subpacket_tail_size > 0) {
         char out[previous_subpacket_tail_size];
-        encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+        if (encrypt) {
+			if (fromSGX) {
+				decryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+			} else {
+				encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+			}
+		} else {
+			memcpy(out, previous_subpacket_tail, previous_subpacket_tail_size);
+		}
         ocall_sendanswer(csock, out, previous_subpacket_tail_size);
     }
-    
-    
-
-	int loops = 0;
-	int data_sent = 0;
-	int testEndTransfer = -1;
-	uint32_t counter = 0;
-	
-	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
-	while (testEndTransfer != 0) {
-		ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-		memset(answerFromClient, 0, 1028);
-		ocall_receiveFromClient(client_sock, answerFromClient);
-		sizeAnswerFromClient = extractSize(answerFromClient);
-		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-		testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-		handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
-		testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-		loops++;
-		data_sent += sizeAnswerFromClient;
-	}
-	display_TE(csock,loops,data_sent/1000);
-	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-	//blockchain
+    display_TE(csock, loops, data_sent/1000);
+    //blockchain	
 }
 
 void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
