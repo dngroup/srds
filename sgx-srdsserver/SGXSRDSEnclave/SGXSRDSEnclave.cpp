@@ -855,6 +855,21 @@ void sendAddressesToPlayer(int * return_send, int csock) {
 	}
 }
 
+void cleanup_memory(int client_sock, struct map* headersRequest, struct map* headersAnswer, char * finalanswer) {
+	if (client_sock > 0) {
+		ocall_closesocket(client_sock);
+	}
+	if (headersRequest != NULL) {
+		map_destroy(headersRequest);
+	}
+	if (headersAnswer != NULL) {
+		map_destroy(headersAnswer);
+	}
+	if (finalanswer != NULL) {
+		free(finalanswer);
+	}
+}
+
 void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	uint32_t counter = 0;
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
@@ -902,9 +917,9 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);	
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
 	
-	if (target2 == NULL) { //Manage number of token request with unencrypted answer
+	if (target2 == NULL) {
 		sendTokensToPlayer(&return_send, csock);
-	} else if (strcmp(target2, "addr") == 0) { // get addresses
+	} else if (strcmp(target2, "addr") == 0) {
 		sendAddressesToPlayer(&return_send, csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
@@ -931,7 +946,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			sizeAnswerFromClient = extractSize(answerFromClient);
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer); // first (last?) subpacket
+			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
 			/*
 			std::string str(finalanswer);
@@ -1004,25 +1019,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			}
 		}
 	}
-	// cleaning up
-	if (client_sock > 0) {
-		ocall_closesocket(client_sock);
-	}
-	if (headersRequest != NULL) {
-		map_destroy(headersRequest);
-	}
-	if (headersAnswer != NULL) {
-		map_destroy(headersAnswer);
-	}
-	if (finalanswer != NULL) {
-		free(finalanswer);
-	}
-	if (answer != NULL) {
-		//free(answer);
-	}
-	if (target2 != NULL) {
-		//free(target2);
-	}
+	cleanup_memory(client_sock, headersRequest, headersAnswer, finalanswer);
 }
 
 /*
