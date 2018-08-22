@@ -798,59 +798,6 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 	}
 }
 
-void send_by_socket(char* data, size_t size) {}
-
-void test_encrypt() {
-
-    int segment_size = 300;
-    char segment[segment_size];
-    
-    char* previous_subpacket_tail;
-    int previous_subpacket_tail_size = 0;
-
-    // split the segment in arbitrary size sub-packets
-    int segment_offset = 0;
-    uint32_t counter_16bytes = 0;
-    
-    while(segment_offset < segment_size) {
-        // --- simulate the recv of random size sub-packet
-        char sub_packet_size;
-        // see here that we allocate space for the subpacket and the tail of the previous sub-packet
-        char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
-        memcpy(sub_packet + previous_subpacket_tail_size, segment + segment_offset, sub_packet_size);
-
-        // pre-pend to the sub-packet the tail of previous sub-packet
-        memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
-        sub_packet_size += previous_subpacket_tail_size;
-
-        // trim the tail of sub-packet (e.g. tail = whatever overflows from the last multiple of 16)
-        int valid_packet_size = 16 * (sub_packet_size / 16);
-
-        // encrypt and send data
-        char out[valid_packet_size];
-        encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
-        send_by_socket(out, valid_packet_size);
-
-        // increment counter
-        counter_16bytes += valid_packet_size / 16;
-
-        // retain tail for the next iteration
-        previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
-        previous_subpacket_tail = (char*) malloc(previous_subpacket_tail_size);
-        memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
-
-        // move the offset in the video segment
-        segment_offset += sub_packet_size;
-    }
-
-    // if there is any tail leftover :
-    if (previous_subpacket_tail_size > 0) {
-        char out[previous_subpacket_tail_size];
-        encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
-        send_by_socket(out, previous_subpacket_tail_size);
-    }
-}
-
 void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
@@ -879,6 +826,55 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 }
 
 void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
+
+    char segment[1024];
+    
+    char* previous_subpacket_tail;
+    int previous_subpacket_tail_size = 0;
+
+    // split the segment in arbitrary size sub-packets
+    int segment_offset = 0;
+    uint32_t counter_16bytes = 0;
+    
+    while(1) {
+        // --- simulate the recv of random size sub-packet
+        char sub_packet_size;
+        // see here that we allocate space for the subpacket and the tail of the previous sub-packet
+        char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
+        memcpy(sub_packet + previous_subpacket_tail_size, segment + segment_offset, sub_packet_size);
+
+        // pre-pend to the sub-packet the tail of previous sub-packet
+        memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
+        sub_packet_size += previous_subpacket_tail_size;
+
+        // trim the tail of sub-packet (e.g. tail = whatever overflows from the last multiple of 16)
+        int valid_packet_size = 16 * (sub_packet_size / 16);
+
+        // encrypt and send data
+        char out[valid_packet_size];
+        encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+        ocall_sendanswer(csock, out, valid_packet_size);
+
+        // increment counter
+        counter_16bytes += valid_packet_size / 16;
+
+        // retain tail for the next iteration
+        previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
+        previous_subpacket_tail = (char*) malloc(previous_subpacket_tail_size);
+        memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
+
+        // move the offset in the video segment
+        segment_offset += sub_packet_size;
+    }
+
+    // if there is any tail leftover :
+    if (previous_subpacket_tail_size > 0) {
+        char out[previous_subpacket_tail_size];
+        encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+        ocall_sendanswer(csock, out, previous_subpacket_tail_size);
+    }
+    
+    
 
 	int loops = 0;
 	int data_sent = 0;
