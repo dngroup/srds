@@ -854,15 +854,12 @@ void sendAddressesToPlayer(int csock) {
 	}
 }
 
-void cleanup_memory(int client_sock, struct map* headersRequest, struct map* headersAnswer, char * finalanswer) {
+void cleanup_memory(int client_sock, struct map* headersRequest, char * finalanswer) {
 	if (client_sock > 0) {
 		ocall_closesocket(client_sock);
 	}
 	if (headersRequest != NULL) {
 		map_destroy(headersRequest);
-	}
-	if (headersAnswer != NULL) {
-		map_destroy(headersAnswer);
 	}
 	if (finalanswer != NULL) {
 		free(finalanswer);
@@ -895,21 +892,73 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	memcpy(finalBuff, fullBuff, buffSize);
 }
 
-void handleProxy(int csock, char * msg, int msgsize) {
+void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
-	bool fromSGX = true;
 	int out;
-	int client_sock;
-	int sizeAnswerFromClient;
 	int loops = 0;
 	int data_sent = 0;
 	int totalSizeAnswer = 0;
 	int testEndTransfer = -1;
-	char clientip[30];
+	
+	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+	// finalanswer -> if fromSGX: encrypt / else: decrypt
+	if (sizeAnswerFromClient > 0) {
+		if (isHttp(finalanswer) == 0) {
+			struct map* headersAnswer = NULL;
+			headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer) + 4);
+			std::string contentLength = map_find(headersAnswer, "Content-Length") > 0 ? "Content-Length" : "content-length";
+			if (map_find(headersAnswer, contentLength) > 0) {
+				ocall_string_to_int(map_get(headersAnswer, "HeaderSize"), (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
+				totalSizeAnswer += sizeAnswerFromClient - out;
+				ocall_string_to_int(map_get(headersAnswer, contentLength), (int) strlen(map_get(headersAnswer, contentLength)), &out);
+				while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
+					ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+					memset(answerFromClient, 0, 1028);
+					ocall_receiveFromClient(client_sock, answerFromClient);
+					sizeAnswerFromClient = extractSize(answerFromClient);
+					finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+					memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+					extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+					totalSizeAnswer += sizeAnswerFromClient;
+				}
+				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+			} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
+				while (testEndTransfer != 0) {
+					ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+					memset(answerFromClient, 0, 1028);
+					ocall_receiveFromClient(client_sock, answerFromClient);
+					sizeAnswerFromClient = extractSize(answerFromClient);
+					finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+					memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+					extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+					testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
+					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+					testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
+					loops++;
+					data_sent += sizeAnswerFromClient;
+				}
+				display_TE(csock,loops,data_sent/1000);
+				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+				//blockchain
+			} else {
+				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+			}
+			map_destroy(headersAnswer);
+		} else {
+			ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+		}
+	}
+}
+
+void handleProxy(int csock, char * msg, int msgsize) {
+
+	bool fromSGX = true;
+	int client_sock;
+	int sizeAnswerFromClient;
 	char answerFromClient[1028];
 	char * answer;
 	char * finalanswer = (char *) malloc(1028 * sizeof(char));
-	struct map* headersAnswer = NULL;
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);	
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
 	
@@ -919,7 +968,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		sendAddressesToPlayer(csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
-		ocall_getSocketIP(csock, clientip);
 		if (strcmp(target2, serverAddr.c_str()) == 0) {
 			memcpy(target, target2, strlen(target2));
 			emit_debug(target);
@@ -943,60 +991,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-			
-			
-			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-			// finalanswer -> if fromSGX: encrypt / else: decrypt
-			if (sizeAnswerFromClient > 0) {
-				if (isHttp(finalanswer) == 0) {
-					headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer) + 4);
-					std::string contentLength = map_find(headersAnswer, "Content-Length") > 0 ? "Content-Length" : "content-length";
-					if (map_find(headersAnswer, contentLength) > 0) {
-						ocall_string_to_int(map_get(headersAnswer, "HeaderSize"), (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
-						totalSizeAnswer += sizeAnswerFromClient - out;
-						ocall_string_to_int(map_get(headersAnswer, contentLength), (int) strlen(map_get(headersAnswer, contentLength)), &out);
-						while (testContentLength(out, totalSizeAnswer) != 0 && sizeAnswerFromClient != 0) {
-							ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-							memset(answerFromClient, 0, 1028);
-							ocall_receiveFromClient(client_sock, answerFromClient);
-							sizeAnswerFromClient = extractSize(answerFromClient);
-							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-							handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-							totalSizeAnswer += sizeAnswerFromClient;
-						}
-						ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-					} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
-						while (testEndTransfer != 0) {
-							ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-							memset(answerFromClient, 0, 1028);
-							ocall_receiveFromClient(client_sock, answerFromClient);
-							sizeAnswerFromClient = extractSize(answerFromClient);
-							finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-							memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-							extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-							testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-							handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-							testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-							loops++;
-							data_sent += sizeAnswerFromClient;
-						}
-						display_TE(csock,loops,data_sent/1000);
-						ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-						//blockchain
-					} else {
-						ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-					}
-				} else {
-					ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-				}
-			}
-			
-			
+			proxy_loop(csock, client_sock, fromSGX, finalanswer, sizeAnswerFromClient, answerFromClient);
 		}
 	}
-	cleanup_memory(client_sock, headersRequest, headersAnswer, finalanswer);
+	cleanup_memory(client_sock, headersRequest, finalanswer);
 }
 
 /*
