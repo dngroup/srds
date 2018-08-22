@@ -1035,10 +1035,10 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		free(finalanswer);
 	}
 	if (answer != NULL) {
-		free(answer);
+		//free(answer);
 	}
 	if (target2 != NULL) {
-		free(target2);
+		//free(target2);
 	}
 }
 
