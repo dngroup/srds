@@ -742,6 +742,62 @@ struct map* parse_headers(char * msg2, int headersSize) {
 	return headers;
 }
 
+int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
+	int remainingSize;
+	if (totalSize % 16 == 0) {
+		remainingSize = 0;
+	} else {
+		remainingSize = (totalSize % 16);
+		memcpy(bufferOut, bufferIn + (16 * (totalSize/16)), remainingSize);
+	}
+	return remainingSize;
+}
+
+void sendTokensToPlayer(int csock) {
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+	char chr[1024];
+	ocall_int_to_string(numberOfTokens, chr);
+	std::string content(chr);
+	char * finalAnswer = addContentToAnswer(answer, content);
+	ocall_sendanswer(csock, finalAnswer, strlen(finalAnswer));
+	if (finalAnswer != NULL) {
+		free(finalAnswer);
+	}
+}
+
+void sendAddressesToPlayer(int csock) {
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+	std::string content;
+	char address[500];
+	memset(address, 0, 500);
+	T2B32(trackerAddr, address);
+	content += std::string(address) + ",";
+	memset(address, 0, 500);
+	T2B32(serverAddr, address);
+	content += std::string(address) + ",";
+	memset(address, 0, 500);
+	T2B32(mpdAddr, address);
+	content += std::string(address) + ",";
+	content += std::string("http://") + std::string(address) + mpdRes;
+	char * finalAnswer = addContentToAnswer(answer, content);
+	ocall_sendanswer(csock, finalAnswer, strlen(finalAnswer));
+	if (finalAnswer != NULL) {
+		free(finalAnswer);
+	}
+}
+
+void cleanup_memory(int client_sock, struct map* headersRequest, char * finalanswer) {
+	if (client_sock > 0) {
+		ocall_closesocket(client_sock);
+	}
+	if (headersRequest != NULL) {
+		map_destroy(headersRequest);
+	}
+	if (finalanswer != NULL) {
+		free(finalanswer);
+	}
+}
+
 void send_by_socket(unsigned char* data, size_t size) {}
 
 void test_encrypt() {
@@ -810,63 +866,7 @@ void test_encrypt() {
     }
 }
 
-int cutInto16BytesMultiple(char * bufferIn, char * bufferOut, int totalSize) {
-	int remainingSize;
-	if (totalSize % 16 == 0) {
-		remainingSize = 0;
-	} else {
-		remainingSize = (totalSize % 16);
-		memcpy(bufferOut, bufferIn + (16 * (totalSize/16)), remainingSize);
-	}
-	return remainingSize;
-}
-
-void sendTokensToPlayer(int csock) {
-	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
-	char chr[1024];
-	ocall_int_to_string(numberOfTokens, chr);
-	std::string content(chr);
-	char * finalAnswer = addContentToAnswer(answer, content);
-	ocall_sendanswer(csock, finalAnswer, strlen(finalAnswer));
-	if (finalAnswer != NULL) {
-		free(finalAnswer);
-	}
-}
-
-void sendAddressesToPlayer(int csock) {
-	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
-	std::string content;
-	char address[500];
-	memset(address, 0, 500);
-	T2B32(trackerAddr, address);
-	content += std::string(address) + ",";
-	memset(address, 0, 500);
-	T2B32(serverAddr, address);
-	content += std::string(address) + ",";
-	memset(address, 0, 500);
-	T2B32(mpdAddr, address);
-	content += std::string(address) + ",";
-	content += std::string("http://") + std::string(address) + mpdRes;
-	char * finalAnswer = addContentToAnswer(answer, content);
-	ocall_sendanswer(csock, finalAnswer, strlen(finalAnswer));
-	if (finalAnswer != NULL) {
-		free(finalAnswer);
-	}
-}
-
-void cleanup_memory(int client_sock, struct map* headersRequest, char * finalanswer) {
-	if (client_sock > 0) {
-		ocall_closesocket(client_sock);
-	}
-	if (headersRequest != NULL) {
-		map_destroy(headersRequest);
-	}
-	if (finalanswer != NULL) {
-		free(finalanswer);
-	}
-}
-
-void handle_encryption (bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
+void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
 	if (payloadSize > 0) {
@@ -893,15 +893,41 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize, uint32_t c
 	}
 }
 
+void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
+
+	int loops = 0;
+	int data_sent = 0;
+	int testEndTransfer = -1;
+	uint32_t counter = 0;
+
+	while (testEndTransfer != 0) {
+		ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+		memset(answerFromClient, 0, 1028);
+		ocall_receiveFromClient(client_sock, answerFromClient);
+		sizeAnswerFromClient = extractSize(answerFromClient);
+		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
+		testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
+		handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
+		testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
+		loops++;
+		data_sent += sizeAnswerFromClient;
+	}
+	display_TE(csock,loops,data_sent/1000);
+	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+	//blockchain
+}
+
 void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
 	int out;
-	int loops = 0;
-	int data_sent = 0;
 	int totalSizeAnswer = 0;
-	int testEndTransfer = -1;
 	uint32_t counter = 0;
 	
+	char finalanswer_backup[sizeAnswerFromClient];
+	memset(finalanswer_backup, 0, sizeAnswerFromClient * sizeof(char));
+	memcpy(finalanswer_backup, finalanswer, sizeAnswerFromClient);
 	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
 	// finalanswer -> if fromSGX: encrypt / else: decrypt
 	if (sizeAnswerFromClient > 0) {
@@ -927,23 +953,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 				}
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 			} else if (map_find(headersAnswer, transferEncoding) > 0) {
-				while (testEndTransfer != 0) {
-					ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-					memset(answerFromClient, 0, 1028);
-					ocall_receiveFromClient(client_sock, answerFromClient);
-					sizeAnswerFromClient = extractSize(answerFromClient);
-					finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
-					memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
-					extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-					testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
-					testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-					loops++;
-					data_sent += sizeAnswerFromClient;
-				}
-				display_TE(csock,loops,data_sent/1000);
-				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-				//blockchain
+				content_encoding_loop(csock, client_sock, fromSGX, finalanswer, sizeAnswerFromClient, answerFromClient);
 			} else {
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 			}
