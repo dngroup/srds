@@ -827,13 +827,17 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 
 void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
-	char * previous_subpacket_tail;
+	emit_debug("DBG1");
+
+	char * previous_subpacket_tail = (char *) malloc(1024 * sizeof(char));
 	int previous_subpacket_tail_size = 0;
 	int sub_packet_size = 0;
 	int data_sent = 0;
 	int loops = 0;
 	int testEndTransfer = -1;
 	uint32_t counter_16bytes = 0;
+	
+	emit_debug("DBG2");
 	
 	int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
 	int payloadSize = sizeAnswerFromClient - offset;
@@ -844,9 +848,10 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	}
 	if (payloadSize > 0) {
 		previous_subpacket_tail_size = payloadSize;
-		previous_subpacket_tail = (char *) malloc(payloadSize * sizeof(char));
+		previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, payloadSize * sizeof(char));
 		memcpy(previous_subpacket_tail, finalanswer + offset, payloadSize);
 	}
+	emit_debug("DBG3");
 	while (testEndTransfer != 0) {
 		memset(answerFromClient, 0, 1028);
 		ocall_receiveFromClient(client_sock, answerFromClient);
@@ -854,7 +859,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-		char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
+		char * sub_packet = (char *) malloc((previous_subpacket_tail_size + sub_packet_size) * sizeof(char));
 		memcpy(sub_packet + previous_subpacket_tail_size, finalanswer, sub_packet_size);
 		memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
 		sub_packet_size += previous_subpacket_tail_size;
@@ -875,7 +880,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		ocall_sendanswer(csock, out, valid_packet_size);
 		counter_16bytes += valid_packet_size / 16;
 		previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
-		previous_subpacket_tail = (char *) malloc(previous_subpacket_tail_size);
+		previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
 		memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
 		data_sent += sub_packet_size;
 		loops++;
@@ -894,12 +899,14 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
 			}
 			if (testEndTransfer == 0) {
+				emit_debug("DBG4");
 				data_sent += previous_subpacket_tail_size;
 				loops++;
 				ocall_sendanswer(csock, out, previous_subpacket_tail_size);
 			}
 		}
 	}
+	emit_debug("DBG5");
 	display_TE(csock, loops, data_sent/1000);
 	//blockchain	
 }
