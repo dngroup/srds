@@ -866,8 +866,7 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 	}
 }
 
-void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
-	uint32_t counter = 0;
+void handle_encryption (bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
 	if (payloadSize > 0) {
@@ -901,8 +900,9 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 	int data_sent = 0;
 	int totalSizeAnswer = 0;
 	int testEndTransfer = -1;
+	uint32_t counter = 0;
 	
-	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
 	// finalanswer -> if fromSGX: encrypt / else: decrypt
 	if (sizeAnswerFromClient > 0) {
 		if (isHttp(finalanswer) == 0) {
@@ -922,7 +922,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 					finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 					memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 					extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
 					totalSizeAnswer += sizeAnswerFromClient;
 				}
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
@@ -936,7 +936,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 					memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 					extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 					testEndTransfer = fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
-					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+					handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
 					testEndTransfer = !fromSGX ? testEndTransferEncoding(finalanswer, sizeAnswerFromClient) : testEndTransfer;
 					loops++;
 					data_sent += sizeAnswerFromClient;
@@ -988,7 +988,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 			memcpy(finalanswer, msg, sizeAnswerFromClient);
-			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, 0);
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			sizeAnswerFromClient = extractSize(answerFromClient);
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
