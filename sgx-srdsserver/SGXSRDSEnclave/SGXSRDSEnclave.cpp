@@ -919,11 +919,17 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		} else {
 			emit_debug("DBG1");
 			sizeAnswerFromClient = msgsize;
+			emit_debug("DBG1.1");
 			answer = createNewHeader(msg, target, sizeAnswerFromClient);
+			emit_debug("DBG1.2");
 			finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
+			emit_debug("DBG1.3");
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
+			emit_debug("DBG1.4");
 			memcpy(finalanswer, msg, sizeAnswerFromClient);
+			emit_debug("DBG1.5");
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
+			emit_debug("DBG1.6");
 			ocall_sendToClient(client_sock, answer, (int) strlen(answer), answerFromClient);
 			emit_debug("DBG2");
 			sizeAnswerFromClient = extractSize(answerFromClient);
