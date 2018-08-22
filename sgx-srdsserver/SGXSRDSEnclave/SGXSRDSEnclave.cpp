@@ -844,7 +844,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
     previous_subpacket_tail = (char*) malloc(payloadSize);
     memcpy(previous_subpacket_tail, finalanswer+offset, payloadSize);
     
-    while (testEndTransfer != 0 || sub_packet_size > 0) {
+    while (testEndTransfer != 0) {
         memset(answerFromClient, 0, 1028);
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
@@ -876,19 +876,26 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
         memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
         data_sent += sub_packet_size;
         loops++;
-    }
-    if (previous_subpacket_tail_size > 0) {
-        char out[previous_subpacket_tail_size];
-        if (encrypt) {
-			if (fromSGX) {
-				decryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+        if (previous_subpacket_tail_size > 0) {
+		    char out[previous_subpacket_tail_size];
+		    if (encrypt) {
+				if (fromSGX) {
+					decryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+					testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
+				} else {
+					testEndTransfer = testEndTransferEncoding(previous_subpacket_tail, previous_subpacket_tail_size);
+					encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+				}
 			} else {
-				encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+				memcpy(out, previous_subpacket_tail, previous_subpacket_tail_size);
+				testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
 			}
-		} else {
-			memcpy(out, previous_subpacket_tail, previous_subpacket_tail_size);
+			if (testEndTransfer == 0) {
+				data_sent += previous_subpacket_tail_size;
+        		loops++;
+		    	ocall_sendanswer(csock, out, previous_subpacket_tail_size);
+		    }
 		}
-        ocall_sendanswer(csock, out, previous_subpacket_tail_size);
     }
     display_TE(csock, loops, data_sent/1000);
     //blockchain	
