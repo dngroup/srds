@@ -105,6 +105,6 @@ void * connection_handler(int csock)
     return 0;
 }
 
-int ocall_sendanswer(int csock, char * msg, int size) {
-    return do_send(csock , msg, size);
+void ocall_sendanswer(int csock, char * msg, int size) {
+    do_send(csock , msg, size);
 }
