@@ -53,8 +53,6 @@ void startServer(int port, int inputtype){
 
     do_listen(sock);
 
-    pthread_t thread_id;
-
     ecall_init(global_eid, type);
 
     while( true )

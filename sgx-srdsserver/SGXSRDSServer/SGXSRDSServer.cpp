@@ -55,14 +55,11 @@ void display_TE(int socket, int l, int k) {
 }
 
 int main(int argc, char ** argv) {
-
 	printf("Starting app...\n");
-
 	/* Setup enclave */
 	sgx_status_t ret;
 	sgx_launch_token_t token = { 0 };
 	int token_updated = 0;
-
 	ret = sgx_create_enclave(ENCLAVE_FILE, SGX_DEBUG_FLAG, &token, &token_updated, &global_eid, NULL);
 	if (ret != SGX_SUCCESS) {
 		printf("sgx_create_enclave failed: %#x\n", ret);
@@ -70,8 +67,6 @@ int main(int argc, char ** argv) {
 		getchar();
 		return 1;
 	}
-
-	char * arg;
 	int port;
 	int type;
 	if (argc != 3) {
@@ -82,12 +77,10 @@ int main(int argc, char ** argv) {
 		port = atoi(argv[1]);
 		type = atoi(argv[2]);
 	}
-
 	/*for (int i = 1; i <= argc; i++) {
 		arg = argv[i];
 		std::cout << arg << std::endl;
 	}*/
-
 	if (type == 0) {
 		printf("Proxy mode\n");
 		fflush(stdout);
@@ -95,9 +88,7 @@ int main(int argc, char ** argv) {
 		printf("Tracker mode\n");
 		fflush(stdout);
 	}
-
 	startServer(port, type);
-
 	return 0;
 }
 

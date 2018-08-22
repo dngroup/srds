@@ -29,9 +29,9 @@ endif
 endif
 
 ifeq ($(SGX_DEBUG), 1)
-        SGX_COMMON_CFLAGS += -O0 -g
+        SGX_COMMON_CFLAGS += -O0 -Wall -g
 else
-        SGX_COMMON_CFLAGS += -O2
+        SGX_COMMON_CFLAGS += -O2 -Wall
 endif
 
 ######## SGXSRDSServer Settings ########

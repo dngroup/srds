@@ -665,7 +665,7 @@ char* createNewHeader(char* msg, std::string address, int size) {
 	posForward = header.find("X-Forwarded-Host: ") + 18;
 	posEndForward = header.find("\r\n", posForward);
 	header.replace(posForward, posEndForward-posForward, "localhost:8080");
-	if (header.find("From-SGX") == -1) {
+	if (header.find("From-SGX") == std::string::npos) {
 		posHost = header.find("Host: ") + 6;
 		posEnd = header.find("\r\n", posHost);
 		header.insert(posEnd + 2, "From-SGX: fromsgx\r\n");
@@ -1158,7 +1158,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	char fullEncryptedMessage[answer.length()+msgSize];
 	memset(fullEncryptedMessage, 0, (answer.length()+msgSize)*sizeof(char));
 	memcpy(fullEncryptedMessage, finalanswer, endPos);
-	if (endPos < strlen(finalanswer)) {
+	if (endPos < (int) strlen(finalanswer)) {
 		char messageToEncrypt[msgSize];
 		memset(messageToEncrypt, 0, (msgSize)*sizeof(char));
 		char encryptedMessage[msgSize];

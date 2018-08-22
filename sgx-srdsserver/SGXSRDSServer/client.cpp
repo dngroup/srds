@@ -102,9 +102,7 @@ void ocall_receiveFromClient(int sock, char * finalbuffer2) {
 void ocall_getSocketIP(int sock, char * clientip) {
 	struct sockaddr_in addr;
 	socklen_t addr_size = sizeof(struct sockaddr_in);
-	int res = getpeername(sock, (struct sockaddr *)&addr, &addr_size);
-	int port = ntohs(addr.sin_port);
-	char portc[6];
+	getpeername(sock, (struct sockaddr *)&addr, &addr_size);
 	strcpy(clientip, inet_ntoa(addr.sin_addr));
 	/*
 	strcat(clientip, ":");
