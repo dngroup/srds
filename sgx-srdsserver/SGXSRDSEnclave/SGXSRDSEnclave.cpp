@@ -829,7 +829,9 @@ void sendTokensToPlayer(int * return_send, int csock) {
 	std::string content(chr);
 	char * finalAnswer = addContentToAnswer(answer, content);
 	ocall_sendanswer(return_send, csock, finalAnswer, strlen(finalAnswer));
-	free(finalAnswer);
+	if (finalAnswer != NULL) {
+		free(finalAnswer);
+	}
 }
 
 void sendAddressesToPlayer(int * return_send, int csock) {
@@ -848,7 +850,9 @@ void sendAddressesToPlayer(int * return_send, int csock) {
 	content += std::string("http://") + std::string(address) + mpdRes;
 	char * finalAnswer = addContentToAnswer(answer, content);
 	ocall_sendanswer(return_send, csock, finalAnswer, strlen(finalAnswer));
-	free(finalAnswer);
+	if (finalAnswer != NULL) {
+		free(finalAnswer);
+	}
 }
 
 void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
@@ -879,6 +883,8 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 
 void handleProxy(int csock, char * msg, int msgsize) {
 
+	emit_debug("DBG0");
+
 	bool fromSGX = true;
 	int out;
 	int httpanswer;
@@ -894,14 +900,27 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	char answerFromClient[1028];
 	char * answer;
 	char * finalanswer = (char *) malloc(1028 * sizeof(char));
+	
+	emit_debug("DBG0.1");
+	
 	struct map* headersAnswer = NULL;
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);
+	
+	emit_debug("DBG0.2");
+	
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
+	
+	emit_debug("DBG0.3");
+	
 	char target[strlen(target2)];
 	ocall_getSocketIP(csock, clientip);
 	
+	emit_debug("DBG0.4");
+	
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
+		emit_debug("DBG0.5");
 		sendTokensToPlayer(&return_send, csock);
+		emit_debug("DBG0.6");
 	} else if (strcmp(target2, "addr") == 0) { // get addresses
 		sendAddressesToPlayer(&return_send, csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
