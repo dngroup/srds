@@ -878,14 +878,16 @@ void handle_encryption (bool fromSGX, char * finalBuff, int buffSize) {
 	memset(codedBuff, 0, payloadSize * sizeof(char));
 	memcpy(fullBuff, finalBuff, offset);
 	memcpy(payload, finalBuff + offset, payloadSize);
-	if (encrypt) {
-		if (fromSGX) {
-			decryptMessage(payload, payloadSize, codedBuff, counter);
+	if (payloadSize > 0) {
+		if (encrypt) {
+			if (fromSGX) {
+				decryptMessage(payload, payloadSize, codedBuff, counter);
+			} else {
+				encryptMessage(payload, payloadSize, codedBuff, counter);
+			}
 		} else {
-			encryptMessage(payload, payloadSize, codedBuff, counter);
+			memcpy(codedBuff, payload, payloadSize);
 		}
-	} else {
-		memcpy(codedBuff, payload, payloadSize);
 	}
 	memcpy(fullBuff + offset, codedBuff, payloadSize);
 	memset(finalBuff, 0, buffSize * sizeof(char));
