@@ -948,17 +948,6 @@ void handleProxy(int csock, char * msg, int msgsize) {
 			memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 			extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
 			handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient);
-			/*
-			std::string str(finalanswer);
-			size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-			if (pos > 0) {
-				char baseURLEnc[32];
-				memset(baseURLEnc, 0, 32);
-				T2B32(mpdAddr, baseURLEnc);
-				str.replace(pos, 32, std::string(baseURLEnc));
-				memcpy(finalanswer, str.c_str(), str.size());
-			}
-			*/
 			// finalanswer -> if fromSGX: encrypt / else: decrypt
 			if (sizeAnswerFromClient > 0) {
 				httpanswer = isHttp(finalanswer);
@@ -998,8 +987,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						}
 						display_TE(csock,loops,data_sent/1000);
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-						// blockchain
 						/*
+						// blockchain
 						numberOfTokens = blockchain_values::getBalance();
 						if (fromSGX) {
 							blockchain_values::assignCoin(+1);
@@ -1021,6 +1010,18 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	}
 	cleanup_memory(client_sock, headersRequest, headersAnswer, finalanswer);
 }
+
+/*
+std::string str(finalanswer);
+size_t pos = str.find("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+if (pos > 0) {
+	char baseURLEnc[32];
+	memset(baseURLEnc, 0, 32);
+	T2B32(mpdAddr, baseURLEnc);
+	str.replace(pos, 32, std::string(baseURLEnc));
+	memcpy(finalanswer, str.c_str(), str.size());
+}
+*/
 
 /*
 char * returnMPD(void) {
