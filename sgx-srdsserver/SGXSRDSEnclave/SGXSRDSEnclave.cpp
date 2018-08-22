@@ -123,7 +123,7 @@ namespace blockchain_values {
 }
 
 // assume that there exist a 128 bits symmetric key priorly provisioned to the enclaves
-char* sgx_provisioned_key = (char*)"1234567890123456";
+char * sgx_provisioned_key = (char *)"1234567890123456";
 
 void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
 {
@@ -135,7 +135,7 @@ void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
 	ctr[ctr_size - 1] = (val & 0x000000ff);
 }
 
-sgx_status_t decryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
+sgx_status_t decryptMessage(char * in, size_t in_size, char * out, uint32_t counter)
 {
 	uint8_t ctr_bytes[16] = {0};
 	set_ctr_bytes(counter, ctr_bytes, 16);
@@ -144,7 +144,7 @@ sgx_status_t decryptMessage(char* in, size_t in_size, char* out, uint32_t counte
 		(uint8_t*) out);
 }
 
-sgx_status_t encryptMessage(char* in, size_t in_size, char* out, uint32_t counter)
+sgx_status_t encryptMessage(char * in, size_t in_size, char * out, uint32_t counter)
 {
 	uint8_t ctr_bytes[16] = {0};
 	set_ctr_bytes(counter, ctr_bytes, 16);
@@ -162,7 +162,7 @@ int GetEncode32Length(int bytes)
    int length = bits / 5;
    if((bits % 5) > 0)
    {
-      length++;
+	  length++;
    }
    return length;
 }
@@ -174,32 +174,32 @@ int GetDecode32Length(int bytes)
    return length;
 }
 
-static bool Encode32Block(unsigned char* in5, unsigned char* out8)
+static bool Encode32Block(unsigned char * in5, unsigned char * out8)
 {
-      // pack 5 bytes
-      uint64_t buffer = 0;
-      for(int i = 0; i < 5; i++)
-      {
+	  // pack 5 bytes
+	  uint64_t buffer = 0;
+	  for(int i = 0; i < 5; i++)
+	  {
 		  if(i != 0)
 		  {
 			  buffer = (buffer << 8);
 		  }
 		  buffer = buffer | in5[i];
-      }
-      // output 8 bytes
-      for(int j = 7; j >= 0; j--)
-      {
+	  }
+	  // output 8 bytes
+	  for(int j = 7; j >= 0; j--)
+	  {
 		  buffer = buffer << (24 + (7 - j) * 5);
 		  buffer = buffer >> (24 + (7 - j) * 5);
 		  unsigned char c = (unsigned char)(buffer >> (j * 5));
 		  // self check
 		  if(c >= 32) return false;
 		  out8[7 - j] = c;
-      }
+	  }
 	  return true;
 }
 
-bool Encode32(unsigned char* in, int inLen, unsigned char* out)
+bool Encode32(unsigned char * in, int inLen, unsigned char * out)
 {
    if((in == 0) || (inLen <= 0) || (out == 0)) return false;
 
@@ -210,15 +210,15 @@ bool Encode32(unsigned char* in, int inLen, unsigned char* out)
 
    for(int j = 0; j < d; j++)
    {
-      if(!Encode32Block(&in[j * 5], &outBuff[0])) return false;
-      memmove(&out[j * 8], &outBuff[0], sizeof(unsigned char) * 8);
+	  if(!Encode32Block(&in[j * 5], &outBuff[0])) return false;
+	  memmove(&out[j * 8], &outBuff[0], sizeof(unsigned char) * 8);
    }
 
    unsigned char padd[5];
    memset(padd, 0, sizeof(unsigned char) * 5);
    for(int i = 0; i < r; i++)
    {
-      padd[i] = in[inLen - r + i];
+	  padd[i] = in[inLen - r + i];
    }
    if(!Encode32Block(&padd[0], &outBuff[0])) return false;
    memmove(&out[d * 8], &outBuff[0], sizeof(unsigned char) * GetEncode32Length(r));
@@ -226,12 +226,12 @@ bool Encode32(unsigned char* in, int inLen, unsigned char* out)
    return true;
 }
 
-static bool Decode32Block(unsigned char* in8, unsigned char* out5)
+static bool Decode32Block(unsigned char * in8, unsigned char * out5)
 {
-      // pack 8 bytes
-      uint64_t buffer = 0;
-      for(int i = 0; i < 8; i++)
-      {
+	  // pack 8 bytes
+	  uint64_t buffer = 0;
+	  for(int i = 0; i < 8; i++)
+	  {
 		  // input check
 		  if(in8[i] >= 32) return false;
 		  if(i != 0)
@@ -239,16 +239,16 @@ static bool Decode32Block(unsigned char* in8, unsigned char* out5)
 			  buffer = (buffer << 5);
 		  }
 		  buffer = buffer | in8[i];
-      }
-      // output 5 bytes
-      for(int j = 4; j >= 0; j--)
-      {
+	  }
+	  // output 5 bytes
+	  for(int j = 4; j >= 0; j--)
+	  {
 		  out5[4 - j] = (unsigned char)(buffer >> (j * 8));
-      }
+	  }
 	  return true;
 }
 
-bool Decode32(unsigned char* in, int inLen, unsigned char* out)
+bool Decode32(unsigned char * in, int inLen, unsigned char * out)
 {
    if((in == 0) || (inLen <= 0) || (out == 0)) return false;
 
@@ -259,15 +259,15 @@ bool Decode32(unsigned char* in, int inLen, unsigned char* out)
 
    for(int j = 0; j < d; j++)
    {
-      if(!Decode32Block(&in[j * 8], &outBuff[0])) return false;
-      memmove(&out[j * 5], &outBuff[0], sizeof(unsigned char) * 5);
+	  if(!Decode32Block(&in[j * 8], &outBuff[0])) return false;
+	  memmove(&out[j * 5], &outBuff[0], sizeof(unsigned char) * 5);
    }
 
    unsigned char padd[8];
    memset(padd, 0, sizeof(unsigned char) * 8);
    for(int i = 0; i < r; i++)
    {
-      padd[i] = in[inLen - r + i];
+	  padd[i] = in[inLen - r + i];
    }
    if(!Decode32Block(&padd[0], &outBuff[0])) return false;
    memmove(&out[d * 5], &outBuff[0], sizeof(unsigned char) * GetDecode32Length(r));
@@ -275,7 +275,7 @@ bool Decode32(unsigned char* in, int inLen, unsigned char* out)
    return true;
 }
 
-bool Map32(unsigned char* inout32, int inout32Len, unsigned char* alpha32)
+bool Map32(unsigned char * inout32, int inout32Len, unsigned char * alpha32)
 {
 	if((inout32 == 0) || (inout32Len <= 0) || (alpha32 == 0)) return false;
 	for(int i = 0; i < inout32Len; i++)
@@ -286,7 +286,7 @@ bool Map32(unsigned char* inout32, int inout32Len, unsigned char* alpha32)
 	return true;
 }
 
-static void ReverseMap(unsigned char* inAlpha32, unsigned char* outMap)
+static void ReverseMap(unsigned char * inAlpha32, unsigned char * outMap)
 {
 	memset(outMap, 0, sizeof(unsigned char) * 256);
 	for(int i = 0; i < 32; i++)
@@ -295,7 +295,7 @@ static void ReverseMap(unsigned char* inAlpha32, unsigned char* outMap)
 	}
 }
 
-bool Unmap32(unsigned char* inout32, int inout32Len, unsigned char* alpha32)
+bool Unmap32(unsigned char * inout32, int inout32Len, unsigned char * alpha32)
 {
 	if((inout32 == 0) || (inout32Len <= 0) || (alpha32 == 0)) return false;
 	unsigned char rmap[256];
@@ -363,8 +363,8 @@ void printT2B32(char * str2) {
 }
 
 struct map_element {
-	char* key;
-	char* value;
+	char * key;
+	char * value;
 	struct map* inmap;
 	struct map_element* next;
 };
@@ -556,8 +556,8 @@ struct map_element * map_get_elem(struct map* map, std::string key) {
 	return NULL;
 }
 
-int isBiggerThan(std::string value, char* valueInMem) {
-	char * value2 = (char*)value.c_str();
+int isBiggerThan(std::string value, char * valueInMem) {
+	char * value2 = (char *)value.c_str();
 	int sizeValue = strlen(value2);
 	int sizeValueInMem = strlen(valueInMem);
 	int returnvalue = 1;
@@ -593,7 +593,7 @@ std::string map_findKeysByValueBiggerThan(struct map* map, std::string value) {
 	return output;
 }
 
-int isHttp(char* msg) {
+int isHttp(char * msg) {
 	std::string beginning(msg, 0, 4);
 	if (beginning == "GET " || beginning == "POST" || beginning == "PUT " || beginning == "DELE" || beginning == "HTTP") {
 		return 0;
@@ -601,7 +601,7 @@ int isHttp(char* msg) {
 		return 1;
 	}
 }
-int isOption(char* msg) {
+int isOption(char * msg) {
 	std::string beginning(msg, 0, 4);
 	if (beginning == "OPTI") {
 		return 0;
@@ -610,21 +610,21 @@ int isOption(char* msg) {
 	}
 }
 
-char* substr(char* arr, int begin, int len) {
-	char* res = new char[len];
+char * substr(char * arr, int begin, int len) {
+	char * res = new char[len];
 	for (int i = 0; i < len; i++)
 		res[i] = *(arr + begin + i);
 	res[len] = 0;
 	return res;
 }
 
-int testEndTransferEncoding(char* msg, int size) {
+int testEndTransferEncoding(char * msg, int size) {
 	int result = 1;
 	int sizeOfEndBufferMarker = 5;
 	if (size < sizeOfEndBufferMarker) {
 		return 1;
 	}
-	char* test = substr(msg,size-sizeOfEndBufferMarker, sizeOfEndBufferMarker);
+	char * test = substr(msg,size-sizeOfEndBufferMarker, sizeOfEndBufferMarker);
 	if (strcmp(test, "0\r\n\r\n")==0) {
 		result = 0;
 	} else {
@@ -647,7 +647,7 @@ int getPosEndOfHeader(char * msg) {
 	return allmsg.find("\r\n\r\n");
 }
 
-char* createNewHeader(char* msg, std::string address, int size) {
+char * createNewHeader(char * msg, std::string address, int size) {
 	std::string header(msg, 0, size);
 	int posHost = header.find("Host: ") + 6;
 	int posEnd = header.find("\r\n", posHost);
@@ -685,7 +685,7 @@ char * addContentToAnswer(std::string header, std::string content) {
 	int pos = header.find("Content-Length: ") + 16;
 	int posEnd = header.find("\r\n", pos);
 	int size = content.length();
-	char * chr = (char*) malloc(1024);
+	char * chr = (char *) malloc(1024);
 	ocall_int_to_string(size, chr);
 	std::string s2(chr);
 	header.replace(pos, posEnd-pos, s2);
@@ -827,37 +827,40 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 
 void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
-    char* previous_subpacket_tail;
-    int previous_subpacket_tail_size = 0;
-    int sub_packet_size = 0;
-    int data_sent = 0;
-    int loops = 0;
-    int testEndTransfer = -1;
-    uint32_t counter_16bytes = 0;
-    
-    int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
+	char * previous_subpacket_tail;
+	int previous_subpacket_tail_size = 0;
+	int sub_packet_size = 0;
+	int data_sent = 0;
+	int loops = 0;
+	int testEndTransfer = -1;
+	uint32_t counter_16bytes = 0;
+	
+	int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
 	int payloadSize = sizeAnswerFromClient - offset;
-	char headers[offset];
-	memcpy(headers, finalanswer, offset);
-	ocall_sendanswer(csock, headers, offset);
-    previous_subpacket_tail_size = payloadSize;
-    previous_subpacket_tail = (char*) malloc(payloadSize);
-    memcpy(previous_subpacket_tail, finalanswer+offset, payloadSize);
-    
-    while (testEndTransfer != 0) {
-        memset(answerFromClient, 0, 1028);
+	if (offset > 0) {
+		char headers[offset];
+		memcpy(headers, finalanswer, offset);
+		ocall_sendanswer(csock, headers, offset);
+	}
+	if (payloadSize > 0) {
+		previous_subpacket_tail_size = payloadSize;
+		previous_subpacket_tail = (char *) malloc(payloadSize * sizeof(char));
+		memcpy(previous_subpacket_tail, finalanswer + offset, payloadSize);
+	}
+	while (testEndTransfer != 0) {
+		memset(answerFromClient, 0, 1028);
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
 		finalanswer = (char *) realloc(finalanswer, sizeAnswerFromClient * sizeof(char));
 		memset(finalanswer, 0, sizeAnswerFromClient * sizeof(char));
 		extractBuffer(answerFromClient, sizeAnswerFromClient, finalanswer);
-        char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
-        memcpy(sub_packet + previous_subpacket_tail_size, finalanswer, sub_packet_size);
-        memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
-        sub_packet_size += previous_subpacket_tail_size;
-        int valid_packet_size = 16 * (sub_packet_size / 16);
-        char out[valid_packet_size];
-        if (encrypt) {
+		char * sub_packet = (char *) malloc(previous_subpacket_tail_size + sub_packet_size);
+		memcpy(sub_packet + previous_subpacket_tail_size, finalanswer, sub_packet_size);
+		memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
+		sub_packet_size += previous_subpacket_tail_size;
+		int valid_packet_size = 16 * (sub_packet_size / 16);
+		char out[valid_packet_size];
+		if (encrypt) {
 			if (fromSGX) {
 				decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
 				testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
@@ -869,22 +872,22 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memcpy(out, sub_packet, valid_packet_size);
 			testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
 		}
-        ocall_sendanswer(csock, out, valid_packet_size);
-        counter_16bytes += valid_packet_size / 16;
-        previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
-        previous_subpacket_tail = (char*) malloc(previous_subpacket_tail_size);
-        memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
-        data_sent += sub_packet_size;
-        loops++;
-        if (previous_subpacket_tail_size > 0) {
-		    char out[previous_subpacket_tail_size];
-		    if (encrypt) {
+		ocall_sendanswer(csock, out, valid_packet_size);
+		counter_16bytes += valid_packet_size / 16;
+		previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
+		previous_subpacket_tail = (char *) malloc(previous_subpacket_tail_size);
+		memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
+		data_sent += sub_packet_size;
+		loops++;
+		if (previous_subpacket_tail_size > 0) {
+			char out[previous_subpacket_tail_size];
+			if (encrypt) {
 				if (fromSGX) {
-					decryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+					decryptMessage((char *) previous_subpacket_tail, previous_subpacket_tail_size, (char *) out, counter_16bytes);
 					testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
 				} else {
 					testEndTransfer = testEndTransferEncoding(previous_subpacket_tail, previous_subpacket_tail_size);
-					encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
+					encryptMessage((char *) previous_subpacket_tail, previous_subpacket_tail_size, (char *) out, counter_16bytes);
 				}
 			} else {
 				memcpy(out, previous_subpacket_tail, previous_subpacket_tail_size);
@@ -892,13 +895,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			}
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
-        		loops++;
-		    	ocall_sendanswer(csock, out, previous_subpacket_tail_size);
-		    }
+				loops++;
+				ocall_sendanswer(csock, out, previous_subpacket_tail_size);
+			}
 		}
-    }
-    display_TE(csock, loops, data_sent/1000);
-    //blockchain	
+	}
+	display_TE(csock, loops, data_sent/1000);
+	//blockchain	
 }
 
 void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
