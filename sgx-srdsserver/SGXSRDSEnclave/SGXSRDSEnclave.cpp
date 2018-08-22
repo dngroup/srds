@@ -899,7 +899,8 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	int data_sent = 0;
 	int testEndTransfer = -1;
 	uint32_t counter = 0;
-
+	
+	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
 	while (testEndTransfer != 0) {
 		ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 		memset(answerFromClient, 0, 1028);
@@ -924,8 +925,8 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 	int out;
 	int totalSizeAnswer = 0;
 	uint32_t counter = 0;
-	
 	char finalanswer_backup[sizeAnswerFromClient];
+	
 	memset(finalanswer_backup, 0, sizeAnswerFromClient * sizeof(char));
 	memcpy(finalanswer_backup, finalanswer, sizeAnswerFromClient);
 	handle_encryption(fromSGX, finalanswer, sizeAnswerFromClient, counter);
@@ -953,7 +954,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 				}
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 			} else if (map_find(headersAnswer, transferEncoding) > 0) {
-				content_encoding_loop(csock, client_sock, fromSGX, finalanswer, sizeAnswerFromClient, answerFromClient);
+				content_encoding_loop(csock, client_sock, fromSGX, finalanswer_backup, sizeAnswerFromClient, answerFromClient);
 			} else {
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 			}
