@@ -805,8 +805,7 @@ void test_encrypt() {
     // if there is any tail leftover :
     if (previous_subpacket_tail_size > 0) {
         unsigned char out[previous_subpacket_tail_size];
-        encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size,
-            (char*) out, counter_16bytes);
+        encryptMessage((char*) previous_subpacket_tail, previous_subpacket_tail_size, (char*) out, counter_16bytes);
         send_by_socket(out, previous_subpacket_tail_size);
     }
 }
@@ -987,18 +986,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 						}
 						display_TE(csock,loops,data_sent/1000);
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
-						/*
-						// blockchain
-						numberOfTokens = blockchain_values::getBalance();
-						if (fromSGX) {
-							blockchain_values::assignCoin(+1);
-						} else {
-							if (numberOfTokens > 1) {
-								blockchain_values::assignCoin(-1);
-							}
-						}
-						numberOfTokens = blockchain_values::getBalance();
-						*/
+						//blockchain
 					} else {
 						ocall_sendanswer(&return_send, csock, finalanswer, sizeAnswerFromClient);
 					}
@@ -1010,6 +998,19 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	}
 	cleanup_memory(client_sock, headersRequest, headersAnswer, finalanswer);
 }
+
+/*
+// blockchain
+numberOfTokens = blockchain_values::getBalance();
+if (fromSGX) {
+	blockchain_values::assignCoin(+1);
+} else {
+	if (numberOfTokens > 1) {
+		blockchain_values::assignCoin(-1);
+	}
+}
+numberOfTokens = blockchain_values::getBalance();
+*/
 
 /*
 std::string str(finalanswer);
