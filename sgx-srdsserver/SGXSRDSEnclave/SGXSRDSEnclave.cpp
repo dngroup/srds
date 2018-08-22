@@ -907,6 +907,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 			struct map* headersAnswer = NULL;
 			headersAnswer = parse_headers(finalanswer, getPosEndOfHeader(finalanswer) + 4);
 			std::string contentLength = map_find(headersAnswer, "Content-Length") > 0 ? "Content-Length" : "content-length";
+			std::string transferEncoding = map_find(headersAnswer, "Transfer-Encoding") > 0 ? "Transfer-Encoding" : "transfer-encoding";
 			if (map_find(headersAnswer, contentLength) > 0) {
 				ocall_string_to_int(map_get(headersAnswer, "HeaderSize"), (int) strlen(map_get(headersAnswer, "HeaderSize")), &out);
 				totalSizeAnswer += sizeAnswerFromClient - out;
@@ -923,7 +924,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 					totalSizeAnswer += sizeAnswerFromClient;
 				}
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
-			} else if (map_find(headersAnswer, "Transfer-Encoding") > 0) {
+			} else if (map_find(headersAnswer, transferEncoding) > 0) {
 				while (testEndTransfer != 0) {
 					ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 					memset(answerFromClient, 0, 1028);
