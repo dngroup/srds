@@ -912,18 +912,15 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	
 	emit_debug("DBG0.3");
 	
-	char target[strlen(target2)];
-	ocall_getSocketIP(csock, clientip);
-	
-	emit_debug("DBG0.4");
-	
 	if (target2 == NULL) { //Manage number of token request with unencrypted answer
-		emit_debug("DBG0.5");
+		emit_debug("DBG0.4");
 		sendTokensToPlayer(&return_send, csock);
-		emit_debug("DBG0.6");
+		emit_debug("DBG0.5");
 	} else if (strcmp(target2, "addr") == 0) { // get addresses
 		sendAddressesToPlayer(&return_send, csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
+		char target[strlen(target2)];
+		ocall_getSocketIP(csock, clientip);
 		if (strcmp(target2, serverAddr.c_str()) == 0) {
 			memcpy(target, target2, strlen(target2));
 			emit_debug(target);
