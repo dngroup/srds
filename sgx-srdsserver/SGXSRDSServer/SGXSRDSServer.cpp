@@ -36,18 +36,22 @@ void ocall_string_to_int(const char* a, int size, int * out) {
 
 void emit_debug(const char *buf){
     printf("%s\n", buf);
+    fflush(stdout);
 }
 
 void emit_debug_int(int a){
     printf("%i\n", a);
+    fflush(stdout);
 }
 
 void display_msg(int socket, const char *msg) {
 	printf("[%i] %s\n", socket, msg);
+	fflush(stdout);
 }
 
 void display_TE(int socket, int l, int k) {
 	printf("[%i] Transfer-Encoding: %i kB (%i loops)\n", socket, k, l);
+	fflush(stdout);
 }
 
 int main(int argc, char ** argv) {
@@ -60,9 +64,9 @@ int main(int argc, char ** argv) {
 	int token_updated = 0;
 
 	ret = sgx_create_enclave(ENCLAVE_FILE, SGX_DEBUG_FLAG, &token, &token_updated, &global_eid, NULL);
-	if (ret != SGX_SUCCESS)
-	{
+	if (ret != SGX_SUCCESS) {
 		printf("sgx_create_enclave failed: %#x\n", ret);
+		fflush(stdout);
 		getchar();
 		return 1;
 	}
@@ -72,6 +76,7 @@ int main(int argc, char ** argv) {
 	int type;
 	if (argc != 3) {
 		printf("USAGE ./SGXSRDSServerApp <port> <type: 0 for proxy | 1 for tracker>\n");
+		fflush(stdout);
 		return 0;
 	} else {
 		port = atoi(argv[1]);
@@ -85,8 +90,10 @@ int main(int argc, char ** argv) {
 
 	if (type == 0) {
 		printf("Proxy mode\n");
+		fflush(stdout);
 	} else if (type == 1) {
 		printf("Tracker mode\n");
+		fflush(stdout);
 	}
 
 	startServer(port, type);
