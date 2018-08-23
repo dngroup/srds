@@ -855,60 +855,66 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	}
 	emit_debug("DBG3");
 	while (testEndTransfer != 0) {
+		char last16[16];
 		memset(answerFromClient, 0, 1028 * sizeof(char));
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
-		char buff[sub_packet_size];
-		memset(buff, 0, sub_packet_size * sizeof(char));
-		extractBuffer(answerFromClient, sub_packet_size, buff);
-		char sub_packet[(previous_subpacket_tail_size + sub_packet_size)];
-		memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
-		memcpy(sub_packet + previous_subpacket_tail_size, buff, sub_packet_size);
-		sub_packet_size += previous_subpacket_tail_size;
-		int valid_packet_size = 16 * (sub_packet_size / 16);
-		if (valid_packet_size > 0) {
-			char out[valid_packet_size];
-			if (encrypt) {
-				if (fromSGX) {
-					decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
-					testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+		if (sub_packet_size > 0) {
+			char buff[sub_packet_size];
+			extractBuffer(answerFromClient, sub_packet_size, buff);
+			char sub_packet[(previous_subpacket_tail_size + sub_packet_size)];
+			memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
+			memcpy(sub_packet + previous_subpacket_tail_size, buff, sub_packet_size);
+			sub_packet_size += previous_subpacket_tail_size;
+			int valid_packet_size = 16 * (sub_packet_size / 16);
+			if (valid_packet_size > 0) {
+				char out[valid_packet_size];
+				if (encrypt) {
+					if (fromSGX) {
+						decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+						testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+					} else {
+						testEndTransfer = testEndTransferEncoding(sub_packet, valid_packet_size);
+						encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+					}
 				} else {
-					testEndTransfer = testEndTransferEncoding(sub_packet, valid_packet_size);
-					encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+					memcpy(out, sub_packet, valid_packet_size);
+					testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
 				}
-			} else {
-				memcpy(out, sub_packet, valid_packet_size);
-				testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+				ocall_sendanswer(csock, out, valid_packet_size);
+				counter_16bytes += valid_packet_size / 16;
+				memcpy(last16, out + valid_packet_size - 16, 16);
+				previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
+				previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
+				memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
+				data_sent += valid_packet_size;
+				loops++;
+				emit_debug_int(data_sent);
 			}
-			ocall_sendanswer(csock, out, valid_packet_size);
-			counter_16bytes += valid_packet_size / 16;
-			previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
-			previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
-			memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
-			data_sent += valid_packet_size;
-			loops++;
-			emit_debug_int(data_sent);
 		}
 		if (previous_subpacket_tail_size > 0) {
 			emit_debug("DBG4");
-			char out[previous_subpacket_tail_size];
+			char out[previous_subpacket_tail_size+16];
+			char buff16[previous_subpacket_tail_size+16];
+			memcpy(buff16, last16, 16);
+			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
 			if (encrypt) {
 				if (fromSGX) {
-					decryptMessage((char *) previous_subpacket_tail, previous_subpacket_tail_size, (char *) out, counter_16bytes);
-					testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
+					decryptMessage((char *) buff16, previous_subpacket_tail_size + 16, (char *) out, counter_16bytes - 1);
+					testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size + 16);
 				} else {
-					testEndTransfer = testEndTransferEncoding(previous_subpacket_tail, previous_subpacket_tail_size);
-					encryptMessage((char *) previous_subpacket_tail, previous_subpacket_tail_size, (char *) out, counter_16bytes);
+					testEndTransfer = testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16);
+					encryptMessage((char *) buff16, previous_subpacket_tail_size + 16, (char *) out, counter_16bytes - 1);
 				}
 			} else {
-				memcpy(out, previous_subpacket_tail, previous_subpacket_tail_size);
-				testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
+				memcpy(out, buff16, previous_subpacket_tail_size + 16);
+				testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size + 16);
 			}
 			if (testEndTransfer == 0) {
 				emit_debug("DBG5");
 				data_sent += previous_subpacket_tail_size;
 				loops++;
-				ocall_sendanswer(csock, out, previous_subpacket_tail_size);
+				ocall_sendanswer(csock, out + 16, previous_subpacket_tail_size);
 			}
 		}
 	}
