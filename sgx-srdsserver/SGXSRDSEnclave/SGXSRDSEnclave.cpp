@@ -872,7 +872,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				}
 				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
-				counter_16bytes += valid_packet_size / 16;
+				//counter_16bytes += valid_packet_size / 16;
 				memcpy(last16, sub_packet + valid_packet_size - 16, 16);
 				previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
 				previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
@@ -887,7 +887,8 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
 			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
-			do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
+			//do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
+			do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes);
 			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
