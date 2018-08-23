@@ -847,7 +847,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	uint32_t counter_16bytes = 0;
 	
 	int offset = getPosEndOfChunkedHeader(finalanswer) < 0 ? 0 : getPosEndOfChunkedHeader(finalanswer) + 11;
+	emit_debug_int(offset);
 	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2;
+	emit_debug_int(offset);
 	int payloadSize = sizeAnswerFromClient - offset;
 	if (offset > 0) {
 		char headers[offset];
