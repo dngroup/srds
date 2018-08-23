@@ -135,7 +135,7 @@ void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
 	ctr[ctr_size - 1] = (val & 0x000000ff);
 }
 
-sgx_status_t decryptMessage(char * in, size_t in_size, char * out, uint32_t counter)
+sgx_status_t decryptMessage(unsigned char * in, size_t in_size, unsigned char * out, uint32_t counter)
 {
 	uint8_t ctr_bytes[16] = {0};
 	set_ctr_bytes(counter, ctr_bytes, 16);
@@ -144,7 +144,7 @@ sgx_status_t decryptMessage(char * in, size_t in_size, char * out, uint32_t coun
 		(uint8_t*) out);
 }
 
-sgx_status_t encryptMessage(char * in, size_t in_size, char * out, uint32_t counter)
+sgx_status_t encryptMessage(unsigned char * in, size_t in_size, unsigned char * out, uint32_t counter)
 {
 	uint8_t ctr_bytes[16] = {0};
 	set_ctr_bytes(counter, ctr_bytes, 16);
@@ -312,7 +312,7 @@ void T2B32 (std::string ipToChange2, char * targetEncrypted) {
 	memcpy(target0, ipToChange2.c_str(), ipToChange2.size());
 	target0[ipToChange2.size()] = '\0';
 	if (encrypt_IPs) {
-		encryptMessage(target0, ipToChange2.size(), targetEncrypted, 0);
+		encryptMessage((unsigned char *) target0, ipToChange2.size(), (unsigned char *) targetEncrypted, 0);
 	} else {
 		memcpy(targetEncrypted, target0, ipToChange2.length());
 	}
@@ -334,7 +334,7 @@ void B322T (char * targetEncrypted, char * target) {
 	Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
 	decode256[decodeLength] = '\0';
 	if (encrypt_IPs) {
-		decryptMessage(decode256, decodeLength, targetDecrypted, 0);
+		decryptMessage((unsigned char *) decode256, decodeLength, (unsigned char *) targetDecrypted, 0);
 	} else {
 		memcpy(targetDecrypted, decode256, decodeLength);
 	}
@@ -812,9 +812,9 @@ void do_encryption(bool fromSGX, char * buffIn, char * buffOut, int buffSize, ui
 	memset(buffOut, 0, buffSize);
 	if (encrypt) {
 		if (fromSGX) {
-			decryptMessage((char *) buffIn, buffSize, (char *) buffOut, counter);
+			decryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
 		} else {
-			encryptMessage((char *) buffIn, buffSize, (char *) buffOut, counter);
+			encryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
 		}
 	} else {
 		memcpy(buffOut, buffIn, buffSize);
