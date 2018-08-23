@@ -840,7 +840,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	
 	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 	
-	while (testEndTransfer < 0) {
+	while (testEndTransfer != 0) {
 		memset(answerFromClient, 0, 1028 * sizeof(char));
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
@@ -854,9 +854,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				char out[valid_packet_size];
-				testEndTransfer = !fromSGX ? getPosEndOfHeader(sub_packet) : testEndTransfer;
+				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
 				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
-				testEndTransfer = fromSGX ? getPosEndOfHeader(out) : testEndTransfer;
+				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
 				memcpy(last16, sub_packet + valid_packet_size - 16, 16);
@@ -872,9 +872,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			char buff16[previous_subpacket_tail_size+16];
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
-			testEndTransfer = !fromSGX ? getPosEndOfHeader(buff16) : testEndTransfer;
+			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
 			do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
-			testEndTransfer = fromSGX ? getPosEndOfHeader(out) : testEndTransfer;
+			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
 				loops++;
