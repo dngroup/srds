@@ -838,18 +838,17 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 
 void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
-	char * previous_subpacket_tail = (char *) malloc(1024 * sizeof(char));
 	int previous_subpacket_tail_size = 0;
 	int sub_packet_size = 0;
 	int data_sent = 0;
 	int loops = 0;
 	int testEndTransfer = -1;
 	uint32_t counter_16bytes = 0;
+	char * previous_subpacket_tail = (char *) malloc(1024 * sizeof(char));
+	memset(previous_subpacket_tail, 0, 1024);
 	
 	int offset = getPosEndOfChunkedHeader(finalanswer) < 0 ? 0 : getPosEndOfChunkedHeader(finalanswer) + 11;
-	emit_debug_int(offset);
 	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2;
-	emit_debug_int(offset);
 	int payloadSize = sizeAnswerFromClient - offset;
 	if (offset > 0) {
 		char headers[offset];
