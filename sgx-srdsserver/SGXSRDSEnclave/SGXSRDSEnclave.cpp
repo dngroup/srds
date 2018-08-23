@@ -852,9 +852,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		offset++;
 	}
 	offset++;
-	
 	int payloadSize = sizeAnswerFromClient - offset;
-	
+	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
+	/*
 	if (offset > 0) {
 		char headers[offset];
 		memset(headers, 0, offset);
@@ -873,6 +873,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		emit_debug(previous_subpacket_tail);
 		emit_debug("---/PAYLOAD---");
 	}
+	*/
 	while (testEndTransfer != 0) {
 		char last16[16];
 		memset(answerFromClient, 0, 1028 * sizeof(char));
