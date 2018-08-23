@@ -29,7 +29,7 @@ int extractSize(char * msg) {
 
 void extractBuffer(char * msg, int size, char * bufferOut) {
 	int sizeIntinChar = 4;
-	memset(bufferOut, '\0', size);
+	memset(bufferOut, 0, size);
 
 	for(int i = 0; i< size; i++) {
 		bufferOut[i] = msg [i + sizeIntinChar];
@@ -799,6 +799,7 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 }
 
 void do_encryption(bool fromSGX, char * buffIn, char * buffOut, int buffSize, uint32_t counter) {
+	memset(buffOut, 0, buffSize);
 	if (encrypt) {
 		if (fromSGX) {
 			decryptMessage((char *) buffIn, buffSize, (char *) buffOut, counter);
@@ -815,16 +816,12 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 	int payloadSize = buffSize - offset;
 	if (payloadSize > 0) {
 		char fullBuff[buffSize];
-		memset(fullBuff, 0, buffSize * sizeof(char));
 		char payload[payloadSize];
-		memset(payload, 0, payloadSize * sizeof(char));
 		char codedBuff[payloadSize];
-		memset(codedBuff, 0, payloadSize * sizeof(char));
 		memcpy(fullBuff, finalBuff, offset);
 		memcpy(payload, finalBuff + offset, payloadSize);
 		do_encryption(fromSGX, payload, codedBuff, payloadSize, counter);
 		memcpy(fullBuff + offset, codedBuff, payloadSize);
-		memset(finalBuff, 0, buffSize * sizeof(char));
 		memcpy(finalBuff, fullBuff, buffSize);
 	}
 }
@@ -866,8 +863,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				char out[valid_packet_size];
+				char out2[valid_packet_size];
 				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
 				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
+				do_encryption(!fromSGX, out, out2, valid_packet_size, counter_16bytes);
+				if (memcmp(out, out2, valid_packet_size) != 0) {
+					emit_debug("Buffers do not match!");
+				}
 				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
@@ -879,7 +881,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				loops++;
 			}
 		}
-		emit_debug_int(data_sent);
 		if (previous_subpacket_tail_size > 0) {
 			char out[previous_subpacket_tail_size+16];
 			char buff16[previous_subpacket_tail_size+16];
@@ -892,11 +893,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				data_sent += previous_subpacket_tail_size;
 				loops++;
 				ocall_sendanswer(csock, out + 16, previous_subpacket_tail_size);
-			}
-			if (fromSGX) {
-				emit_debug(out);
-			} else {
-				emit_debug(buff16);
 			}
 		}
 	}
@@ -1039,13 +1035,10 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	int endPos = getPosEndOfHeader(msg)+4;
 	int msgSize = size-endPos;
 	char fullDecryptedMessage[size];
-	memset(fullDecryptedMessage, 0, size*sizeof(char));
 	char decryptedMessage[msgSize];
-	memset(decryptedMessage, 0, (msgSize)*sizeof(char));
 	memcpy(fullDecryptedMessage, msg, endPos);
 	if (endPos < size) {
 		char messageToDecrypt[msgSize];
-		memset(messageToDecrypt, 0, (msgSize)*sizeof(char));
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
 		bool encrypt_decrypt = debug == 0 ? true : false;
 		do_encryption(encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
@@ -1145,13 +1138,10 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	endPos = getPosEndOfHeader(finalanswer)+4;
 	msgSize = strlen(finalanswer) - endPos;
 	char fullEncryptedMessage[answer.length()+msgSize];
-	memset(fullEncryptedMessage, 0, (answer.length()+msgSize)*sizeof(char));
 	memcpy(fullEncryptedMessage, finalanswer, endPos);
 	if (endPos < (int) strlen(finalanswer)) {
 		char messageToEncrypt[msgSize];
-		memset(messageToEncrypt, 0, (msgSize)*sizeof(char));
 		char encryptedMessage[msgSize];
-		memset(encryptedMessage, 0, (msgSize)*sizeof(char));
 		memcpy(messageToEncrypt, finalanswer+endPos, msgSize);
 		bool encrypt_decrypt = debug == 1 ? true : false;
 		do_encryption(encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
