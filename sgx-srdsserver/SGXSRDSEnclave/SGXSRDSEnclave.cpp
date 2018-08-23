@@ -883,9 +883,10 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
 			previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
 			memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
+			data_sent += valid_packet_size;
+			loops++;
+			emit_debug_int(data_sent);
 		}
-		data_sent += sub_packet_size;
-		loops++;
 		if (previous_subpacket_tail_size > 0) {
 			char out[previous_subpacket_tail_size];
 			if (encrypt) {
