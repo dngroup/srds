@@ -848,21 +848,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	char * answerFromClient = (char *) malloc(1028 * sizeof(char));
 	char * previous_subpacket_tail = (char *) malloc(16 * sizeof(char));
 	
-	int offset1 = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
-	int offset2 = offset1;
-	while (*(finalanswer+offset2) != '\n') {
-		offset2++;
-	}
-	offset2--;
-	
-	char size[offset2-offset1];
-	memset(size, 0, offset2-offset1);
-	memcpy(size, finalanswer+offset1, offset2);
-	emit_debug(size);
-    char *p;
-    int n = (int) strtol(size, &p, 16);
-    emit_debug_int(n);
-	
 	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 	
 	while (testEndTransfer != 0) {
