@@ -647,16 +647,6 @@ int getPosEndOfHeader(char * msg) {
 	return allmsg.find("\r\n\r\n");
 }
 
-int getPosEndOfChunkedHeader(char * msg) {
-	std::string allmsg(msg);
-	return allmsg.find("chunked\r\n\r\n");
-}
-
-int getPosChunk(char * msg) {
-	std::string allmsg(msg);
-	return allmsg.find("\r\n");
-}
-
 char * createNewHeader(char * msg, std::string address, int size) {
 	std::string header(msg, 0, size);
 	int posHost = header.find("Host: ") + 6;
@@ -850,7 +840,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	
 	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 	
-	while (testEndTransfer != 0) {
+	while (testEndTransfer < 0) {
 		memset(answerFromClient, 0, 1028 * sizeof(char));
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
@@ -864,9 +854,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				char out[valid_packet_size];
-				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
+				testEndTransfer = !fromSGX ? getPosEndOfHeader(sub_packet) : testEndTransfer;
 				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
-				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
+				testEndTransfer = fromSGX ? getPosEndOfHeader(out) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
 				memcpy(last16, sub_packet + valid_packet_size - 16, 16);
@@ -882,9 +872,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			char buff16[previous_subpacket_tail_size+16];
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
-			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
+			testEndTransfer = !fromSGX ? getPosEndOfHeader(buff16) : testEndTransfer;
 			do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
-			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
+			testEndTransfer = fromSGX ? getPosEndOfHeader(out) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
 				loops++;
