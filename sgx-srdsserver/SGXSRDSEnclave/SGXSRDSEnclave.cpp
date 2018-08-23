@@ -860,9 +860,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		memset(headers, 0, offset + offset2);
 		memcpy(headers, finalanswer, offset + offset2);
 		ocall_sendanswer(csock, headers, offset + offset2);
-		emit_debug("---HEADERS---");
+		emit_debug("---HEADERS/---");
 		emit_debug(headers);
-		emit_debug("---HEADERS---");
+		emit_debug("---offset---");
+		emit_debug(finalanswer + offset);
+		emit_debug("---offset2---");
+		emit_debug(finalanswer + offset2);
+		emit_debug("---/HEADERS---");
 	}
 	if (payloadSize > 0) {
 		previous_subpacket_tail_size = payloadSize;
@@ -890,7 +894,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
 				do_encryption(!fromSGX, out, out2, valid_packet_size, counter_16bytes);
 				if (memcmp(out, out2, valid_packet_size) != 0) {
-					//emit_debug("Buffers do not match!");
+					emit_debug("Buffers do not match!");
 				}
 				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
