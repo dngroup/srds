@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = false;
+bool encrypt = true;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -879,6 +879,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				loops++;
 			}
 		}
+		emit_debug_int(data_sent);
 		if (previous_subpacket_tail_size > 0) {
 			char out[previous_subpacket_tail_size+16];
 			char buff16[previous_subpacket_tail_size+16];
