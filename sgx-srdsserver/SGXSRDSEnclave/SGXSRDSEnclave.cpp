@@ -647,6 +647,11 @@ int getPosEndOfHeader(char * msg) {
 	return allmsg.find("\r\n\r\n");
 }
 
+int getPosChunk(char * msg) {
+	std::string allmsg(msg);
+	return allmsg.find("\r\n");
+}
+
 char * createNewHeader(char * msg, std::string address, int size) {
 	std::string header(msg, 0, size);
 	int posHost = header.find("Host: ") + 6;
@@ -800,20 +805,14 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 
 void do_encryption(bool fromSGX, char * buffIn, char * buffOut, int buffSize, uint32_t counter) {
 	memset(buffOut, 0, buffSize);
-	int currSize = 0;
-	uint32_t currCounter = counter;
-	while (currSize < buffSize) {
-		if (encrypt) {
-			if (fromSGX) {
-				decryptMessage((char *) buffIn+currSize, 16, (char *) buffOut+currSize, currCounter);
-			} else {
-				encryptMessage((char *) buffIn+currSize, 16, (char *) buffOut+currSize, currCounter);
-			}
+	if (encrypt) {
+		if (fromSGX) {
+			decryptMessage((char *) buffIn, buffSize, (char *) buffOut, counter);
 		} else {
-			memcpy(buffOut+currSize, buffIn+currSize, 16);
+			encryptMessage((char *) buffIn, buffSize, (char *) buffOut, counter);
 		}
-		currSize += 16;
-		currCounter += 1;
+	} else {
+		memcpy(buffOut, buffIn, buffSize);
 	}
 }
 
@@ -843,6 +842,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	uint32_t counter_16bytes = 0;
 	
 	int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
+	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 1;
 	int payloadSize = sizeAnswerFromClient - offset;
 	if (offset > 0) {
 		char headers[offset];
