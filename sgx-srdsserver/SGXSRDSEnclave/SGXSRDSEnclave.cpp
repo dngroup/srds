@@ -890,6 +890,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			emit_debug_int(data_sent);
 		}
 		if (previous_subpacket_tail_size > 0) {
+			emit_debug("DBG4");
 			char out[previous_subpacket_tail_size];
 			if (encrypt) {
 				if (fromSGX) {
@@ -904,14 +905,14 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size);
 			}
 			if (testEndTransfer == 0) {
-				emit_debug("DBG4");
+				emit_debug("DBG5");
 				data_sent += previous_subpacket_tail_size;
 				loops++;
 				ocall_sendanswer(csock, out, previous_subpacket_tail_size);
 			}
 		}
 	}
-	emit_debug("DBG5");
+	emit_debug("DBG6");
 	display_TE(csock, loops, data_sent/1000);
 	//blockchain	
 }
