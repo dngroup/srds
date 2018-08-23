@@ -893,9 +893,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				loops++;
 				ocall_sendanswer(csock, out + 16, previous_subpacket_tail_size);
 			}
+			if (fromSGX) {
+				emit_debug(out);
+			} else {
+				emit_debug(buff16);
+			}
 		}
 	}
-	emit_debug_int(data_sent);
 	display_TE(csock, loops, data_sent/1000);
 	//blockchain	
 }
