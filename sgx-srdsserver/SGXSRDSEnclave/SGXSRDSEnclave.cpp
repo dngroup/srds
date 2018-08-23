@@ -897,9 +897,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
 				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
 				do_encryption(!fromSGX, out, out2, valid_packet_size, counter_16bytes);
-				if (memcmp(out, out2, valid_packet_size) != 0) {
-					emit_debug("Buffers do not match!");
-				}
 				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
@@ -911,6 +908,8 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				loops++;
 			}
 		}
+		emit_debug_int(data_sent);
+		emit_debug_int(counter_16bytes);
 		if (previous_subpacket_tail_size > 0) {
 			char out[previous_subpacket_tail_size+16];
 			char buff16[previous_subpacket_tail_size+16];
