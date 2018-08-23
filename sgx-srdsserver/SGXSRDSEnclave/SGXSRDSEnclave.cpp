@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = true;
+bool encrypt = false;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -843,6 +843,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	int data_sent = 0;
 	int loops = 0;
 	int testEndTransfer = -1;
+	char last16[16];
 	uint32_t counter_16bytes = 0;
 	
 	previous_subpacket_tail_size = sizeAnswerFromClient;
@@ -878,7 +879,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	}
 	*/
 	while (testEndTransfer != 0) {
-		char last16[16];
 		memset(answerFromClient, 0, 1028 * sizeof(char));
 		ocall_receiveFromClient(client_sock, answerFromClient);
 		sub_packet_size = extractSize(answerFromClient);
