@@ -821,6 +821,19 @@ void do_encryption(bool fromSGX, char * buffIn, char * buffOut, int buffSize, ui
 	}
 }
 
+void do_encryption_unsigned(bool fromSGX, unsigned char * buffIn, unsigned char * buffOut, int buffSize, uint32_t counter) {
+	memset(buffOut, 0, buffSize);
+	if (encrypt) {
+		if (fromSGX) {
+			decryptMessage(buffIn, buffSize, buffOut, counter);
+		} else {
+			encryptMessage(buffIn, buffSize, buffOut, counter);
+		}
+	} else {
+		memcpy(buffOut, buffIn, buffSize);
+	}
+}
+
 void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
 	int offset = getPosEndOfHeader(finalBuff) < 0 ? 0 : getPosEndOfHeader(finalBuff) + 4;
 	int payloadSize = buffSize - offset;
@@ -836,18 +849,19 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 	}
 }
 
-void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
+void content_encoding_loop(int csock, int client_sock, bool fromSGX, unsigned char * finalanswer, int sizeAnswerFromClient) {
 
 	int previous_subpacket_tail_size = 0;
 	int sub_packet_size = 0;
 	int data_sent = 0;
 	int loops = 0;
 	int testEndTransfer = -1;
-	char last16[16];
+	unsigned char last16[16];
 	uint32_t counter_16bytes = 0;
+	unsigned char * answerFromClient = (unsigned char *) malloc(1028 * sizeof(char));
 	
 	previous_subpacket_tail_size = sizeAnswerFromClient;
-	char * previous_subpacket_tail = (char *) malloc(previous_subpacket_tail_size * sizeof(char));
+	unsigned char * previous_subpacket_tail = (unsigned char *) malloc(previous_subpacket_tail_size * sizeof(char));
 	memset(previous_subpacket_tail, 0, 1024);
 	memcpy(previous_subpacket_tail, finalanswer, previous_subpacket_tail_size);
 	
@@ -880,48 +894,48 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	*/
 	while (testEndTransfer != 0) {
 		memset(answerFromClient, 0, 1028 * sizeof(char));
-		ocall_receiveFromClient(client_sock, answerFromClient);
-		sub_packet_size = extractSize(answerFromClient);
+		ocall_receiveFromClient(client_sock, (char *) answerFromClient);
+		sub_packet_size = extractSize((char *) answerFromClient);
 		if (sub_packet_size > 0) {
-			char buff[sub_packet_size];
-			extractBuffer(answerFromClient, sub_packet_size, buff);
-			char sub_packet[(previous_subpacket_tail_size + sub_packet_size)];
+			unsigned char buff[sub_packet_size];
+			extractBuffer((char *) answerFromClient, sub_packet_size, (char *) buff);
+			unsigned char sub_packet[(previous_subpacket_tail_size + sub_packet_size)];
 			memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
 			memcpy(sub_packet + previous_subpacket_tail_size, buff, sub_packet_size);
 			sub_packet_size += previous_subpacket_tail_size;
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
-				char out[valid_packet_size];
-				char out2[valid_packet_size];
-				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
-				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
-				do_encryption(!fromSGX, out, out2, valid_packet_size, counter_16bytes);
+				unsigned char out[valid_packet_size];
+				unsigned char out2[valid_packet_size];
+				testEndTransfer = !fromSGX ? testEndTransferEncoding((char *) sub_packet, valid_packet_size) : testEndTransfer;
+				do_encryption_unsigned(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
+				do_encryption_unsigned(!fromSGX, out, out2, valid_packet_size, counter_16bytes);
 				if (memcmp(out, out2, valid_packet_size) != 0) {
 					emit_debug("Buffers do not match!");
 				}
-				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
-				ocall_sendanswer(csock, out, valid_packet_size);
+				testEndTransfer = fromSGX ? testEndTransferEncoding((char *) out, valid_packet_size) : testEndTransfer;
+				ocall_sendanswer(csock, (char *) out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
 				memcpy(last16, sub_packet + valid_packet_size - 16, 16);
 				previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
-				previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
+				previous_subpacket_tail = (unsigned char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
 				memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
 				data_sent += valid_packet_size;
 				loops++;
 			}
 		}
 		if (previous_subpacket_tail_size > 0) {
-			char out[previous_subpacket_tail_size+16];
-			char buff16[previous_subpacket_tail_size+16];
+			unsigned char out[previous_subpacket_tail_size+16];
+			unsigned char buff16[previous_subpacket_tail_size+16];
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
-			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
-			do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
-			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
+			testEndTransfer = !fromSGX ? testEndTransferEncoding((char *) buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
+			do_encryption_unsigned(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
+			testEndTransfer = fromSGX ? testEndTransferEncoding((char *) out, previous_subpacket_tail_size + 16) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
 				loops++;
-				ocall_sendanswer(csock, out + 16, previous_subpacket_tail_size);
+				ocall_sendanswer(csock, (char *) (out + 16), previous_subpacket_tail_size);
 			}
 		}
 	}
@@ -934,7 +948,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 	int out;
 	int totalSizeAnswer = 0;
 	uint32_t counter = 0;
-	char finalanswer_backup[sizeAnswerFromClient];
+	unsigned char finalanswer_backup[sizeAnswerFromClient];
 	
 	memset(finalanswer_backup, 0, sizeAnswerFromClient * sizeof(char));
 	memcpy(finalanswer_backup, finalanswer, sizeAnswerFromClient);
@@ -963,7 +977,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 				}
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 			} else if (map_find(headersAnswer, transferEncoding) > 0) {
-				content_encoding_loop(csock, client_sock, fromSGX, finalanswer_backup, sizeAnswerFromClient, answerFromClient);
+				content_encoding_loop(csock, client_sock, fromSGX, finalanswer_backup, sizeAnswerFromClient);
 			} else {
 				ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 			}
