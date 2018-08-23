@@ -864,24 +864,26 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		memcpy(sub_packet + previous_subpacket_tail_size, buff, sub_packet_size);
 		sub_packet_size += previous_subpacket_tail_size;
 		int valid_packet_size = 16 * (sub_packet_size / 16);
-		char out[valid_packet_size];
-		if (encrypt) {
-			if (fromSGX) {
-				decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
-				testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+		if (valid_packet_size > 0) {
+			char out[valid_packet_size];
+			if (encrypt) {
+				if (fromSGX) {
+					decryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+					testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+				} else {
+					testEndTransfer = testEndTransferEncoding(sub_packet, valid_packet_size);
+					encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+				}
 			} else {
-				testEndTransfer = testEndTransferEncoding(sub_packet, valid_packet_size);
-				encryptMessage((char *) sub_packet, valid_packet_size, (char *) out, counter_16bytes);
+				memcpy(out, sub_packet, valid_packet_size);
+				testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
 			}
-		} else {
-			memcpy(out, sub_packet, valid_packet_size);
-			testEndTransfer = testEndTransferEncoding(out, valid_packet_size);
+			ocall_sendanswer(csock, out, valid_packet_size);
+			counter_16bytes += valid_packet_size / 16;
+			previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
+			previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
+			memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
 		}
-		ocall_sendanswer(csock, out, valid_packet_size);
-		counter_16bytes += valid_packet_size / 16;
-		previous_subpacket_tail_size = sub_packet_size - valid_packet_size;
-		previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, previous_subpacket_tail_size * sizeof(char));
-		memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
 		data_sent += sub_packet_size;
 		loops++;
 		if (previous_subpacket_tail_size > 0) {
