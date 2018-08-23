@@ -848,13 +848,18 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	memset(previous_subpacket_tail, 0, 1024);
 	
 	int offset = getPosEndOfChunkedHeader(finalanswer) < 0 ? 0 : getPosEndOfChunkedHeader(finalanswer) + 11;
-	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2;
 	int payloadSize = sizeAnswerFromClient - offset;
+	char payload[payloadSize];
+	memset(payload, 0, payloadSize);
+	memcpy(payload, finalanswer + offset, payloadSize);
+	int offset2 = getPosChunk(payload) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2;
+	payloadSize -= offset2;
+	
 	if (offset > 0) {
-		char headers[offset];
-		memset(headers, 0, offset);
-		memcpy(headers, finalanswer, offset);
-		ocall_sendanswer(csock, headers, offset);
+		char headers[offset + offset2];
+		memset(headers, 0, offset + offset2);
+		memcpy(headers, finalanswer, offset + offset2);
+		ocall_sendanswer(csock, headers, offset + offset2);
 		emit_debug("---HEADERS---");
 		emit_debug(headers);
 		emit_debug("---HEADERS---");
@@ -863,7 +868,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		previous_subpacket_tail_size = payloadSize;
 		previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, payloadSize * sizeof(char));
 		memset(previous_subpacket_tail, 0, payloadSize);
-		memcpy(previous_subpacket_tail, finalanswer + offset, payloadSize);
+		memcpy(previous_subpacket_tail, finalanswer + offset + offset2, payloadSize);
 	}
 	while (testEndTransfer != 0) {
 		char last16[16];
