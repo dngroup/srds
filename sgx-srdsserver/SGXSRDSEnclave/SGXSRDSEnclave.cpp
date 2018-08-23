@@ -647,6 +647,11 @@ int getPosEndOfHeader(char * msg) {
 	return allmsg.find("\r\n\r\n");
 }
 
+int getPosEndOfChunkedHeader(char * msg) {
+	std::string allmsg(msg);
+	return allmsg.find("chunked\r\n\r\n");
+}
+
 int getPosChunk(char * msg) {
 	std::string allmsg(msg);
 	return allmsg.find("\r\n");
@@ -841,8 +846,8 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	int testEndTransfer = -1;
 	uint32_t counter_16bytes = 0;
 	
-	int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
-	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 1;
+	int offset = getPosEndOfChunkedHeader(finalanswer) < 0 ? 0 : getPosEndOfChunkedHeader(finalanswer) + 11;
+	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2;
 	int payloadSize = sizeAnswerFromClient - offset;
 	if (offset > 0) {
 		char headers[offset];
