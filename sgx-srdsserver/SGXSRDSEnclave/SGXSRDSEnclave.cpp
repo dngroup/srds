@@ -848,7 +848,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	memset(previous_subpacket_tail, 0, 1024);
 	
 	int offset = getPosEndOfChunkedHeader(finalanswer) < 0 ? 0 : getPosEndOfChunkedHeader(finalanswer) + 11;
-	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2;
+	offset += getPosChunk(finalanswer + offset) < 0 ? 0 : getPosChunk(finalanswer + offset) + 2 - 4;
 	int payloadSize = sizeAnswerFromClient - offset;
 	if (offset > 0) {
 		char headers[offset];
