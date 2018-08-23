@@ -855,6 +855,14 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	}
 	offset2--;
 	
+	char size[offset2-offset1];
+	memset(size, 0, offset2-offset1);
+	memcpy(size, finalanswer+offset1, offset2);
+	emit_debug(size);
+    char *p;
+    int n = (int) strtol(size, &p, 16);
+    emit_debug_int(n);
+	
 	ocall_sendanswer(csock, finalanswer, sizeAnswerFromClient);
 	
 	while (testEndTransfer != 0) {
