@@ -845,11 +845,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		char headers[offset];
 		memcpy(headers, finalanswer, offset);
 		ocall_sendanswer(csock, headers, offset);
+		emit_debug(headers);
 	}
 	if (payloadSize > 0) {
 		previous_subpacket_tail_size = payloadSize;
 		previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, payloadSize * sizeof(char));
 		memcpy(previous_subpacket_tail, finalanswer + offset, payloadSize);
+		emit_debug(previous_subpacket_tail);
 	}
 	emit_debug("DBG3");
 	while (testEndTransfer != 0) {
