@@ -848,6 +848,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		char headers[offset];
 		memcpy(headers, finalanswer, offset);
 		ocall_sendanswer(csock, headers, offset);
+		emit_debug(headers);
 	}
 	if (payloadSize > 0) {
 		previous_subpacket_tail_size = payloadSize;
