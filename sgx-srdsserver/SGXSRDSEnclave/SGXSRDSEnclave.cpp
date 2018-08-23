@@ -846,9 +846,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	char last16[16];
 	uint32_t counter_16bytes = 0;
 	char * answerFromClient = (char *) malloc(1028 * sizeof(char));
-	char * previous_subpacket_tail = (char *) malloc(1028 * sizeof(char));
+	char * previous_subpacket_tail = (char *) malloc(16 * sizeof(char));
 	
-	int offset1 = getPosEndOfChunkedHeader(finalanswer) < 0 ? 0 : getPosEndOfChunkedHeader(finalanswer) + 11;
+	int offset1 = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
 	int offset2 = offset1;
 	while (*(finalanswer+offset2) != '\n') {
 		offset2++;
