@@ -11,7 +11,7 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = false;
+bool encrypt = true;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -827,8 +827,6 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 
 void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, int sizeAnswerFromClient, char * answerFromClient) {
 
-	emit_debug("DBG1");
-
 	char * previous_subpacket_tail = (char *) malloc(1024 * sizeof(char));
 	int previous_subpacket_tail_size = 0;
 	int sub_packet_size = 0;
@@ -837,23 +835,18 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	int testEndTransfer = -1;
 	uint32_t counter_16bytes = 0;
 	
-	emit_debug("DBG2");
-	
 	int offset = getPosEndOfHeader(finalanswer) < 0 ? 0 : getPosEndOfHeader(finalanswer) + 4;
 	int payloadSize = sizeAnswerFromClient - offset;
 	if (offset > 0) {
 		char headers[offset];
 		memcpy(headers, finalanswer, offset);
 		ocall_sendanswer(csock, headers, offset);
-		emit_debug(headers);
 	}
 	if (payloadSize > 0) {
 		previous_subpacket_tail_size = payloadSize;
 		previous_subpacket_tail = (char *) realloc(previous_subpacket_tail, payloadSize * sizeof(char));
 		memcpy(previous_subpacket_tail, finalanswer + offset, payloadSize);
-		emit_debug(previous_subpacket_tail);
 	}
-	emit_debug("DBG3");
 	while (testEndTransfer != 0) {
 		char last16[16];
 		memset(answerFromClient, 0, 1028 * sizeof(char));
@@ -889,11 +882,9 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				memcpy(previous_subpacket_tail, sub_packet + valid_packet_size, previous_subpacket_tail_size);
 				data_sent += valid_packet_size;
 				loops++;
-				emit_debug_int(data_sent);
 			}
 		}
 		if (previous_subpacket_tail_size > 0) {
-			emit_debug("DBG4");
 			char out[previous_subpacket_tail_size+16];
 			char buff16[previous_subpacket_tail_size+16];
 			memcpy(buff16, last16, 16);
@@ -911,14 +902,12 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				testEndTransfer = testEndTransferEncoding(out, previous_subpacket_tail_size + 16);
 			}
 			if (testEndTransfer == 0) {
-				emit_debug("DBG5");
 				data_sent += previous_subpacket_tail_size;
 				loops++;
 				ocall_sendanswer(csock, out + 16, previous_subpacket_tail_size);
 			}
 		}
 	}
-	emit_debug("DBG6");
 	display_TE(csock, loops, data_sent/1000);
 	//blockchain	
 }
