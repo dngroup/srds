@@ -11,7 +11,8 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = false;
+bool encrypt = true;
+bool enable_TE_encryption = false;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -798,9 +799,9 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 	}
 }
 
-void do_encryption(bool fromSGX, char * buffIn, char * buffOut, int buffSize, uint32_t counter) {
+void do_encryption(bool enable, bool fromSGX, char * buffIn, char * buffOut, int buffSize, uint32_t counter) {
 	memset(buffOut, 0, buffSize);
-	if (encrypt) {
+	if (encrypt && enable) {
 		if (fromSGX) {
 			decryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
 		} else {
@@ -820,7 +821,7 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 		char codedBuff[payloadSize];
 		memcpy(fullBuff, finalBuff, offset);
 		memcpy(payload, finalBuff + offset, payloadSize);
-		do_encryption(fromSGX, payload, codedBuff, payloadSize, counter);
+		do_encryption(true, fromSGX, payload, codedBuff, payloadSize, counter);
 		memcpy(fullBuff + offset, codedBuff, payloadSize);
 		memcpy(finalBuff, fullBuff, buffSize);
 	}
@@ -855,7 +856,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			if (valid_packet_size > 0) {
 				char out[valid_packet_size];
 				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
-				do_encryption(fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
+				do_encryption(enable_TE_encryption, fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
 				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
@@ -873,7 +874,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
 			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
-			do_encryption(fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
+			do_encryption(enable_TE_encryption, fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
 			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
@@ -1027,7 +1028,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char messageToDecrypt[msgSize];
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
 		bool encrypt_decrypt = debug == 0 ? true : false;
-		do_encryption(encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
+		do_encryption(true, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 	}
@@ -1130,7 +1131,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char encryptedMessage[msgSize];
 		memcpy(messageToEncrypt, finalanswer+endPos, msgSize);
 		bool encrypt_decrypt = debug == 1 ? true : false;
-		do_encryption(encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
+		do_encryption(true, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
 	}
