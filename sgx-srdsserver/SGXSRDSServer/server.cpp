@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 #include <mutex>
 #include <semaphore.h>
+#include <time.h>
 
 #include "SGXSRDSEnclave_u.h"
 
@@ -70,6 +71,10 @@ void * connection_handler(int csock)
     int sock = csock;
     int read_size;
     char client_message[1024] = "";
+    
+	struct timespec start, stop;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    printf("[%i] Started...", csock);
 
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 ) {
@@ -99,6 +104,10 @@ void * connection_handler(int csock)
         perror("recv failed\n");
         close(sock);
     }
+    
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
+	double result = 1000*((stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3);
+	printf("[%i] Exited. Time elapsed: %f ms", csock, result);
 
     return 0;
 }
