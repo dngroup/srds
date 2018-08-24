@@ -74,7 +74,7 @@ void * connection_handler(int csock)
     
 	struct timespec start, stop;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    printf("[%i] Started...", csock);
+    printf("[%i] Started...\n", csock);
 
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 ) {
@@ -106,8 +106,8 @@ void * connection_handler(int csock)
     }
     
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
-	double result = 1000*((stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3);
-	printf("[%i] Exited. Time elapsed: %f ms", csock, result);
+	double result = ((stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3)/1000;
+	printf("[%i] Exited. Time elapsed: %f ms\n", csock, result);
 
     return 0;
 }
