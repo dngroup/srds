@@ -1198,6 +1198,5 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			display_msg(csock,"Request type not detected!");
 		}
 	}
-	display_msg(csock,"Request handled! Exiting.");
 }
 
