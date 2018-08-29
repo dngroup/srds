@@ -136,7 +136,7 @@ void set_ctr_bytes(uint32_t val, uint8_t *ctr, size_t ctr_size)
 	ctr[ctr_size - 1] = (val & 0x000000ff);
 }
 
-sgx_status_t decryptMessage(unsigned char * in, size_t in_size, unsigned char * out, uint32_t counter)
+sgx_status_t decryptMessage(uint8_t * in, size_t in_size, uint8_t * out, uint32_t counter)
 {
 	uint8_t ctr_bytes[16] = {0};
 	set_ctr_bytes(counter, ctr_bytes, 16);
@@ -145,7 +145,7 @@ sgx_status_t decryptMessage(unsigned char * in, size_t in_size, unsigned char * 
 		(uint8_t*) out);
 }
 
-sgx_status_t encryptMessage(unsigned char * in, size_t in_size, unsigned char * out, uint32_t counter)
+sgx_status_t encryptMessage(uint8_t * in, size_t in_size, uint8_t * out, uint32_t counter)
 {
 	uint8_t ctr_bytes[16] = {0};
 	set_ctr_bytes(counter, ctr_bytes, 16);
@@ -335,7 +335,7 @@ void B322T (char * targetEncrypted, char * target) {
 	Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
 	decode256[decodeLength] = '\0';
 	if (encrypt_IPs) {
-		decryptMessage((unsigned char *) decode256, decodeLength, (unsigned char *) targetDecrypted, 0);
+		decryptMessage((uint8_t *) decode256, decodeLength, (uint8_t *) targetDecrypted, 0);
 	} else {
 		memcpy(targetDecrypted, decode256, decodeLength);
 	}
@@ -803,9 +803,9 @@ void do_encryption(bool enable, bool fromSGX, char * buffIn, char * buffOut, int
 	memset(buffOut, 0, buffSize);
 	if (encrypt && enable) {
 		if (fromSGX) {
-			decryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
+			decryptMessage((uint8_t *) buffIn, buffSize, (uint8_t *) buffOut, counter);
 		} else {
-			encryptMessage((unsigned char *)buffIn, buffSize, (unsigned char *) buffOut, counter);
+			encryptMessage((uint8_t *) buffIn, buffSize, (uint8_t *) buffOut, counter);
 		}
 	} else {
 		memcpy(buffOut, buffIn, buffSize);
