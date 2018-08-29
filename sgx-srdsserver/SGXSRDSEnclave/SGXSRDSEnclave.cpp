@@ -800,16 +800,19 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 }
 
 void do_encryption(bool enable, bool fromSGX, char * buffIn, char * buffOut, int buffSize, uint32_t counter) {
+	unsigned char * buffIn2 = reinterpret_cast<unsigned char *>(buffIn);
+	unsigned char buffOut2[buffSize];
 	memset(buffOut, 0, buffSize);
 	if (encrypt && enable) {
 		if (fromSGX) {
-			decryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
+			decryptMessage(buffIn2, buffSize, buffOut2, counter);
 		} else {
-			encryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
+			encryptMessage(buffIn2, buffSize, buffOut2, counter);
 		}
 	} else {
-		memcpy(buffOut, buffIn, buffSize);
+		memcpy(buffOut2, buffIn2, buffSize);
 	}
+	buffOut = reinterpret_cast<char *>(buffOut2);
 }
 
 void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
@@ -824,12 +827,6 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 		do_encryption(true, fromSGX, payload, codedBuff, payloadSize, counter);
 		memcpy(fullBuff + offset, codedBuff, payloadSize);
 		memcpy(finalBuff, fullBuff, buffSize);
-	}
-}
-
-void convert_char(char * buff, int value, int length) {
-	for (int i = 0; i < length; i++) {
-		buff[i] += value;
 	}
 }
 
@@ -867,9 +864,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			if (valid_packet_size > 0) {
 				char out[valid_packet_size];
 				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
-				convert_char(sub_packet, +128, valid_packet_size);
 				do_encryption(enable_TE_encryption, fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
-				convert_char(out, -128, valid_packet_size);
 				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
@@ -887,9 +882,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
 			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
-			convert_char(buff16, +128, previous_subpacket_tail_size + 16);
 			do_encryption(enable_TE_encryption, fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
-			convert_char(out, -128, previous_subpacket_tail_size + 16);
 			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
