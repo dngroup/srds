@@ -801,18 +801,15 @@ void cleanup_memory(int client_sock, struct map* headersRequest, char * finalans
 
 void do_encryption(bool enable, bool fromSGX, char * buffIn, char * buffOut, int buffSize, uint32_t counter) {
 	memset(buffOut, 0, buffSize);
-	unsigned char buffOut2[buffSize];
-	memset(buffOut2, 0, buffSize);
 	if (encrypt && enable) {
 		if (fromSGX) {
-			decryptMessage(reinterpret_cast<unsigned char *>(buffIn), buffSize, buffOut2, counter);
+			decryptMessage((unsigned char *) buffIn, buffSize, (unsigned char *) buffOut, counter);
 		} else {
-			encryptMessage(reinterpret_cast<unsigned char *>(buffIn), buffSize, buffOut2, counter);
+			encryptMessage((unsigned char *)buffIn, buffSize, (unsigned char *) buffOut, counter);
 		}
 	} else {
-		memcpy(buffOut2, buffIn, buffSize);
+		memcpy(buffOut, buffIn, buffSize);
 	}
-	buffOut = reinterpret_cast<char *>(buffOut2);
 }
 
 void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t counter) {
