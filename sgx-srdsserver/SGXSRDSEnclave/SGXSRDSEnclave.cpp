@@ -916,6 +916,21 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memset(out, 0, (previous_subpacket_tail_size+16) * sizeof(char));
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
+			
+			char smallbuff1[previous_subpacket_tail_size + 16];
+			char smallbuff2[previous_subpacket_tail_size + 16];
+			char smallbuff3[previous_subpacket_tail_size + 16];
+			memcpy(smallbuff1, buff16, previous_subpacket_tail_size + 16);
+			do_encryption(true, fromSGX, smallbuff1, smallbuff2, previous_subpacket_tail_size + 16, counter_16bytes - 1);
+			do_encryption(true, !fromSGX, smallbuff2, smallbuff3, previous_subpacket_tail_size + 16, counter_16bytes - 1);
+			if (memcmp(smallbuff1, smallbuff3, previous_subpacket_tail_size + 16) != 0) {
+				emit_debug("----- TAIL -----");
+				emit_debug(smallbuff1);
+				emit_debug(smallbuff2);
+				emit_debug(smallbuff3);
+				emit_debug("-----      -----");
+			}
+			
 			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
 			do_encryption(enable_TE_encryption, fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
 			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
