@@ -846,7 +846,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	
 	do_encryption(true, fromSGX, finalanswer, out, sizeAnswerFromClient, counter_16bytes);
 	ocall_sendanswer(csock, out, sizeAnswerFromClient);
-	if (fromSGX) {emit_debug(out);}
+	if (!fromSGX) {emit_debug(out);}
 	
 	// unsigned char * buff_dest = (unsigned char *) buff_orig;
 	// unsigned char * pixels = static_cast<unsigned char *>(memory_buffer);
