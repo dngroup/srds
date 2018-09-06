@@ -876,7 +876,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				
-				if (done == false && counter_16bytes > 0 && !fromSGX) {
+				if (done == false && !fromSGX) {
 					char smallbuff1[16];
 					char smallbuff2[16];
 					char smallbuff3[16];
