@@ -846,6 +846,22 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	// unsigned char * buff_dest = (unsigned char *) buff_orig;
 	// unsigned char * pixels = static_cast<unsigned char *>(memory_buffer);
 	
+	/*
+	int encodeLength = GetEncode32Length(ipToChange2.size());
+	char data32[encodeLength];
+	Encode32((unsigned char *) targetEncrypted, ipToChange2.size(), (unsigned char *) data32);
+	Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
+	
+	char targetDecrypted[strlen(targetEncrypted)];
+	int decodeLength = GetDecode32Length(strlen(targetEncrypted));
+	int encodeLength = GetEncode32Length(decodeLength);
+	Unmap32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) alpha32);
+	char decode256[decodeLength];
+	Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
+	*/	
+	
+	bool done = false;
+	
 	while (testEndTransfer != 0) {
 		memset(answerFromClient, 0, 1028 * sizeof(char));
 		ocall_receiveFromClient(client_sock, answerFromClient);
@@ -859,6 +875,22 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			sub_packet_size += previous_subpacket_tail_size;
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
+				
+				if (done == false && counter_16bytes > 0 && !fromSGX) {
+					char smallbuff1[16];
+					char smallbuff2[16];
+					char smallbuff3[16];
+					memcpy(smallbuff1, sub_packet, 16);
+					emit_debug("-----");
+					emit_debug(smallbuff1);
+					do_encryption(true, fromSGX, smallbuff1, smallbuff2, 16, 0);
+					emit_debug(smallbuff2);
+					do_encryption(true, !fromSGX, smallbuff2, smallbuff3, 16, 0);
+					emit_debug(smallbuff3);
+					emit_debug("-----");
+					done = true;
+				}
+				
 				char out[valid_packet_size];
 				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
 				do_encryption(enable_TE_encryption, fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
