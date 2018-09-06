@@ -881,6 +881,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				
+				/*
 				char smallbuff1[valid_packet_size];
 				char smallbuff2[valid_packet_size];
 				char smallbuff3[valid_packet_size];
@@ -894,12 +895,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 					emit_debug(smallbuff3);
 					emit_debug("-----");
 				}
+				*/
 				
 				char out[valid_packet_size];
 				memset(out, 0, valid_packet_size * sizeof(char));
-				testEndTransfer = !fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
+				testEndTransfer = fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
 				do_encryption(enable_TE_encryption, fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
-				testEndTransfer = fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
+				testEndTransfer = !fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
 				ocall_sendanswer(csock, out, valid_packet_size);
 				counter_16bytes += valid_packet_size / 16;
 				memcpy(last16, sub_packet + valid_packet_size - 16, 16);
@@ -918,6 +920,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
 			
+			/*
 			char smallbuff1[previous_subpacket_tail_size + 16];
 			char smallbuff2[previous_subpacket_tail_size + 16];
 			char smallbuff3[previous_subpacket_tail_size + 16];
@@ -931,10 +934,11 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				emit_debug(smallbuff3);
 				emit_debug("-----      -----");
 			}
+			*/
 			
-			testEndTransfer = !fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
+			testEndTransfer = fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
 			do_encryption(enable_TE_encryption, fromSGX, buff16, out, previous_subpacket_tail_size + 16, counter_16bytes - 1);
-			testEndTransfer = fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
+			testEndTransfer = !fromSGX ? testEndTransferEncoding(out, previous_subpacket_tail_size + 16) : testEndTransfer;
 			if (testEndTransfer == 0) {
 				data_sent += previous_subpacket_tail_size;
 				loops++;
