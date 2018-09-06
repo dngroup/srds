@@ -878,8 +878,8 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 				char smallbuff2[valid_packet_size];
 				char smallbuff3[valid_packet_size];
 				memcpy(smallbuff1, sub_packet, valid_packet_size);
-				do_encryption(true, fromSGX, smallbuff1, smallbuff2, valid_packet_size, 0);
-				do_encryption(true, !fromSGX, smallbuff2, smallbuff3, valid_packet_size, 0);
+				do_encryption(true, fromSGX, smallbuff1, smallbuff2, valid_packet_size, counter_16bytes);
+				do_encryption(true, !fromSGX, smallbuff2, smallbuff3, valid_packet_size, counter_16bytes);
 				if (memcmp(smallbuff1, smallbuff3, valid_packet_size) != 0) {
 					emit_debug("-----");
 					emit_debug(smallbuff1);
