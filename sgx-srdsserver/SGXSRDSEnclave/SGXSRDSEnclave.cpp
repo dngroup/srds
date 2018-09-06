@@ -840,7 +840,16 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	char * answerFromClient = (char *) malloc(1028 * sizeof(char));
 	char * previous_subpacket_tail = (char *) malloc(16 * sizeof(char));
 	
+	emit_debug("------ /");
+	emit_debug(finalanswer);
 	do_encryption(true, fromSGX, finalanswer, out, sizeAnswerFromClient, counter_16bytes);
+	emit_debug(out);
+	do_encryption(true, fromSGX, out, finalanswer, sizeAnswerFromClient, counter_16bytes);
+	emit_debug(finalanswer);
+	do_encryption(true, fromSGX, finalanswer, out, sizeAnswerFromClient, counter_16bytes);
+	emit_debug(out);
+	emit_debug("/ ------");
+	
 	ocall_sendanswer(csock, out, sizeAnswerFromClient);
 	
 	while (testEndTransfer != 0) {
