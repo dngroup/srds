@@ -858,9 +858,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	Unmap32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) alpha32);
 	char decode256[decodeLength];
 	Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
-	*/	
-	
-	bool done = false;
+	*/
 	
 	while (testEndTransfer != 0) {
 		memset(answerFromClient, 0, 1028 * sizeof(char));
@@ -876,19 +874,18 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				
-				if (done == false && !fromSGX) {
-					char smallbuff1[16];
-					char smallbuff2[16];
-					char smallbuff3[16];
-					memcpy(smallbuff1, sub_packet, 16);
+				char smallbuff1[16];
+				char smallbuff2[16];
+				char smallbuff3[16];
+				memcpy(smallbuff1, sub_packet, 16);
+				do_encryption(true, fromSGX, smallbuff1, smallbuff2, 16, 0);
+				do_encryption(true, !fromSGX, smallbuff2, smallbuff3, 16, 0);
+				if (memcmp(smallbuff1, smallbuff3, 16) != 0) {
 					emit_debug("-----");
 					emit_debug(smallbuff1);
-					do_encryption(true, fromSGX, smallbuff1, smallbuff2, 16, 0);
 					emit_debug(smallbuff2);
-					do_encryption(true, !fromSGX, smallbuff2, smallbuff3, 16, 0);
 					emit_debug(smallbuff3);
 					emit_debug("-----");
-					done = true;
 				}
 				
 				char out[valid_packet_size];
