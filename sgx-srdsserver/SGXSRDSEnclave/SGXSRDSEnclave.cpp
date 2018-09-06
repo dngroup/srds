@@ -874,13 +874,13 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {
 				
-				char smallbuff1[16];
-				char smallbuff2[16];
-				char smallbuff3[16];
-				memcpy(smallbuff1, sub_packet, 16);
-				do_encryption(true, fromSGX, smallbuff1, smallbuff2, 16, 0);
-				do_encryption(true, !fromSGX, smallbuff2, smallbuff3, 16, 0);
-				if (memcmp(smallbuff1, smallbuff3, 16) != 0) {
+				char smallbuff1[valid_packet_size];
+				char smallbuff2[valid_packet_size];
+				char smallbuff3[valid_packet_size];
+				memcpy(smallbuff1, sub_packet, valid_packet_size);
+				do_encryption(true, fromSGX, smallbuff1, smallbuff2, valid_packet_size, 0);
+				do_encryption(true, !fromSGX, smallbuff2, smallbuff3, valid_packet_size, 0);
+				if (memcmp(smallbuff1, smallbuff3, valid_packet_size) != 0) {
 					emit_debug("-----");
 					emit_debug(smallbuff1);
 					emit_debug(smallbuff2);
