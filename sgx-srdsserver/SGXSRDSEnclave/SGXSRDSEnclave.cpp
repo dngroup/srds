@@ -839,10 +839,6 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	char out[sizeAnswerFromClient];
 	char * answerFromClient = (char *) malloc(1028 * sizeof(char));
 	char * previous_subpacket_tail = (char *) malloc(16 * sizeof(char));
-	memset(out, 0, sizeAnswerFromClient * sizeof(char));
-	memset(last16, 0, 16 * sizeof(char));
-	memset(answerFromClient, 0, 1028 * sizeof(char));
-	memset(previous_subpacket_tail, 0, 16 * sizeof(char));
 	
 	do_encryption(true, fromSGX, finalanswer, out, sizeAnswerFromClient, counter_16bytes);
 	ocall_sendanswer(csock, out, sizeAnswerFromClient);
@@ -853,17 +849,14 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		sub_packet_size = extractSize(answerFromClient);
 		if (sub_packet_size > 0) {
 			char buff[sub_packet_size];
-			memset(buff, 0, sub_packet_size * sizeof(char));
 			extractBuffer(answerFromClient, sub_packet_size, buff);
 			char sub_packet[(previous_subpacket_tail_size + sub_packet_size)];
-			memset(sub_packet, 0, (previous_subpacket_tail_size + sub_packet_size) * sizeof(char));
 			memcpy(sub_packet, previous_subpacket_tail, previous_subpacket_tail_size);
 			memcpy(sub_packet + previous_subpacket_tail_size, buff, sub_packet_size);
 			sub_packet_size += previous_subpacket_tail_size;
 			int valid_packet_size = 16 * (sub_packet_size / 16);
 			if (valid_packet_size > 0) {				
 				char out[valid_packet_size];
-				memset(out, 0, valid_packet_size * sizeof(char));
 				testEndTransfer = fromSGX ? testEndTransferEncoding(sub_packet, valid_packet_size) : testEndTransfer;
 				do_encryption(enable_TE_encryption, fromSGX, sub_packet, out, valid_packet_size, counter_16bytes);
 				testEndTransfer = !fromSGX ? testEndTransferEncoding(out, valid_packet_size) : testEndTransfer;
@@ -879,9 +872,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 		}
 		if (previous_subpacket_tail_size > 0) {
 			char out[previous_subpacket_tail_size+16];
-			memset(out, 0, (previous_subpacket_tail_size+16) * sizeof(char));
 			char buff16[previous_subpacket_tail_size+16];
-			memset(out, 0, (previous_subpacket_tail_size+16) * sizeof(char));
 			memcpy(buff16, last16, 16);
 			memcpy(buff16 + 16, previous_subpacket_tail, previous_subpacket_tail_size);
 			testEndTransfer = fromSGX ? testEndTransferEncoding(buff16, previous_subpacket_tail_size + 16) : testEndTransfer;
