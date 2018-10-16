@@ -23,7 +23,7 @@ sleep 5
 #sleep 2
 #ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command"
 #sleep 2
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "~/srds/sgx-srdsserver/start-benchmark.sh $1 $2 $3 $4 &> ~/wrk2/logs/$1-$2-$3-$4-new2.txt" # threads connections duration requests/s
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "~/srds/sgx-srdsserver/start-benchmark.sh $1 $2 $3 $4 &> ~/wrk2/logs/$1-$2-$3-$4-new3.txt" # threads connections duration requests/s
 
 sleep 150
 
