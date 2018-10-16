@@ -77,13 +77,13 @@ void * connection_handler(int csock)
 
     //Receive a message from client
     while( (read_size = do_recv(sock , client_message)) > 0 ) {
-		pthread_mutex_lock(&lock);
-		sem_wait(&mutex);
-		pthread_mutex_unlock(&lock);
+		//pthread_mutex_lock(&lock);
+		//sem_wait(&mutex);
+		//pthread_mutex_unlock(&lock);
 		ecall_handlemessage(global_eid, sock, type, client_message, read_size);
-		pthread_mutex_lock(&lock);
-		sem_post(&mutex);
-		pthread_mutex_unlock(&lock);
+		//pthread_mutex_lock(&lock);
+		//sem_post(&mutex);
+		//pthread_mutex_unlock(&lock);
 	
 		//clear the message buffer
 		memset(client_message, 0, 1024);
