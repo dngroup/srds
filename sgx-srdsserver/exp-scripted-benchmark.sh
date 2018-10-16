@@ -4,7 +4,7 @@ set -x
 
 for i in {1..20}
 do
-   ./exp-benchmark.sh 1 1 60 "$i"
+   ./exp-benchmark.sh 1 1 10 "$i"
 done
 
 #for i in {1..20}
