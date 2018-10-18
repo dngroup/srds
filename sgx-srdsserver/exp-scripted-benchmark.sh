@@ -2,59 +2,47 @@
 
 set -x
 
-for i in {1..20}
-do
-   ./exp-benchmark-noSGX.sh 1 1 10 "$i"
-   ./exp-benchmark-SGX.sh 1 1 10 "$i"
-done
-
-for i in {1..20}
-do
-   ./exp-benchmark-noSGX.sh 1 1 20 "$i"
-   ./exp-benchmark-SGX.sh 1 1 20 "$i"
-done
-
-for i in {1..20}
-do
-   ./exp-benchmark-noSGX.sh 1 1 30 "$i"
-   ./exp-benchmark-SGX.sh 1 1 30 "$i"
-done
-
-for i in {1..20}
+for i in {1..100}
 do
    ./exp-benchmark-noSGX.sh 1 1 60 "$i"
    ./exp-benchmark-SGX.sh 1 1 60 "$i"
 done
 
-#for i in {1..20}
-#do
-#   ./exp-benchmark.sh 2 2 60 "$i"
-#done
+for i in {1..100}
+do
+   ./exp-benchmark-noSGX.sh 2 2 60 "$i"
+   ./exp-benchmark-SGX.sh 2 2 60 "$i"
+done
 
-#for i in {1..20}
-#do
-#   ./exp-benchmark.sh 2 3 60 "$i"
-#done
+for i in {1..100}
+do
+   ./exp-benchmark-noSGX.sh 2 3 60 "$i"
+   ./exp-benchmark-SGX.sh 2 3 60 "$i"
+done
 
-#for i in {1..20}
-#do
-#   ./exp-benchmark.sh 2 4 60 "$i"
-#done
+for i in {1..100}
+do
+   ./exp-benchmark-noSGX.sh 2 4 60 "$i"
+   ./exp-benchmark-SGX.sh 2 4 60 "$i"
+done
 
-#for i in {1..20}
-#do
-#   ./exp-benchmark.sh 3 3 60 "$i"
-#done
+for i in {1..100}
+do
+   ./exp-benchmark-noSGX.sh 3 3 60 "$i"
+   ./exp-benchmark-SGX.sh 3 3 60 "$i"
+done
 
-#for i in {1..20}
-#do
-#   ./exp-benchmark.sh 3 4 60 "$i"
-#done
+for i in {1..100}
+do
+   ./exp-benchmark-noSGX.sh 3 4 60 "$i"
+   ./exp-benchmark-SGX.sh 3 4 60 "$i"
+done
 
-#for i in {1..20}
-#do
-#   ./exp-benchmark.sh 4 4 60 "$i"
-#done
+for i in {1..100}
+do
+   ./exp-benchmark-noSGX.sh 4 4 60 "$i"
+   ./exp-benchmark-SGX.sh 4 4 60 "$i"
+done
 
 source exp-stop.sh
 
