@@ -2,11 +2,6 @@
 
 set -x
 
-cd ~/srds/sgx-srdsserver
-source ~/srds/sgx-srdsserver/stop-client.sh
-
-sleep 1
-
 cd ~/content
 docker run -d -p 8080:8080 -v ~/content:/src/main/ressources msstream/server_srds
 
