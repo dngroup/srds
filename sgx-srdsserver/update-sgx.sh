@@ -12,8 +12,6 @@ else
   
 fi
 
-git config user.email "toto"
-git config user.name "toto"
 git stash
 git pull
 make clean
