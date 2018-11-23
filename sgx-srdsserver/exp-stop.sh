@@ -4,6 +4,8 @@ set -x
 
 source exp-nucs-addr.sh
 
+ssh -f pi@"$raspi" "killall java"
+
 command="~/srds/sgx-srdsserver/stop-client.sh"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command"
