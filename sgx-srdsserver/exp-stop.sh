@@ -4,7 +4,7 @@ set -x
 
 source exp-nucs-addr.sh
 
-ssh -f pi@"$raspi" "killall java"
+ssh -f pi@"$raspi" "killall node"
 
 command="~/srds/sgx-srdsserver/stop-client.sh"
 
