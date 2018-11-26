@@ -1,0 +1,11 @@
+Switch MS-Stream / Priva-Stream setup: 
+
+exp-update-all:
+python exp-replace-addr.py
+
+start-client:
+chromium-browser
+
+XHRLoader:
+comment/uncomment SRDS
+
