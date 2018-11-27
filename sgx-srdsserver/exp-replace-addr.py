@@ -16,6 +16,18 @@ def main(args):
 	for line in fileinput.input('/home/simon/Downloads/srds/mpd.mpd', inplace=True):
 		if line.strip().startswith('<BaseURL>http://') and line.strip().endswith('/api/description/srds/</BaseURL>'):
 			line = '   <BaseURL>http://' + args.content + '/api/description/srds/</BaseURL>\n'
+			if args.opt1:
+				line += '   <BaseURL>http://' + args.opt1 + '/api/description/srds/</BaseURL>\n'
+			if args.opt2:
+				line += '   <BaseURL>http://' + args.opt2 + '/api/description/srds/</BaseURL>\n'
+			if args.opt3:
+				line += '   <BaseURL>http://' + args.opt3 + '/api/description/srds/</BaseURL>\n'
+			if args.opt4:
+				line += '   <BaseURL>http://' + args.opt4 + '/api/description/srds/</BaseURL>\n'
+			if args.opt5:
+				line += '   <BaseURL>http://' + args.opt5 + '/api/description/srds/</BaseURL>\n'
+			if args.opt6:
+				line += '   <BaseURL>http://' + args.opt6 + '/api/description/srds/</BaseURL>\n'
 		sys.stdout.write(line)
 
 if __name__ == "__main__":
@@ -23,6 +35,12 @@ if __name__ == "__main__":
 	parser.add_argument('--tracker', type=str, help='Tracker address', required=True)
 	parser.add_argument('--mpd', type=str, help='MPD address', required=True)
 	parser.add_argument('--content', type=str, help='Content address', required=True)
+	parser.add_argument('--opt1', type=str, help='Optional content', required=False)
+	parser.add_argument('--opt2', type=str, help='Optional content', required=False)
+	parser.add_argument('--opt3', type=str, help='Optional content', required=False)
+	parser.add_argument('--opt4', type=str, help='Optional content', required=False)
+	parser.add_argument('--opt5', type=str, help='Optional content', required=False)
+	parser.add_argument('--opt6', type=str, help='Optional content', required=False)
 	args = parser.parse_args() 
 	main(args)
 
