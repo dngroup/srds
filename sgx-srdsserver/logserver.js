@@ -16,7 +16,7 @@ shell.mkdir('-p', '/home/pi/logs/' + start);
 async function onSetWord(req, res) {
   const routeParams = req.params;
   const word = routeParams.word;
-  await fse.writeJson('/home/pi/logs/' + start + '/' + routeParams.word, req.body);
+  await fse.writeJson('/home/pi/logs/' + start + '/' + routeParams.word + '.json', req.body);
   res.json({success: true});
 }
 app.post('/set/:word', jsonParser, onSetWord);
