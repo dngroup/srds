@@ -13,8 +13,8 @@ with open('profiles.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     profiles = list(reader)
     for value in profiles:
-        os.system('curl -X PUT ' + addr + ':9010/api/upload/limit/' + str(int(value['Bandwidth'])))
-        os.system('curl -X PUT ' + addr + ':9010/api/download/limit/' + str(int(value['Bandwidth'])))
-        os.system('curl -H \'Content-Type: application/json\' -X PUT -d \'{\"delay\":\"' + str(int(value['RTT'])/2) + '\", \"loss\":\"' + str(float(value['Loss'])) + '\"}\' ' + addr + ':9010/api/upload/netem')
-        os.system('curl -H \'Content-Type: application/json\' -X PUT -d \'{\"delay\":\"' + str(int(value['RTT'])/2) + '\", \"loss\":\"' + str(float(value['Loss'])) + '\"}\' ' + addr + ':9010/api/download/netem')
+        os.system('curl -s -S -X PUT ' + addr + ':9010/api/upload/limit/' + str(int(value['Bandwidth'])))
+        os.system('curl -s -S -X PUT ' + addr + ':9010/api/download/limit/' + str(int(value['Bandwidth'])))
+        os.system('curl -s -S -H \'Content-Type: application/json\' -X PUT -d \'{\"delay\":\"' + str(int(value['RTT'])/2) + '\", \"loss\":\"' + str(float(value['Loss'])) + '\"}\' ' + addr + ':9010/api/upload/netem')
+        os.system('curl -s -S -H \'Content-Type: application/json\' -X PUT -d \'{\"delay\":\"' + str(int(value['RTT'])/2) + '\", \"loss\":\"' + str(float(value['Loss'])) + '\"}\' ' + addr + ':9010/api/download/netem')
         time.sleep(2)
