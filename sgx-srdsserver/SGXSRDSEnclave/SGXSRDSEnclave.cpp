@@ -1136,13 +1136,14 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		do_encryption(true, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
+		
+		// DEBUG
+		display_msg(csock,messageToEncrypt);
+
 	}
 	// fullEncryptedMessage
 	
 	ocall_sendanswer(csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
-	
-	// DEBUG
-	display_msg(csock,messageToEncrypt);
 	
 	map_destroy(headersRequest);
 }
