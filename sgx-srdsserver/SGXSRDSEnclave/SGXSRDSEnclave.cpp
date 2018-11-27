@@ -1036,6 +1036,10 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	}
 	// fullDecryptedMessage
 	
+	// DEBUG
+	display_msg(csock,"Request to Tracker...");
+	display_msg(csock,fullDecryptedMessage);
+	
 	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
 	char * finalanswer;
@@ -1137,8 +1141,9 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
 		
-		// DEBUG
-		display_msg(csock,messageToEncrypt);
+	// DEBUG
+	display_msg(csock,"Response from Tracker...");
+	display_msg(csock,messageToEncrypt);
 
 	}
 	// fullEncryptedMessage
