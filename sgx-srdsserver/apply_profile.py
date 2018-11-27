@@ -8,8 +8,8 @@ import sys
 addr = sys.argv[1]
 
 with open('profiles.csv', newline='') as csvfile:
-    os.system('curl -X POST ' + addr + ':9010/api/upload/limit/1000000')
-    os.system('curl -X POST ' + addr + ':9010/api/download/limit/1000000')
+    os.system('curl -s -S -X POST ' + addr + ':9010/api/upload/limit/1000000')
+    os.system('curl -s -S -X POST ' + addr + ':9010/api/download/limit/1000000')
     reader = csv.DictReader(csvfile)
     profiles = list(reader)
     for value in profiles:
