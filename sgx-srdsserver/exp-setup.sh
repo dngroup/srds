@@ -7,9 +7,9 @@ source exp-stop.sh
 
 scp /home/simon/Documents/SRDS2018/github/sgx-srdsserver/logserver.js pi@"$raspi":/home/pi/logserver.js
 
-ssh -f pi@"$raspi" "cd /home/pi/ && node logserver.js"
+ssh pi@"$raspi" "cd /home/pi/ && npm i express cors body-parser fs-extra shelljs npm && node logserver.js"
 
-sleep 30
+sleep 20
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" 'docker run --cap-add=ALL -d --net=host --name=tc-rest-controller mlacaud/tc-rest-controller -iu eno1'
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" 'docker run --cap-add=ALL -d --net=host --name=tc-rest-controller mlacaud/tc-rest-controller -iu eno1'
