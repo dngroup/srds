@@ -5,6 +5,8 @@ set -x
 source exp-nucs-addr.sh
 source exp-stop.sh
 
+scp /home/simon/Documents/SRDS2018/github/sgx-srdsserver/logserver.js pi@"$raspi":/home/pi/logserver.js
+
 ssh -f pi@"$raspi" "cd /home/pi/ && node logserver.js"
 
 sleep 30
