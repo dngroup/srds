@@ -11,12 +11,12 @@ app.use(cors());
 
 const start = Date.now();
 
-shell.mkdir('-p', '/home/pi/logs/' + start);
+shell.mkdir('-p', '/home/pi/PS/' + start);
 
 async function onSetWord(req, res) {
   const routeParams = req.params;
   const word = routeParams.word;
-  await fse.writeJson('/home/pi/logs/' + start + '/' + routeParams.word + '.json', req.body);
+  await fse.writeJson('/home/pi/PS/' + start + '/' + routeParams.word + '.json', req.body);
   res.json({success: true});
 }
 app.post('/set/:word', jsonParser, onSetWord);
