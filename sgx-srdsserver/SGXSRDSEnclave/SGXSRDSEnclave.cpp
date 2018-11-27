@@ -1198,6 +1198,11 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 			printT2B32((char *) "mpdserver");
 			printT2B32((char *) "localhost:8080");
 			printT2B32((char *) "147.210.128.146:8081");
+			printT2B32((char *) "192.168.1.104:8081");
+			printT2B32((char *) "192.168.1.107:8081");
+			printT2B32((char *) "192.168.1.118:8081");
+			printT2B32((char *) "192.168.1.110:8081");
+			printT2B32((char *) "192.168.1.108:8081");
 		}
 	} else {
 		int option = isOption(msg);
