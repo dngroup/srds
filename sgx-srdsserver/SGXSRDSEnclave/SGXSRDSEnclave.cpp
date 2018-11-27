@@ -1142,7 +1142,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	ocall_sendanswer(csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
 	
 	// DEBUG
-	display_msg(csock,fullEncryptedMessage);
+	display_msg(csock,messageToEncrypt);
 	
 	map_destroy(headersRequest);
 }
