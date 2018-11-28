@@ -12,7 +12,6 @@ comment/uncomment SRDS
 
 -- 
 
-Corriger bug P2P clients
 Courbe WRK2 Priva-Stream
-Refaire expés avec courbe par client, en limitant au niveau du DL des clients, et une limitation fixe pour les serveurs
+Refaire expés avec courbe par client
 

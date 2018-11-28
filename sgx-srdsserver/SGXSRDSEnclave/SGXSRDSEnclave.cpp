@@ -1202,6 +1202,7 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 		if (option == 0) {
 			display_msg(csock,"Options request...");
 			handleOption(csock);
+			ocall_closesocket(csock);
 		} else {
 			display_msg(csock,"Request type not detected!");
 		}
