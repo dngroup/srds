@@ -1143,7 +1143,12 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	
 	ocall_sendanswer(csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
 	
-	cleanup_memory(csock, headersRequest, finalanswer);
+	if (headersRequest != NULL) {
+		map_destroy(headersRequest);
+	}
+	if (finalanswer != NULL) {
+		free(finalanswer);
+	}
 }
 
 void handleOption(int csock) {
@@ -1202,7 +1207,6 @@ void ecall_handlemessage(int csock, int type, char * msg, int size){
 		if (option == 0) {
 			display_msg(csock,"Options request...");
 			handleOption(csock);
-			ocall_closesocket(csock);
 		} else {
 			display_msg(csock,"Request type not detected!");
 		}
