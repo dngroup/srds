@@ -107,6 +107,7 @@ void * connection_handler(int csock)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &stop);
 	double result = ((stop.tv_sec - start.tv_sec) * 1e6 + (stop.tv_nsec - start.tv_nsec) / 1e3)/1000;
 	printf("[%i] Request handled! Time elapsed: %f ms\n", csock, result);
+	close(csock);
 
     return 0;
 }
