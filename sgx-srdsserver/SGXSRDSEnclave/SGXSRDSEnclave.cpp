@@ -937,7 +937,7 @@ void proxy_loop(int csock, int client_sock, bool fromSGX, char * finalanswer, in
 void handleProxy(int csock, char * msg, int msgsize) {
 
 	bool fromSGX = true;
-	int client_sock;
+	int client_sock = 0;
 	int sizeAnswerFromClient;
 	char answerFromClient[1028];
 	char * answer;
@@ -962,6 +962,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		ocall_startClient(&client_sock, target);
 		if (client_sock < 1) {
 			display_msg(csock,"Start client failed! Dropping packet.");
+			ocall_closesocket(csock);
 		} else {
 			sizeAnswerFromClient = msgsize;
 			answer = createNewHeader(msg, target, sizeAnswerFromClient);
