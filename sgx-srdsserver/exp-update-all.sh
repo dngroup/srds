@@ -5,6 +5,8 @@ set -x
 source exp-nucs-addr.sh
 source exp-stop.sh
 
+ssh pi@"$raspi" "sudo dhcpcd --renew eth0"
+
 sleep 10
 
 #ssh -t <nuc>@<IP> 'sudo bash -c "echo \"*/10 * * * * <nuc> curl -X POST http://msstream.net:3000/nucX\" >> /etc/crontab"'
