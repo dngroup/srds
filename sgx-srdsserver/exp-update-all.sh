@@ -26,6 +26,7 @@ scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc6":~/content/srds/mpd.mpd
 
 sleep 1
 
+cd /home/simon/Documents/SRDS2018/github/sgx-srdsserver/
 git commit SGXSRDSEnclave/SGXSRDSEnclave.cpp -m "auto-addr"
 
 sleep 1

@@ -35,19 +35,18 @@ sleep 5
 command="~/srds/sgx-srdsserver/start-client.sh"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc2 1"
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc3 2"
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc4 3"
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc5 4"
 
 sleep 5
-
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc2 1"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc3 2"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc4 3"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "cd ~/srds/sgx-srdsserver && python3 apply_profile.py $nuc5 4"
 
 sleep 1000
 
