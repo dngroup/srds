@@ -21,6 +21,10 @@ make
 
 sleep 1
 
+rm -R ~/.cache/chromium/
+
+sleep 1
+
 #chromium-browser --headless --remote-debugging-port=7777 --ignore-autoplay-restrictions --autoplay-policy=no-user-gesture-required --no-user-gesture-required --disable-default-apps --no-first-run --disk-cache-dir=/dev/null --disk-cache-size=1 "http://localhost:8082/samples/privastream/index.html?addr_mpd=5GGKUZXWKE2LVA5VMXRA5JAWJKHQE&addr_tracker=5GGKUZXWKE2LVA5VMXQAPJAWIKHQW&videoID=srds&clientID=$1"
 
 chromium-browser --headless --remote-debugging-port=7777 --ignore-autoplay-restrictions --autoplay-policy=no-user-gesture-required --no-user-gesture-required --disable-default-apps --no-first-run --disk-cache-dir=/dev/null --disk-cache-size=1 "http://localhost:8082/samples/privastream/index.html?addr_mpd=192.168.1.109:8080&addr_tracker=5GGKUZXWKE2LVA5VMXQAPJAWIKHQW&videoID=srds&addr_server=192.168.1.109:8080&clientID=$1"
