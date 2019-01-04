@@ -16,6 +16,9 @@ fi
 
 sudo chmod -R 777 .
 
+git config user.email "toto@toto.toto"
+git config user.name "Toto"
+
 git stash
 git pull
 make clean
