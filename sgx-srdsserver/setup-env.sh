@@ -14,6 +14,8 @@ sudo apt install -y curl
 
 cd ~
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt update
+sudo apt install -y nodejs
 sudo npm -g install grunt
 sudo npm -g install grunt
 sudo npm -g install grunt-cli
