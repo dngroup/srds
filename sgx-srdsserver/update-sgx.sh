@@ -2,13 +2,15 @@
 
 set -x
 
-if [ -d "~/Downloads/linux-sgx-driver/" ]; then
+cd ~
+
+if [ -d "./Downloads/linux-sgx-driver/" ]; then
   
-  cd ~/Downloads/linux-sgx-driver/
+  cd ./Downloads/linux-sgx-driver/
   
 else
   
-  cd ~/linux-sgx-driver/
+  cd ./linux-sgx-driver/
   
 fi
 
