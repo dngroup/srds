@@ -14,6 +14,8 @@ else
   
 fi
 
+sudo chmod -R 777 .
+
 git stash
 git pull
 make clean
