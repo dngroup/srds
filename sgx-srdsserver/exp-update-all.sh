@@ -26,6 +26,15 @@ scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc4":~/content/srds/mpd.mpd
 scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc5":~/content/srds/mpd.mpd
 scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc6":~/content/srds/mpd.mpd
 
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc11":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc12":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc13":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc14":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc15@"$nuc15":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc16@"$nuc16":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc17@"$nuc17":~/content/srds/mpd.mpd
+scp pi@"$raspi":~/content/srds/mpd.mpd nuc18@"$nuc18":~/content/srds/mpd.mpd
+
 sleep 1
 
 cd /home/simon/Documents/SRDS2018/github/sgx-srdsserver/
@@ -46,6 +55,15 @@ ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc6" "$command"
 
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc11" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc12" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc13" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc14" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc15@"$nuc15" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc16@"$nuc16" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc17@"$nuc17" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc18@"$nuc18" "$command"
+
 sleep 60
 
 command="source ~/srds/sgx-srdsserver/update-sgx.sh"
@@ -56,6 +74,15 @@ ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc3" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc4" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc5" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc6" "$command"
+
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc11" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc12" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc13" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc14" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc15@"$nuc15" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc16@"$nuc16" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc17@"$nuc17" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc18@"$nuc18" "$command"
 
 sleep 10
 
