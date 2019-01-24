@@ -6,7 +6,7 @@ source exp-stop.sh
 
 sleep 10
 
-command="reboot"
+command="sudo reboot"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc1" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc2" "$command"
