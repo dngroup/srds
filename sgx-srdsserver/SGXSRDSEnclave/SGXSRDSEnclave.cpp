@@ -1030,13 +1030,13 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	if (endPos < size) {
 		char messageToDecrypt[msgSize];
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
-		bool encrypt_decrypt = debug == 0 ? false : true;
+		bool encrypt_decrypt = debug == 0 ? true : false;
 		do_encryption(true, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
+		display_msg(csock,decryptedMessage);
 	}
 	// fullDecryptedMessage
-	display_msg(csock,fullDecryptedMessage);
 	
 	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
