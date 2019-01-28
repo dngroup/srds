@@ -1036,6 +1036,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 	}
 	// fullDecryptedMessage
+	display_msg(csock,fullDecryptedMessage);
 	
 	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
