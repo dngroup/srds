@@ -5,7 +5,7 @@ set -x
 source exp-nucs-addr.sh
 source exp-stop.sh
 
-ssh pi@"$raspi" "sudo dhcpcd --renew eth0"
+#ssh pi@"$raspi" "sudo dhcpcd --renew eth0"
 
 sleep 10
 
