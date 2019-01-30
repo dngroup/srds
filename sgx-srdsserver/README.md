@@ -35,6 +35,8 @@ sudo service networking restart
 ## DNSMASQ for DHCP server
 
 ``
+sudo apt update
+sudo apt install dnsmasq
 sudo nano /etc/dnsmasq.conf
 ``
 
@@ -48,4 +50,12 @@ sudo systemctl daemon-reload
 sudo service dnsmasq restart
 sudo service networking restart
 ``
+
+## REST server for NUCs IP addresses
+
+Setup Docker
+
+docker run -d -p 3000:3000 mlacaud/whatisip --name whatisip --restart=always
+
+
 
