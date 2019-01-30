@@ -53,9 +53,17 @@ sudo service networking restart
 
 ## REST server for NUCs IP addresses
 
-Setup Docker
+Setup Docker (get docker script + usermod)
 
-docker run -d -p 3000:3000 mlacaud/whatisip --name whatisip --restart=always
+cd ~
+git clone https://github.com/mlacaud/whatisip.git
+cd whatisip
+sudo apt-get install nodejs npm
+npm install
+docker build -t whatisip .
+docker run -d -p 3000:3000 --name whatisip --restart=always whatisip
+docker exec -it whatisip /bin/sh
+mkdir /node/src/json/
 
 
 
