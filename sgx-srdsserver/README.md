@@ -31,6 +31,10 @@ sudo service networking restart
 net.ipv4.ip_forward=1 in /etc/sysctl.conf
 net.ipv6.ip_forward=1 in /etc/sysctl.conf
 
+``
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+``
+
 ## DNSMASQ for DHCP server
 
 sudo apt update
