@@ -66,7 +66,7 @@ ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc18@"$nuc18" "$command"
 
 sleep 60
 
-command="source ~/srds/sgx-srdsserver/update-sgx.sh"
+command="sudo systemctl daemon-reload && sudo service docker restart && source ~/srds/sgx-srdsserver/update-sgx.sh"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc1" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -t nuc@"$nuc2" "$command"

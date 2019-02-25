@@ -1031,7 +1031,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	if (endPos < size) {
 		char messageToDecrypt[msgSize];
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
-		bool encrypt_decrypt = debug == 0 ? true : false;
+		bool encrypt_decrypt = debug == 0 ? false : true; // TODO: check here
 		do_encryption(true, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
@@ -1135,7 +1135,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char messageToEncrypt[msgSize];
 		char encryptedMessage[msgSize];
 		memcpy(messageToEncrypt, finalanswer+endPos, msgSize);
-		bool encrypt_decrypt = debug == 1 ? true : false;
+		bool encrypt_decrypt = debug == 1 ? false : true; // TODO: check here
 		do_encryption(true, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
