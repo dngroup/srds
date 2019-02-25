@@ -10,7 +10,7 @@
 
 sgx_thread_mutex_t mutex;
 
-bool encrypt_IPs = false;
+bool encrypt_IPs = true;
 bool encrypt = false;
 bool enable_TE_encryption = false;
 
