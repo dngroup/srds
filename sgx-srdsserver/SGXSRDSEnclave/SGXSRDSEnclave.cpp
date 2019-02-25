@@ -11,8 +11,8 @@
 sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
-bool encrypt = false;
-bool enable_TE_encryption = false;
+bool encrypt = true;
+bool enable_TE_encryption = true;
 
 const std::string proxyPort("8081");
 const std::string proxyAddr = "localhost:" + proxyPort;
@@ -1031,8 +1031,8 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	if (endPos < size) {
 		char messageToDecrypt[msgSize];
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
-		bool encrypt_decrypt = debug == 0 ? true : false; // TODO: check here
-		do_encryption(false, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
+		bool encrypt_decrypt = debug == 0 ? true : false;
+		do_encryption(true, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 	}
@@ -1135,8 +1135,8 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char messageToEncrypt[msgSize];
 		char encryptedMessage[msgSize];
 		memcpy(messageToEncrypt, finalanswer+endPos, msgSize);
-		bool encrypt_decrypt = debug == 1 ? true : false; // TODO: check here
-		do_encryption(false, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
+		bool encrypt_decrypt = debug == 1 ? true : false;
+		do_encryption(true, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
 
