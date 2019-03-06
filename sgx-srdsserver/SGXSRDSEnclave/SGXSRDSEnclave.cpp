@@ -945,7 +945,14 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);	
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
 	
-	if (target2 == NULL) {
+	char clientip[30];
+	ocall_getSocketIP(csock, clientip);
+	std::string ipToChange(clientip);
+	ipToChange += ":" + proxyPort;
+	memset(clientip, 0, 30);
+	T2B32(ipToChange, clientip);
+	if (strcmp(clientip, target2) == 0) {
+	} else if (target2 == NULL) {
 		sendTokensToPlayer(csock);
 	} else if (strcmp(target2, "addr") == 0) {
 		sendAddressesToPlayer(csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
@@ -1039,7 +1046,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	display_msg(csock,fullDecryptedMessage);
 	// fullDecryptedMessage
 	
-	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n"; //TODO: content length
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n"; //TODO: content length
 
 	char * finalanswer;
 	struct map* headersRequest = parse_headers(fullDecryptedMessage, getPosEndOfHeader(fullDecryptedMessage)+4);
