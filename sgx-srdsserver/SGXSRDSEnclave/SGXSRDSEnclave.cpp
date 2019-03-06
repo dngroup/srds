@@ -947,16 +947,8 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	
 	char clientip[30];
 	ocall_getSocketIP(csock, clientip);
-	std::string ipToChange(clientip);
-	ipToChange += ":" + proxyPort;
-	memset(clientip, 0, 30);
-	T2B32(ipToChange, clientip);
 	
-	display_msg(csock,ipToChange.c_str());
-	display_msg(csock,clientip);
-	display_msg(csock,target2);
-	
-	if (strcmp(clientip, target2) == 0) {
+	if (strcmp(clientip, "127.0.0.1") == 0) {
 	} else if (target2 == NULL) {
 		sendTokensToPlayer(csock);
 	} else if (strcmp(target2, "addr") == 0) {
