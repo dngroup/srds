@@ -945,11 +945,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 	struct map* headersRequest = parse_headers(msg, getPosEndOfHeader(msg)+4);	
 	char * target2 = map_get(headersRequest, "X-Forwarded-Host");
 	
-	char clientip[30];
-	ocall_getSocketIP(csock, clientip);
-	
-	if (strcmp(clientip, "127.0.0.1") == 0) {
-	} else if (target2 == NULL) {
+	if (target2 == NULL) {
 		sendTokensToPlayer(csock);
 	} else if (strcmp(target2, "addr") == 0) {
 		sendAddressesToPlayer(csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
