@@ -1039,7 +1039,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	display_msg(csock,fullDecryptedMessage);
 	// fullDecryptedMessage
 	
-	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nFrom-SGX: fromsgx\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n"; //TODO: content length
 
 	char * finalanswer;
 	struct map* headersRequest = parse_headers(fullDecryptedMessage, getPosEndOfHeader(fullDecryptedMessage)+4);
