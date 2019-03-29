@@ -53,6 +53,7 @@ command2="cd ~/srds/sgx-srdsserver && python3 apply_profile.py"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command1 client1"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command2 $nuc2 1"
+#ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "curl --data \"srds,adresse,1\" $nuc6:8888"
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "$command1 client2"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "$command2 $nuc3 1"

@@ -1067,8 +1067,8 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string ipToChange(clientip);
 			ipToChange += ":" + proxyPort;
 			memset(clientip, 0, 30);
-			// T2B32(ipToChange, clientip);
-			clientip = (char *) ipToChange.c_str();
+			T2B32(ipToChange, clientip);
+			// clientip = (char *) ipToChange.c_str();
 			ipToChange = std::string(clientip);
 			
 			display_msg(csock,videoID.c_str());
