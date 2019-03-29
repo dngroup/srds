@@ -12,6 +12,7 @@ sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
 bool encrypt = true;
+bool encrypt_tracker = true;
 bool enable_TE_encryption = true;
 
 const std::string proxyPort("8081");
@@ -691,7 +692,7 @@ char * addContentToAnswer(std::string header, std::string content) {
 	std::string s2(chr);
 	header.replace(pos, posEnd-pos, s2);
 	header += content;
-	char *y = new char[header.length()];
+	char *y = new char[header.length()]; // +1 is new
 	std::memcpy(y, header.c_str(), header.length());
 	y[header.length()] = '\0';
 	free(chr);
@@ -821,7 +822,7 @@ void handle_encryption(bool fromSGX, char * finalBuff, int buffSize, uint32_t co
 		char codedBuff[payloadSize];
 		memcpy(fullBuff, finalBuff, offset);
 		memcpy(payload, finalBuff + offset, payloadSize);
-		do_encryption(true, fromSGX, payload, codedBuff, payloadSize, counter);
+		do_encryption(encrypt, fromSGX, payload, codedBuff, payloadSize, counter);
 		memcpy(fullBuff + offset, codedBuff, payloadSize);
 		memcpy(finalBuff, fullBuff, buffSize);
 	}
@@ -840,7 +841,7 @@ void content_encoding_loop(int csock, int client_sock, bool fromSGX, char * fina
 	char * answerFromClient = (char *) malloc(1028 * sizeof(char));
 	char * previous_subpacket_tail = (char *) malloc(16 * sizeof(char));
 	
-	do_encryption(true, fromSGX, finalanswer, out, sizeAnswerFromClient, counter_16bytes);
+	do_encryption(encrypt, fromSGX, finalanswer, out, sizeAnswerFromClient, counter_16bytes);
 	ocall_sendanswer(csock, out, sizeAnswerFromClient);
 	
 	while (testEndTransfer != 0) {
@@ -1032,14 +1033,16 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char messageToDecrypt[msgSize];
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
 		bool encrypt_decrypt = debug == 0 ? true : false;
-		do_encryption(true, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
+		do_encryption(encrypt_tracker, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
+		display_msg(csock,messageToDecrypt);
+		display_msg(csock,decryptedMessage);
 	}
 	// display_msg(csock,fullDecryptedMessage);
 	// fullDecryptedMessage
 	
-	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n"; //TODO: content length
+	std::string answer = "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET, POST, DELETE, OPTIONS\r\nAccess-Control-Allow-Headers: Origin, Content-Type, Accept, x-forwarded-host\r\nContent-Length: 0\r\nContent-Type: text/plain\r\nConnection: Close\r\n\r\n";
 
 	char * finalanswer;
 	struct map* headersRequest = parse_headers(fullDecryptedMessage, getPosEndOfHeader(fullDecryptedMessage)+4);
@@ -1059,13 +1062,18 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			std::string ipToChange2 = msgContent.substr(firstComa+1, secondComa-firstComa-1);
 			std::string numberOfSegment = msgContent.substr(secondComa+1);
 			
-			char clientip[30];
+			char * clientip = (char *) malloc(30);
 			ocall_getSocketIP(csock, clientip);
 			std::string ipToChange(clientip);
 			ipToChange += ":" + proxyPort;
 			memset(clientip, 0, 30);
-			T2B32(ipToChange, clientip);
+			// T2B32(ipToChange, clientip);
+			clientip = (char *) ipToChange.c_str();
 			ipToChange = std::string(clientip);
+			
+			display_msg(csock,videoID.c_str());
+			display_msg(csock,clientip);
+			display_msg(csock,numberOfSegment.c_str());
 
 			if (map_find(trackermap, videoID) == 0) {
 				map_add(trackermap, videoID, "");
@@ -1098,14 +1106,16 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 				ipmap = map_get_map(trackermap, videoID);
 				if (ipmap != NULL) {
 					std::string tosend = map_findKeysByValueBiggerThan(ipmap, numberOfSegments);
+					content = copystring(tosend);
 					finalanswer = addContentToAnswer(answer, tosend);
 				} else {
 					std::string tosend = "";
+					content = copystring(tosend);
 					finalanswer = addContentToAnswer(answer, tosend);
 				}
-
 			} else {
 				std::string tosend = "";
+				content = copystring(tosend);
 				finalanswer = addContentToAnswer(answer, tosend);
 			}
 			sgx_thread_mutex_unlock(&mutex);
@@ -1128,22 +1138,23 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 	// Encryption: answer -> fullEncryptedMessage
 	counter = 0;
 	endPos = getPosEndOfHeader(finalanswer)+4;
-	msgSize = strlen(finalanswer) - endPos;
-	char fullEncryptedMessage[answer.length()+msgSize];
+	msgSize = content.length();
+	char fullEncryptedMessage[endPos+msgSize];
 	memcpy(fullEncryptedMessage, finalanswer, endPos);
-	if (endPos < (int) strlen(finalanswer)) {
+	if (msgSize > 0) {
 		char messageToEncrypt[msgSize];
 		char encryptedMessage[msgSize];
 		memcpy(messageToEncrypt, finalanswer+endPos, msgSize);
 		bool encrypt_decrypt = debug == 1 ? true : false;
-		do_encryption(true, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
+		do_encryption(encrypt_tracker, encrypt_decrypt, messageToEncrypt, encryptedMessage, msgSize, counter);
 		counter = msgSize / 16;
 		memcpy(fullEncryptedMessage+endPos, encryptedMessage, msgSize);
-
+		display_msg(csock,messageToEncrypt);
+		display_msg(csock,encryptedMessage);
 	}
 	// fullEncryptedMessage
 	
-	ocall_sendanswer(csock, fullEncryptedMessage, strlen(fullEncryptedMessage));
+	ocall_sendanswer(csock, fullEncryptedMessage, msgSize+endPos);
 	
 	if (headersRequest != NULL) {
 		map_destroy(headersRequest);

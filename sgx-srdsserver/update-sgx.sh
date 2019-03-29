@@ -16,6 +16,8 @@ fi
 
 sudo chmod -R 777 .
 
+sudo apt install -y libelf-dev
+
 git config user.email "toto@toto.toto"
 git config user.name "Toto"
 
