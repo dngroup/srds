@@ -15,27 +15,45 @@ sleep 10
 
 python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1" --content "5GGKUZXWKE2LVA5VMXRA5JAWJKHQE" #--opt1 5GGKUZXWKE2LVA5VMXRAHJAWJKHQE --opt2 5GGKUZXWKE2LVA5VMXRABJAWJKHQE --opt3 5GGKUZXWKE2LVA5VMXRQ7JAWJKHQE --opt5 5GGKUZXWKE2LVA5VMXRQPJAWJKHQE --opt4 5GGKUZXWKE2LVA5VMXRA7JAWJKHQE
 
-scp /home/simon/Downloads/srds/mpd.mpd pi@"$raspi":~/content/srds/mpd.mpd
+sleep 1
+
+command='rm -rfd ~/content/srds && mkdir -p ~/content/srds'
+
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc1" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc2" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc3" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc4" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc5" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc6" "$command"
+
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc11" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc12" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc13" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc14" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc15@"$nuc15" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc16@"$nuc16" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc17@"$nuc17" "$command"
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc18@"$nuc18" "$command"
 
 sleep 1
 
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc1":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc2":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc3":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc4":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc5":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc6":~/content/srds/mpd.mpd
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc1":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc2":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc3":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc4":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc5":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc6":~/content/
 
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc11":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc12":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc13":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc@"$nuc14":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc15@"$nuc15":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc16@"$nuc16":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc17@"$nuc17":~/content/srds/mpd.mpd
-scp pi@"$raspi":~/content/srds/mpd.mpd nuc18@"$nuc18":~/content/srds/mpd.mpd
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc11":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc12":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc13":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc@"$nuc14":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc15@"$nuc15":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc16@"$nuc16":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc17@"$nuc17":~/content/
+scp -o ProxyCommand="ssh -W %h:%p pi@$raspi" -r /home/simon/Downloads/srds nuc18@"$nuc18":~/content/
 
-sleep 1
+sleep 10
 
 cd /home/simon/Documents/SRDS2018/github/sgx-srdsserver/
 git commit SGXSRDSEnclave/SGXSRDSEnclave.cpp -m "auto-addr"
