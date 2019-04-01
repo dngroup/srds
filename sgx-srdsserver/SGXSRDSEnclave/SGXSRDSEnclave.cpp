@@ -1033,7 +1033,12 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 		char messageToDecrypt[msgSize];
 		memcpy(messageToDecrypt, msg+endPos, msgSize);
 		bool encrypt_decrypt = debug == 0 ? true : false;
-		do_encryption(encrypt_tracker, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
+		std::string msgFindSRDS(messageToDecrypt);
+		if (msgFindSRDS.find("srds") >= 0) {
+			do_encryption(false, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
+		} else {
+			do_encryption(encrypt_tracker, encrypt_decrypt, messageToDecrypt, decryptedMessage, msgSize, counter);
+		}
 		counter = msgSize / 16;
 		memcpy(fullDecryptedMessage+endPos, decryptedMessage, msgSize);
 		display_msg(csock,messageToDecrypt);
