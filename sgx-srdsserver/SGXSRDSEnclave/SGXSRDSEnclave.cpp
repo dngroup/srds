@@ -16,6 +16,7 @@ bool encrypt_tracker = true;
 bool enable_TE_encryption = true;
 
 const std::string proxyPort("8081");
+const std::string serverPort("8080");
 const std::string proxyAddr = "localhost:" + proxyPort;
 const std::string trackerAddr("192.168.1.120:8888");
 const std::string serverAddr("localhost:8080");
@@ -1070,7 +1071,7 @@ void handleTracker(int csock, char * msg, int size, int debug) {
 			char * clientip = (char *) malloc(30);
 			ocall_getSocketIP(csock, clientip);
 			std::string ipToChange(clientip);
-			ipToChange += ":" + proxyPort;
+			ipToChange += ":" + serverPort;
 			memset(clientip, 0, 30);
 			T2B32(ipToChange, clientip);
 			// clientip = (char *) ipToChange.c_str();
