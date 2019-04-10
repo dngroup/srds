@@ -3,5 +3,5 @@
 set -x
 
 killall firefox chromium-browser chrome google-chrome SGXSRDSServerApp firefox chromium-browser chrome google-chrome SGXSRDSServerApp node http-server gdb python3 bash
-docker rm $(docker stop $(docker ps -a -q))
+docker rm --force $(docker stop -t 5 $(docker ps -a -q))
 

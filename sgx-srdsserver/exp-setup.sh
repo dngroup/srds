@@ -7,7 +7,7 @@ source exp-stop.sh
 
 #ssh pi@"$raspi" "sudo dhcpcd --renew eth0"
 
-sleep 10
+sleep 20
 
 scp /home/simon/Documents/SRDS2018/github/sgx-srdsserver/logserver.js pi@"$raspi":/home/pi/logserver.js
 
@@ -52,19 +52,19 @@ command1="~/srds/sgx-srdsserver/start-client.sh"
 command2="cd ~/srds/sgx-srdsserver && python3 apply_profile.py"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command1 client1"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command2 $nuc2 1"
+#ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command2 $nuc2 1"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" 'for i in {1..17}; do curl --data "srds,adresse,$i" 192.168.1.120:8888; done'
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "$command1 client2"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "$command2 $nuc3 1"
+#ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" "$command2 $nuc3 1"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc3" 'for i in {1..17}; do curl --data "srds,adresse,$i" 192.168.1.120:8888; done'
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "$command1 client3"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "$command2 $nuc4 1"
+#ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" "$command2 $nuc4 1"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc4" 'for i in {1..17}; do curl --data "srds,adresse,$i" 192.168.1.120:8888; done'
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command1 client4"
-ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command2 $nuc5 1"
+#ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" "$command2 $nuc5 1"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc5" 'for i in {1..17}; do curl --data "srds,adresse,$i" 192.168.1.120:8888; done'
 sleep 10
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc11" "$command1 client5"

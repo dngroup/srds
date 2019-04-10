@@ -33,6 +33,7 @@ cd ~
 git clone https://github.com/dngroup/msstream-player.git player
 cd ~/player
 git checkout dev_srds
+sudo npm install
 npm install
 grunt
 
