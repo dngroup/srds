@@ -2,6 +2,8 @@
 
 set -x
 
+docker rm --force $(docker ps -a -q)
+
 cd ~/content
 docker run -d -p 8080:8080 -v ~/content:/src/main/ressources msstream/server_srds
 
