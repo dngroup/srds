@@ -4,7 +4,7 @@ set -x
 
 source exp-nucs-addr.sh
 
-command="cd ~/srds/sgx-srdsserver/ && git pull"
+command="cd ~/srds/sgx-srdsserver/ && git pull && cd ~/srds/sgx-srdsserver/ && git pull && cd ~/player && git pull && git checkout dev_srds && grunt"
 
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" "$command"
 ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc2" "$command"
