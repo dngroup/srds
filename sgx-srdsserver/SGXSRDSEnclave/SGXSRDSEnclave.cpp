@@ -953,7 +953,7 @@ void handleProxy(int csock, char * msg, int msgsize) {
 		sendAddressesToPlayer(csock); // trackerAddr,serverAddr,mpdAddr,mpdURL
 	} else {
 		char target[strlen(target2)];
-		if (strcmp(target2, serverAddr.c_str()) == 0) {
+		if (strcmp(target2, serverAddr.c_str()) == 0 || strcmp(target2, trackerAddr.c_str()) == 0) {
 			memcpy(target, target2, strlen(target2));
 			emit_debug(target);
 		} else {

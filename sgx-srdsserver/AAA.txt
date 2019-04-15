@@ -9,3 +9,7 @@ chromium-browser
 XHRLoader:
 comment/uncomment SRDS
 
+SGXSRDSEnclave:
+bool encrypt_IPs = false;
+---> true for DASH
+
