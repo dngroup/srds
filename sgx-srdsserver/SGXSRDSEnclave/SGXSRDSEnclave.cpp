@@ -12,7 +12,7 @@ sgx_thread_mutex_t mutex;
 
 bool encrypt_IPs = true;
 bool encrypt = true;
-bool encrypt_tracker = true;
+bool encrypt_tracker = false;
 bool enable_TE_encryption = true;
 
 const std::string proxyPort("8081");
