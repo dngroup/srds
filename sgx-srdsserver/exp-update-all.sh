@@ -11,9 +11,9 @@ sleep 10
 
 #ssh -t <nuc>@<IP> 'sudo bash -c "echo \"*/10 * * * * <nuc> curl -X POST http://msstream.net:3000/nucX\" >> /etc/crontab"'
 
-python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1" --content "$nuc1:8080" #--opt1 192.168.1.104:8080 --opt2 192.168.1.107:8080 --opt3 192.168.1.118:8080 --opt5 192.168.1.110:8080 #--opt4 192.168.1.108:8080
+#python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1" --content "$nuc1:8080" #--opt1 192.168.1.104:8080 --opt2 192.168.1.107:8080 --opt3 192.168.1.118:8080 --opt5 192.168.1.110:8080 #--opt4 192.168.1.108:8080
 
-#python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1" --content "5GGKUZXWKE2LVA5VMXRA5JAWJKHQE" #--opt1 5GGKUZXWKE2LVA5VMXRAHJAWJKHQE --opt2 5GGKUZXWKE2LVA5VMXRABJAWJKHQE --opt3 5GGKUZXWKE2LVA5VMXRQ7JAWJKHQE --opt5 5GGKUZXWKE2LVA5VMXRQPJAWJKHQE --opt4 5GGKUZXWKE2LVA5VMXRA7JAWJKHQE
+python exp-replace-addr.py --tracker "$nuc6" --mpd "$nuc1" --content "5GGKUZXWKE2LVA5VMXRA5JAWJKHQE" #--opt1 5GGKUZXWKE2LVA5VMXRAHJAWJKHQE --opt2 5GGKUZXWKE2LVA5VMXRABJAWJKHQE --opt3 5GGKUZXWKE2LVA5VMXRQ7JAWJKHQE --opt5 5GGKUZXWKE2LVA5VMXRQPJAWJKHQE --opt4 5GGKUZXWKE2LVA5VMXRA7JAWJKHQE
 
 sleep 1
 
