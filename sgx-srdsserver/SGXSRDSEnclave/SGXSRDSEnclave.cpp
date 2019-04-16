@@ -10,10 +10,10 @@
 
 sgx_thread_mutex_t mutex;
 
-bool encrypt_IPs = true;
+bool encrypt_IPs = false;
 bool encrypt = false;
 bool encrypt_tracker = false;
-bool enable_TE_encryption = true;
+bool enable_TE_encryption = false;
 
 const std::string proxyPort("8081");
 const std::string serverPort("8080");
@@ -316,34 +316,36 @@ void T2B32 (std::string ipToChange2, char * targetEncrypted) {
 	target0[ipToChange2.size()] = '\0';
 	if (encrypt_IPs) {
 		encryptMessage((unsigned char *) target0, ipToChange2.size(), (unsigned char *) targetEncrypted, 0);
+		targetEncrypted[ipToChange2.size()] = '\0';
+		int encodeLength = GetEncode32Length(ipToChange2.size());
+		char data32[encodeLength];
+		Encode32((unsigned char *) targetEncrypted, ipToChange2.size(), (unsigned char *) data32);
+		Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
+		memcpy(targetEncrypted, data32, encodeLength);
+		targetEncrypted[encodeLength] = '\0';
 	} else {
 		memcpy(targetEncrypted, target0, ipToChange2.length());
+		targetEncrypted[ipToChange2.size()] = '\0';
 	}
-	targetEncrypted[ipToChange2.size()] = '\0';
-	int encodeLength = GetEncode32Length(ipToChange2.size());
-	char data32[encodeLength];
-	Encode32((unsigned char *) targetEncrypted, ipToChange2.size(), (unsigned char *) data32);
-	Map32((unsigned char *) data32, encodeLength, (unsigned char *) alpha32);
-	memcpy(targetEncrypted, data32, encodeLength);
-	targetEncrypted[encodeLength] = '\0';
 }
 
 void B322T (char * targetEncrypted, char * target) {
-	char targetDecrypted[strlen(targetEncrypted)];
-	int decodeLength = GetDecode32Length(strlen(targetEncrypted));
-	int encodeLength = GetEncode32Length(decodeLength);
-	Unmap32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) alpha32);
-	char decode256[decodeLength];
-	Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
-	decode256[decodeLength] = '\0';
 	if (encrypt_IPs) {
+		char targetDecrypted[strlen(targetEncrypted)];
+		int decodeLength = GetDecode32Length(strlen(targetEncrypted));
+		int encodeLength = GetEncode32Length(decodeLength);
+		Unmap32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) alpha32);
+		char decode256[decodeLength];
+		Decode32((unsigned char *) targetEncrypted, encodeLength, (unsigned char *) decode256);
+		decode256[decodeLength] = '\0';
 		decryptMessage((uint8_t *) decode256, decodeLength, (uint8_t *) targetDecrypted, 0);
+		targetDecrypted[decodeLength] = '\0';
+		memcpy(target, targetDecrypted, strlen(targetDecrypted));
+		target[strlen(targetDecrypted)] = '\0';
 	} else {
-		memcpy(targetDecrypted, decode256, decodeLength);
+		memcpy(target, targetEncrypted, strlen(targetEncrypted));
+		target[strlen(targetEncrypted)] = '\0';
 	}
-	targetDecrypted[decodeLength] = '\0';
-	memcpy(target, targetDecrypted, strlen(targetDecrypted));
-	target[strlen(targetDecrypted)] = '\0';
 }
 
 void printT2B32(char * str2) {
