@@ -22,7 +22,7 @@ cd ~/srds/sgx-srdsserver
 source /opt/intel/sgxsdk/environment
 make clean
 make
-./SGXSRDSServerApp 8081 0 &
+(while sleep 1; do (./SGXSRDSServerApp 8081 0); done) &
 
 sleep 10
 
