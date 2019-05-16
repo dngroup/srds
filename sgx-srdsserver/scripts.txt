@@ -1,0 +1,40 @@
+./exp-stop.sh
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" '~/srds/sgx-srdsserver/start-content-server.sh'
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" -f nuc@"$nuc1" 'docker run -p 80:80 -v ~/content:/usr/share/nginx/html nginx'
+
+ssh -o ProxyCommand="ssh -W %h:%p pi@$raspi" nuc@"$nuc4"
+
+
+for i in {1..100}
+do
+   ./wrk -t"4" -c"4" -d"60"s -R"$i" --latency -s report.lua --timeout 1s -H "Accept-Encoding: gzip, deflate, br" -H "Accept-Language: en-US,en;q=0.9" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/69.0.3497.81 Chrome/69.0.3497.81 Safari/537.36" -H "Accept: */*" -H "Connection: keep-alive" "http://192.168.1.109:80/srds/4129849/out4129849_dash7.m4s"
+done
+
+
+echo "run,Server,latency" > ~/4129849-200.csv
+echo "run,Server,latency" > ~/512363-200.csv
+echo "run,Server,latency" > ~/1030087-200.csv
+
+for i in {1..200}
+do
+   curl -s -o /dev/null -w "$i,MS-Stream,\"%{time_total}\"\n" "http://192.168.1.109:8080/api/description/srds/7?order=111111111111&q0=0&q1=4129849" >> ~/4129849-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,Priva-Stream,\"%{time_total}\"\n" "http://localhost:8081/api/description/srds/7?order=111111111111&q0=0&q1=4129849" -H "X-Forwarded-Host: 5GGKUZXWKE2LVA5VMXRA5JAWJKHQE" >> ~/4129849-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,Nginx,\"%{time_total}\"\n" "http://192.168.1.109:80/srds/4129849/out4129849_dash7.m4s" >> ~/4129849-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,MS-Stream,\"%{time_total}\"\n" "http://192.168.1.109:8080/api/description/srds/7?order=111111111111&q0=0&q1=512363" >> ~/512363-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,Priva-Stream,\"%{time_total}\"\n" "http://localhost:8081/api/description/srds/7?order=111111111111&q0=0&q1=512363" -H "X-Forwarded-Host: 5GGKUZXWKE2LVA5VMXRA5JAWJKHQE" >> ~/512363-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,Nginx,\"%{time_total}\"\n" "http://192.168.1.109:80/srds/512363/out512363_dash7.m4s" >> ~/512363-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,MS-Stream,\"%{time_total}\"\n" "http://192.168.1.109:8080/api/description/srds/5?order=111111111111&q0=0&q1=1030087" >> ~/1030087-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,Priva-Stream,\"%{time_total}\"\n" "http://localhost:8081/api/description/srds/5?order=111111111111&q0=0&q1=1030087" -H "X-Forwarded-Host: 5GGKUZXWKE2LVA5VMXRA5JAWJKHQE" >> ~/1030087-200.csv
+   sleep .1
+   curl -s -o /dev/null -w "$i,Nginx,\"%{time_total}\"\n" "http://192.168.1.109:80/srds/1030087/out1030087_dash5.m4s" >> ~/1030087-200.csv
+   sleep .1
+done
+
+
